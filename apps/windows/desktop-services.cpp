@@ -1,12 +1,16 @@
 #include "desktop-services.h"
 #include <algorithm>
 #include <dwmapi.h>
+#include <objbase.h>
 #include <uiautomation.h>
 #include <winrt/base.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Media.Ocr.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.Security.Cryptography.h>
+#include <winrt/Windows.Storage.Streams.h>
 #include <chrono>
 using namespace winrt;
 std::vector<WindowTarget> desktopWindows(){

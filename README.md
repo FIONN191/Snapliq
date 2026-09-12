@@ -3,7 +3,7 @@ Capture. Record. Share. — 截图与录屏工具
 
 Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureKit，Windows 使用 Win32/C++/WinRT + Windows.Graphics.Capture，两端共享 C++20 几何和布局核心。Snapliq for Chrome 仅提供配套入口；退出 Chrome、断开 Native Messaging 或关闭设置不结束桌面应用。
 
-当前桌面开发版本 **0.2.2**：提供可运行的 macOS Apple Silicon `.app`、DMG 与 ZIP，新增单屏区域录屏并修正视频颜色标记。原生区域裁剪/暂停/封装和截图 UI 测试通过；**最终 0.2.2 App 仍需用户授予屏幕录制权限后回归**。详见 [0.2.2 验收报告](outputs/Snapliq-0.2.2-validation.md)。已验收的 0.2.1 App 保留作为回退版本，其 100 次快捷键与录屏结论见 [0.2.1 报告](outputs/Snapliq-0.2.1-validation.md)。Windows 目前提供源码，没有 Windows 编译或实机通过的声明。Chrome 开发与商店提交暂缓。
+当前桌面开发版本 **0.2.2**：提供可运行的 macOS Apple Silicon `.app`、DMG 与 ZIP，新增单屏区域录屏并修正视频颜色标记。原生区域裁剪/暂停/封装和截图 UI 测试通过；**最终 0.2.2 App 仍需用户授予屏幕录制权限后回归**。详见 [0.2.2 验收报告](outputs/Snapliq-0.2.2-validation.md)。已验收的 0.2.1 App 保留作为回退版本，其 100 次快捷键与录屏结论见 [0.2.1 报告](outputs/Snapliq-0.2.1-validation.md)。Windows 提供源码和 GitHub Actions 构建配置；云端编译结果见 Actions，真实桌面截图、录屏及权限仍待 Windows 实机验收。Chrome 开发与商店提交暂缓。
 
 ## 启动与使用
 

@@ -1,6 +1,7 @@
 #include "native-bridge.h"
 #include "product.h"
 #include <winrt/base.h>
+#include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Data.Json.h>
 #include <sddl.h>
 #include <shlobj.h>
