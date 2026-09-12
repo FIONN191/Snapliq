@@ -1,0 +1,24 @@
+{
+  "decoder": "ffmpeg full video and audio decode",
+  "exitCode": 0,
+  "errorLogBytes": 0,
+  "sampledExclusionTimeSeconds": 100,
+  "controlCropXYWH": [
+    1130,
+    120,
+    680,
+    104
+  ],
+  "orbCropXYWH": [
+    2824,
+    700,
+    96,
+    96
+  ],
+  "sampleYUV": [
+    107,
+    154,
+    104
+  ],
+  "scope": "Sampled rectangles uniform; other applications are ordinary captured content. Raw desktop recording excluded from distribution."
+}

@@ -1,0 +1,14 @@
+{
+  "chromeRunningAtStart": true,
+  "chromeExitedDuringRecording": true,
+  "desktopAliveAfterChromeExit": true,
+  "settingsClosedDuringRecording": true,
+  "finished": {
+    "dropped": 0,
+    "event": "recording_finished",
+    "frames": 4315,
+    "seconds": 147.48268120833382,
+    "uptime": 63432.94414583334
+  },
+  "fileBytes": 37749138
+}

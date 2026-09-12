@@ -1,0 +1,602 @@
+[
+  {
+    "feedback_submitted": 27.056333333348448,
+    "background_ready": 154.18041666634963,
+    "selectable": 351.8283749999682,
+    "clipboard_complete": 120.61504166740633
+  },
+  {
+    "feedback_submitted": 16.798916666630248,
+    "background_ready": 58.61570833349106,
+    "selectable": 134.8694999996951,
+    "clipboard_complete": 109.10358333330805
+  },
+  {
+    "feedback_submitted": 19.126000000142085,
+    "background_ready": 65.56620833271154,
+    "selectable": 143.28525000019,
+    "clipboard_complete": 115.19920833325159
+  },
+  {
+    "feedback_submitted": 19.363666666322388,
+    "background_ready": 65.53866666581598,
+    "selectable": 144.741874999454,
+    "clipboard_complete": 114.38524999994115
+  },
+  {
+    "feedback_submitted": 19.47216666667373,
+    "background_ready": 62.874125000234926,
+    "selectable": 138.32575000014913,
+    "clipboard_complete": 113.94379166631552
+  },
+  {
+    "feedback_submitted": 19.551916666387115,
+    "background_ready": 65.58320833300968,
+    "selectable": 143.68816666683415,
+    "clipboard_complete": 111.47687499942549
+  },
+  {
+    "feedback_submitted": 20.25279166718974,
+    "background_ready": 67.54904166700726,
+    "selectable": 141.98595833386207,
+    "clipboard_complete": 120.79270833328337
+  },
+  {
+    "feedback_submitted": 20.14879166654282,
+    "background_ready": 66.05883333304519,
+    "selectable": 141.44820833280392,
+    "clipboard_complete": 110.8218333329205
+  },
+  {
+    "feedback_submitted": 19.75975000004837,
+    "background_ready": 67.77829166730953,
+    "selectable": 150.30195833332982,
+    "clipboard_complete": 121.67029166630527
+  },
+  {
+    "feedback_submitted": 19.2775833329506,
+    "background_ready": 68.52304166659451,
+    "selectable": 147.4036250001518,
+    "clipboard_complete": 103.31241666699498
+  },
+  {
+    "feedback_submitted": 21.087041666760342,
+    "background_ready": 68.89175000014802,
+    "selectable": 146.3677916663073,
+    "clipboard_complete": 115.8451666660767
+  },
+  {
+    "feedback_submitted": 20.462749999751395,
+    "background_ready": 67.90558333341323,
+    "selectable": 144.86520833270333,
+    "clipboard_complete": 109.8237500000323
+  },
+  {
+    "feedback_submitted": 19.7933750005177,
+    "background_ready": 82.31629166675702,
+    "selectable": 151.32629166691913,
+    "clipboard_complete": 109.2566249999436
+  },
+  {
+    "feedback_submitted": 20.46024999981455,
+    "background_ready": 68.34166666703823,
+    "selectable": 147.0750833332204,
+    "clipboard_complete": 114.98954166654585
+  },
+  {
+    "feedback_submitted": 20.24354166678677,
+    "background_ready": 67.66895833334274,
+    "selectable": 145.44112499970652,
+    "clipboard_complete": 108.55441666717525
+  },
+  {
+    "feedback_submitted": 19.734833333131974,
+    "background_ready": 68.03737500013085,
+    "selectable": 152.23479166616016,
+    "clipboard_complete": 115.49320833273669
+  },
+  {
+    "feedback_submitted": 19.57958333332499,
+    "background_ready": 69.12320833362173,
+    "selectable": 148.20412500012026,
+    "clipboard_complete": 121.93833333367365
+  },
+  {
+    "feedback_submitted": 19.944583334108756,
+    "background_ready": 68.5982500008322,
+    "selectable": 148.01037500001257,
+    "clipboard_complete": 114.56629166696075
+  },
+  {
+    "feedback_submitted": 16.725708333069633,
+    "background_ready": 66.07749999966472,
+    "selectable": 148.15883333358215,
+    "clipboard_complete": 118.97991666683083
+  },
+  {
+    "feedback_submitted": 20.67854166671168,
+    "background_ready": 65.19954166742536,
+    "selectable": 148.36466666656634,
+    "clipboard_complete": 115.9987083328815
+  },
+  {
+    "feedback_submitted": 20.912083333314513,
+    "background_ready": 67.80595833333791,
+    "selectable": 143.3062083333425,
+    "clipboard_complete": 123.21633333340287
+  },
+  {
+    "feedback_submitted": 19.334333333063114,
+    "background_ready": 69.4627083330488,
+    "selectable": 152.1883749992412,
+    "clipboard_complete": 114.6308333336492
+  },
+  {
+    "feedback_submitted": 20.028541666761157,
+    "background_ready": 66.32479166637495,
+    "selectable": 259.3325833331619,
+    "clipboard_complete": 118.55654166720342
+  },
+  {
+    "feedback_submitted": 19.21395833414863,
+    "background_ready": 65.9745416669466,
+    "selectable": 145.59783333334053,
+    "clipboard_complete": 118.25454166682903
+  },
+  {
+    "feedback_submitted": 20.378083333525865,
+    "background_ready": 67.5541250002425,
+    "selectable": 146.74020833354007,
+    "clipboard_complete": 108.27804166638089
+  },
+  {
+    "feedback_submitted": 20.20283333331463,
+    "background_ready": 66.89916666618956,
+    "selectable": 147.81062499969266,
+    "clipboard_complete": 118.59291666587524
+  },
+  {
+    "feedback_submitted": 19.18087500052934,
+    "background_ready": 65.97950000013952,
+    "selectable": 143.77708333358896,
+    "clipboard_complete": 120.22450000040408
+  },
+  {
+    "feedback_submitted": 20.244958333023533,
+    "background_ready": 66.78854166693782,
+    "selectable": 142.42362499953742,
+    "clipboard_complete": 111.64541666676087
+  },
+  {
+    "feedback_submitted": 19.432541665992176,
+    "background_ready": 69.56670833278622,
+    "selectable": 148.64574999955948,
+    "clipboard_complete": 112.02204166693264
+  },
+  {
+    "feedback_submitted": 20.390374999806227,
+    "background_ready": 68.85299999976269,
+    "selectable": 143.66070833330014,
+    "clipboard_complete": 111.14720833302272
+  },
+  {
+    "feedback_submitted": 20.39483333373937,
+    "background_ready": 66.58541666729434,
+    "selectable": 135.4567500002304,
+    "clipboard_complete": 116.61979166638048
+  },
+  {
+    "feedback_submitted": 19.85066666657076,
+    "background_ready": 62.472541666465986,
+    "selectable": 136.68420833346318,
+    "clipboard_complete": 115.67841666692402
+  },
+  {
+    "feedback_submitted": 20.33154166656459,
+    "background_ready": 62.87350000002334,
+    "selectable": 140.3947500002687,
+    "clipboard_complete": 105.84158333313098
+  },
+  {
+    "feedback_submitted": 20.539624999400985,
+    "background_ready": 64.61329166631913,
+    "selectable": 254.14462499975343,
+    "clipboard_complete": 109.5139166664012
+  },
+  {
+    "feedback_submitted": 19.98429166724236,
+    "background_ready": 67.22541666658799,
+    "selectable": 147.7717500001745,
+    "clipboard_complete": 109.85616666675924
+  },
+  {
+    "feedback_submitted": 21.187833332987793,
+    "background_ready": 61.42891666695505,
+    "selectable": 143.15579166668613,
+    "clipboard_complete": 117.09295833315991
+  },
+  {
+    "feedback_submitted": 19.83404166639957,
+    "background_ready": 64.6522916667891,
+    "selectable": 143.01941666599305,
+    "clipboard_complete": 112.25483333328157
+  },
+  {
+    "feedback_submitted": 19.751708333387796,
+    "background_ready": 65.09433333303605,
+    "selectable": 142.54533333314612,
+    "clipboard_complete": 118.06862499997806
+  },
+  {
+    "feedback_submitted": 19.298958332910843,
+    "background_ready": 62.72516666649608,
+    "selectable": 140.0270416661442,
+    "clipboard_complete": 112.546666666276
+  },
+  {
+    "feedback_submitted": 20.36808333286899,
+    "background_ready": 66.08049999977084,
+    "selectable": 143.72020833252463,
+    "clipboard_complete": 109.4926249998025
+  },
+  {
+    "feedback_submitted": 20.30641666624433,
+    "background_ready": 65.94225000026199,
+    "selectable": 143.72091666700726,
+    "clipboard_complete": 113.31891666668525
+  },
+  {
+    "feedback_submitted": 19.65924999967683,
+    "background_ready": 66.85749999996915,
+    "selectable": 151.59883333308244,
+    "clipboard_complete": 120.37020833395218
+  },
+  {
+    "feedback_submitted": 19.478583333693678,
+    "background_ready": 65.11058333308029,
+    "selectable": 144.52875000006316,
+    "clipboard_complete": 120.51329166661162
+  },
+  {
+    "feedback_submitted": 19.06220833370753,
+    "background_ready": 69.52212499982124,
+    "selectable": 148.2169166665699,
+    "clipboard_complete": 118.26283333357424
+  },
+  {
+    "feedback_submitted": 19.97674999984156,
+    "background_ready": 69.3218333326513,
+    "selectable": 145.9128749993397,
+    "clipboard_complete": 110.02800000005664
+  },
+  {
+    "feedback_submitted": 20.411208333825925,
+    "background_ready": 65.72987500021554,
+    "selectable": 142.72983333376033,
+    "clipboard_complete": 113.08645833287301
+  },
+  {
+    "feedback_submitted": 19.264958333224058,
+    "background_ready": 67.12645833340503,
+    "selectable": 149.26462499988702,
+    "clipboard_complete": 113.52795833317941
+  },
+  {
+    "feedback_submitted": 19.796833334112307,
+    "background_ready": 63.47358333368902,
+    "selectable": 137.3370833334775,
+    "clipboard_complete": 118.53229166717938
+  },
+  {
+    "feedback_submitted": 20.304249999753665,
+    "background_ready": 67.04258333320468,
+    "selectable": 148.1906250000975,
+    "clipboard_complete": 117.81904166673485
+  },
+  {
+    "feedback_submitted": 20.28954166598851,
+    "background_ready": 68.41424999947776,
+    "selectable": 148.9723333334041,
+    "clipboard_complete": 120.82295833351964
+  },
+  {
+    "feedback_submitted": 20.030208333082555,
+    "background_ready": 68.32062499961467,
+    "selectable": 147.37587499985239,
+    "clipboard_complete": 115.98383333330275
+  },
+  {
+    "feedback_submitted": 19.71233333370037,
+    "background_ready": 67.15241666734073,
+    "selectable": 147.2962916668621,
+    "clipboard_complete": 111.17662499964354
+  },
+  {
+    "feedback_submitted": 20.654166666645324,
+    "background_ready": 67.19033333320112,
+    "selectable": 141.68637500006298,
+    "clipboard_complete": 118.3131666666668
+  },
+  {
+    "feedback_submitted": 20.581249999850115,
+    "background_ready": 68.34150000031514,
+    "selectable": 145.1858333330165,
+    "clipboard_complete": 111.03787499996542
+  },
+  {
+    "feedback_submitted": 19.61787500022183,
+    "background_ready": 62.87908333342784,
+    "selectable": 136.8149166673902,
+    "clipboard_complete": 112.74245833283203
+  },
+  {
+    "feedback_submitted": 19.89854166731675,
+    "background_ready": 66.90983333373879,
+    "selectable": 147.54004166661616,
+    "clipboard_complete": 119.34170833410462
+  },
+  {
+    "feedback_submitted": 18.289166667273093,
+    "background_ready": 62.72683333372697,
+    "selectable": 143.05675000014162,
+    "clipboard_complete": 114.64645833257237
+  },
+  {
+    "feedback_submitted": 20.038166666381585,
+    "background_ready": 68.77866666673071,
+    "selectable": 146.79937500022788,
+    "clipboard_complete": 116.48758333285514
+  },
+  {
+    "feedback_submitted": 17.147041666248697,
+    "background_ready": 62.22716666616179,
+    "selectable": 139.8825416663385,
+    "clipboard_complete": 118.63545833330136
+  },
+  {
+    "feedback_submitted": 20.153833333097282,
+    "background_ready": 67.21712499984278,
+    "selectable": 146.51437499924214,
+    "clipboard_complete": 117.56012499972712
+  },
+  {
+    "feedback_submitted": 20.165208333310147,
+    "background_ready": 65.74570833345206,
+    "selectable": 147.24020833364193,
+    "clipboard_complete": 109.67212499963352
+  },
+  {
+    "feedback_submitted": 20.009666666737758,
+    "background_ready": 67.53316666618048,
+    "selectable": 147.6067083331145,
+    "clipboard_complete": 115.39995833300054
+  },
+  {
+    "feedback_submitted": 20.457333333979477,
+    "background_ready": 68.37458333393442,
+    "selectable": 152.47395833375776,
+    "clipboard_complete": 110.55183333246532
+  },
+  {
+    "feedback_submitted": 20.71658333261439,
+    "background_ready": 69.13595833339059,
+    "selectable": 149.72499999930733,
+    "clipboard_complete": 126.26075000025594
+  },
+  {
+    "feedback_submitted": 20.63020833338669,
+    "background_ready": 68.22787500004779,
+    "selectable": 146.26741666688758,
+    "clipboard_complete": 115.85291666688136
+  },
+  {
+    "feedback_submitted": 20.278458333450544,
+    "background_ready": 66.51979166599631,
+    "selectable": 145.95179166644812,
+    "clipboard_complete": 121.39341666625114
+  },
+  {
+    "feedback_submitted": 18.933333332824986,
+    "background_ready": 70.66358333304379,
+    "selectable": 152.0610833331375,
+    "clipboard_complete": 114.49249999986932
+  },
+  {
+    "feedback_submitted": 20.40316666716535,
+    "background_ready": 66.15108333335229,
+    "selectable": 139.46991666671238,
+    "clipboard_complete": 116.46787500012579
+  },
+  {
+    "feedback_submitted": 19.15033333352767,
+    "background_ready": 65.23712499983958,
+    "selectable": 145.6085833333418,
+    "clipboard_complete": 113.96337499991205
+  },
+  {
+    "feedback_submitted": 20.131208333623363,
+    "background_ready": 66.60474999989674,
+    "selectable": 143.37162500032719,
+    "clipboard_complete": 114.80591666622786
+  },
+  {
+    "feedback_submitted": 19.228916667088924,
+    "background_ready": 63.80212499971094,
+    "selectable": 141.14354166667908,
+    "clipboard_complete": 112.8007916668139
+  },
+  {
+    "feedback_submitted": 19.862958333760616,
+    "background_ready": 67.42466666673863,
+    "selectable": 144.25141666652053,
+    "clipboard_complete": 108.98004166665487
+  },
+  {
+    "feedback_submitted": 20.825083333875227,
+    "background_ready": 68.3666250006354,
+    "selectable": 264.61629166715284,
+    "clipboard_complete": 116.51695833279518
+  },
+  {
+    "feedback_submitted": 19.425958333158633,
+    "background_ready": 53.31304166611517,
+    "selectable": 134.29595833258645,
+    "clipboard_complete": 116.1332499996206
+  },
+  {
+    "feedback_submitted": 19.862208333506715,
+    "background_ready": 65.74354166696139,
+    "selectable": 142.4213750005947,
+    "clipboard_complete": 108.27829166646552
+  },
+  {
+    "feedback_submitted": 20.50225000039063,
+    "background_ready": 68.57762500021636,
+    "selectable": 149.35008333304722,
+    "clipboard_complete": 111.15849999987404
+  },
+  {
+    "feedback_submitted": 19.935958333007875,
+    "background_ready": 66.12279166711232,
+    "selectable": 144.4106250000914,
+    "clipboard_complete": 112.18174999976327
+  },
+  {
+    "feedback_submitted": 20.267958332624403,
+    "background_ready": 67.02141666664829,
+    "selectable": 143.68787499915925,
+    "clipboard_complete": 107.50179166643647
+  },
+  {
+    "feedback_submitted": 20.354999999653955,
+    "background_ready": 67.35783333351719,
+    "selectable": 142.41391666655545,
+    "clipboard_complete": 113.75541666620848
+  },
+  {
+    "feedback_submitted": 19.49975000025006,
+    "background_ready": 67.170583333791,
+    "selectable": 144.83875000041735,
+    "clipboard_complete": 115.7542499995543
+  },
+  {
+    "feedback_submitted": 20.347416666481877,
+    "background_ready": 66.15808333299356,
+    "selectable": 143.774333332658,
+    "clipboard_complete": 117.53216666693334
+  },
+  {
+    "feedback_submitted": 19.80974999969476,
+    "background_ready": 69.27270833330113,
+    "selectable": 148.66229166636913,
+    "clipboard_complete": 104.77395833368064
+  },
+  {
+    "feedback_submitted": 21.605666665891476,
+    "background_ready": 68.1739583333183,
+    "selectable": 144.82995833259338,
+    "clipboard_complete": 105.74162499960948
+  },
+  {
+    "feedback_submitted": 19.577791666961275,
+    "background_ready": 66.61904166685417,
+    "selectable": 146.75266666654352,
+    "clipboard_complete": 108.84004166655359
+  },
+  {
+    "feedback_submitted": 19.9378750003234,
+    "background_ready": 66.16658333314263,
+    "selectable": 145.50204166698677,
+    "clipboard_complete": 112.54170833308308
+  },
+  {
+    "feedback_submitted": 18.482958333152055,
+    "background_ready": 66.2215833335722,
+    "selectable": 260.9379166669896,
+    "clipboard_complete": 114.67337500016583
+  },
+  {
+    "feedback_submitted": 19.745541666452482,
+    "background_ready": 64.01970833303494,
+    "selectable": 140.69637499960663,
+    "clipboard_complete": 106.50600000008126
+  },
+  {
+    "feedback_submitted": 20.821000000069034,
+    "background_ready": 69.89779166633525,
+    "selectable": 152.15687499949127,
+    "clipboard_complete": 124.36041666660458
+  },
+  {
+    "feedback_submitted": 19.595583333284594,
+    "background_ready": 65.1523750002525,
+    "selectable": 142.95700000002398,
+    "clipboard_complete": 114.63162499967439
+  },
+  {
+    "feedback_submitted": 19.361041666343226,
+    "background_ready": 66.54220833297586,
+    "selectable": 142.9464166658363,
+    "clipboard_complete": 111.6139583327822
+  },
+  {
+    "feedback_submitted": 19.994791667159006,
+    "background_ready": 66.98979166685604,
+    "selectable": 147.7535000003627,
+    "clipboard_complete": 111.57704166726035
+  },
+  {
+    "feedback_submitted": 20.850666666774487,
+    "background_ready": 65.44087500060414,
+    "selectable": 140.74345833341795,
+    "clipboard_complete": 109.28641666669137
+  },
+  {
+    "feedback_submitted": 20.057583333255025,
+    "background_ready": 65.48195833329373,
+    "selectable": 147.6499166665235,
+    "clipboard_complete": 107.95599999983096
+  },
+  {
+    "feedback_submitted": 19.99383333259175,
+    "background_ready": 59.33912499949656,
+    "selectable": 138.4490000000369,
+    "clipboard_complete": 119.79449999944336
+  },
+  {
+    "feedback_submitted": 20.060875000126543,
+    "background_ready": 66.58462500035967,
+    "selectable": 145.2626666668948,
+    "clipboard_complete": 110.03495833392662
+  },
+  {
+    "feedback_submitted": 20.84775000002992,
+    "background_ready": 67.67195833344886,
+    "selectable": 144.62295833345706,
+    "clipboard_complete": 121.02875000073254
+  },
+  {
+    "feedback_submitted": 20.508999999947264,
+    "background_ready": 61.21512499976234,
+    "selectable": 139.31891666652518,
+    "clipboard_complete": 116.63770833365561
+  },
+  {
+    "feedback_submitted": 20.557499999995343,
+    "background_ready": 66.82887499937351,
+    "selectable": 149.80691666642088,
+    "clipboard_complete": 109.44058333279827
+  },
+  {
+    "feedback_submitted": 19.654541666568548,
+    "background_ready": 62.22070833337057,
+    "selectable": 139.5037083329953,
+    "clipboard_complete": 113.29283333270723
+  },
+  {
+    "feedback_submitted": 18.847541667128098,
+    "background_ready": 58.25337500027672,
+    "selectable": 255.34287500067876,
+    "clipboard_complete": 112.72466666650871
+  }
+]

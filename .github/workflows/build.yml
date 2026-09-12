@@ -1,0 +1,30 @@
+name: Native development builds
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Windows and shared contract tests
+        shell: pwsh
+        run: ./scripts/build-windows.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Snapliq-windows-development-unverified
+          path: outputs/windows/
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: zsh scripts/build-macos.sh
+      - run: zsh scripts/test-macos.sh
+      - run: zsh scripts/package-macos-dmg.sh
+      - run: python3 scripts/package-development.py --desktop-only
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Snapliq-macOS-development
+          path: |
+            outputs/Snapliq-*-macOS-arm64-development.zip
+            outputs/Snapliq-*-macOS-arm64-development.dmg

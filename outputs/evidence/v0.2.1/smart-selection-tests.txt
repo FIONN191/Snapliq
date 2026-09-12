@@ -1,0 +1,3 @@
+PASS newest pointer coalesced; stale result discarded; one query in flight; cache and boundary deduplication
+PASS cancellation, permission fallback and own-process exclusion
+PASS cache is scoped to window boundaries as well as process

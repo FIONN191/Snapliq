@@ -1,0 +1,40 @@
+[
+  {
+    "test": "settings_close_hotkey_move_resize_copy",
+    "passed": true,
+    "image": {
+      "blue": 0.7103318572044373,
+      "green": 0.5254030823707581,
+      "height": 540,
+      "red": 0.19281193614006042,
+      "width": 900
+    }
+  },
+  {
+    "test": "escape_cancel_recapture",
+    "passed": true
+  },
+  {
+    "test": "orb_wake_capture_own_location",
+    "passed": true,
+    "orb": {
+      "Height": 48,
+      "Width": 48,
+      "X": 1412,
+      "Y": 640
+    },
+    "image": {
+      "blue": 0.7103318572044373,
+      "green": 0.5254030823707581,
+      "height": 136,
+      "red": 0.19281193614006042,
+      "width": 136
+    }
+  },
+  {
+    "test": "native_save_to_configured_folder",
+    "passed": true,
+    "fileName": "Snapliq_2026-09-09_22-33-58.png",
+    "bytes": 48234
+  }
+]

@@ -1,0 +1,2 @@
+AirDrop completion: cancelled_or_finished
+PASS system AirDrop Cancel callback and temporary-file cleanup

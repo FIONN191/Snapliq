@@ -1,0 +1,7 @@
+{
+  "date": "2026-09-08",
+  "metric": "vmmap physical footprint, not RSS",
+  "after100CapturesMiB": 71.7,
+  "processLifetimePeakMiB": 219.9,
+  "scope": "single snapshot after tests; not a multi-hour leak assessment"
+}

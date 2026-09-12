@@ -1,0 +1,1 @@
+PASS real native AX control behind own overlay: (286.0, 366.0, 158.0, 34.0) window: (200.0, 200.0, 640.0, 388.0)

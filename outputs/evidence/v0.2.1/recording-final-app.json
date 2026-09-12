@@ -1,0 +1,52 @@
+{
+  "recordingStarted": {
+    "event": "recording_started",
+    "height": 1912,
+    "microphone": false,
+    "systemAudio": false,
+    "uptime": 95593.20276395834,
+    "width": 2940
+  },
+  "pid": 51181,
+  "chromeRunningAtStart": true,
+  "chromeExitedDuringRecording": true,
+  "settingsClosed": {
+    "applicationContinues": true,
+    "event": "settings_closed",
+    "uptime": 95627.38454875001
+  },
+  "finished": {
+    "dropped": 0,
+    "event": "recording_finished",
+    "frames": 1128,
+    "seconds": 38.477425291668624,
+    "uptime": 95634.37934554167
+  },
+  "events": [
+    {
+      "applicationContinues": true,
+      "event": "settings_closed",
+      "uptime": 95627.38454875001
+    },
+    {
+      "elapsed": 36.28698199999053,
+      "event": "recording_state",
+      "state": "paused",
+      "uptime": 95629.48678804167
+    },
+    {
+      "elapsed": 36.28711550000298,
+      "event": "recording_state",
+      "state": "recording",
+      "uptime": 95631.67353016668
+    },
+    {
+      "dropped": 0,
+      "event": "recording_finished",
+      "frames": 1128,
+      "seconds": 38.477425291668624,
+      "uptime": 95634.37934554167
+    }
+  ],
+  "passed": true
+}

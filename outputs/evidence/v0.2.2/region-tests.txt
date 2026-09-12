@@ -1,0 +1,16 @@
+PASS region geometry: 750 fractional/negative-coordinate cases; Retina, inward even-pixel alignment, tiny/cross-display rejection and topology invalidation
+PASS native region video: 440x340, seconds=2.5566666666666666, asymmetric four-quadrant pixels, own overlay excluded, pause/resume/finalization
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 2 >= 2
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 7 >= 7
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 10 >= 10
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 14 >= 14
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 17 >= 17
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 22 >= 22
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 26 >= 26
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 32 >= 32
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 36 >= 36
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 39 >= 39
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 44 >= 44
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 48 >= 48
+[null @ 0x7f7c55704540] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 51 >= 51
+PASS native region selection: region-only buttons fit, Enter returns exact crop without clipboard mutation, Escape removes overlays

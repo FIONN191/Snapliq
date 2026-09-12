@@ -1,0 +1,2 @@
+PASS real WIndow source close: finalized MP4; controller idle; seconds=3.2333333333333334; reason=Failed to find any displays or windows to capture
+PASS ffmpeg full decode: exit 0, no errors

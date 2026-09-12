@@ -1,0 +1,6 @@
+{"enabled":true,"event":"hotkey_registration","status":0,"uptime":18750.473538583334}
+{"event":"launch","pid":12338,"screenPermission":false,"screens":1,"uptime":18750.476188375,"version":"0.2.1"}
+{"event":"test","name":"negative_origin_retina_crop_blue","passed":true,"uptime":18750.485604500002}
+{"event":"test","name":"non_overwriting_save","passed":true,"uptime":18750.495969041669}
+{"event":"test","name":"clipboard_real_png_roundtrip","passed":true,"uptime":18750.5069205}
+{"event":"diagnostics_capture_blocked","reason":"screen_permission_required","syntheticTestsCompleted":true,"uptime":18750.509798041669}

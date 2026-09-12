@@ -1,0 +1,22 @@
+{
+    "programs": [
+
+    ],
+    "stream_groups": [
+
+    ],
+    "streams": [
+        {
+            "codec_name": "h264",
+            "width": 440,
+            "height": 340,
+            "color_space": "bt709",
+            "color_transfer": "bt709",
+            "color_primaries": "bt709"
+        }
+    ],
+    "format": {
+        "duration": "2.556667",
+        "size": "100387"
+    }
+}

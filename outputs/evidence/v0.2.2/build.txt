@@ -1,0 +1,4 @@
+PASS: normalization, negative origin, fractional pixels, clipping, resize, toolbar and 1,972 boundary cases
+outputs/builds/0.2.2/Snapliq.app/Contents/MacOS/SnapliqBridge: replacing existing signature
+outputs/builds/0.2.2/Snapliq.app: replacing existing signature
+Built standalone arm64 development app: outputs/builds/0.2.2/Snapliq.app

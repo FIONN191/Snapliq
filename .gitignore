@@ -1,0 +1,27 @@
+# Local tools, transient state and credentials.
+work/
+.build/
+.agents/
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+*.p12
+*.pfx
+*.mobileprovision
+
+# Installed applications and generated distribution archives.
+*.app/
+*.dmg
+*.zip
+
+# Publish only reviewed reports, design decisions and sanitized evidence.
+outputs/*
+!outputs/design-system/
+!outputs/Snapliq-*-validation.md
+!outputs/evidence/
+outputs/evidence/*
+!outputs/evidence/v0.2.0/
+!outputs/evidence/v0.2.1/
+!outputs/evidence/v0.2.2/

@@ -1,0 +1,1 @@
+Editable layers for Icon Composer. Configure background separately: graphite or light silver. Outline the corner strokes in the vector editor before production import. No pre-baked system mask, blur, refraction or specular highlight. This directory is not a compiled .icon asset; Icon Composer and macOS 26+ verification remain required. Legacy macOS .icns is provided separately.

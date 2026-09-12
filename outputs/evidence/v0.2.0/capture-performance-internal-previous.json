@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "samples": 100,
+  "passed": 100,
+  "chromeAbsentEveryIteration": true,
+  "input": "OS-injected Command+X, mouse drag and Enter; not physical keyboard",
+  "configuration": "MacBook Air M2 16 GB, macOS 15.7.7, one 1470x956 logical / 2940x1912 captured display, 60 Hz",
+  "state": "Warm app, after recording regression; OCR not initialized on wake",
+  "latencyMs": {
+    "feedback_submitted": {
+      "p50": 5.415708332293434,
+      "p95": 10.714535421357139
+    },
+    "background_ready": {
+      "p50": 73.38922916460433,
+      "p95": 81.51368541257398
+    },
+    "selectable": {
+      "p50": 154.26550000120187,
+      "p95": 286.76506874980987
+    },
+    "clipboard_complete": {
+      "p50": 13.22747916856315,
+      "p95": 14.084558335162
+    }
+  }
+}

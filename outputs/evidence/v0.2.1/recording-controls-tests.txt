@@ -1,0 +1,6 @@
+PASS AXPress snapliq.recording.pause
+PASS AXPress snapliq.recording.pause
+PASS AXPress snapliq.recording.stop
+PASS real AX pause, resume and stop actions; exact states: ["preparing", "recording", "paused", "recording", "finishing", "idle"] seconds: 2.61
+
+PASS ffmpeg complete video decode: exit 0, no errors

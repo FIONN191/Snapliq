@@ -1,0 +1,28 @@
+{"applicationContinues": true, "event": "settings_closed", "uptime": 95744.592709375}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95744.71387125}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.2582499989075586, "uptime": 95744.7140475}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 42.759583331644535, "uptime": 95744.75355225001}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 111.45004167337902, "session": "368EBE52-99ED-48E4-B710-45C8A2D93CAF", "uptime": 95744.82224254168}
+{"event": "clipboard_complete", "height": 540, "ms": 7.99774999904912, "session": "368EBE52-99ED-48E4-B710-45C8A2D93CAF", "uptime": 95746.10655966667, "width": 900}
+{"event": "session_finished", "result": "已复制图片", "uptime": 95746.10901941668}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95746.28305537501}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 2.5810416555032134, "uptime": 95746.28336441667}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 31.132874995819293, "uptime": 95746.31191629167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 217.08820833009668, "session": "65C0B761-FDE6-4CF7-9756-3922F26CE27B", "uptime": 95746.49787245833}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95747.023896625}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 2.6101666735485196, "uptime": 95747.02418025001}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 43.7215833371738, "uptime": 95747.06529254167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 111.34550000133459, "session": "D13EC36F-2661-478E-B1D1-A52516E6F90A", "uptime": 95747.13291704167}
+{"event": "clipboard_complete", "height": 480, "ms": 5.531166665605269, "session": "D13EC36F-2661-478E-B1D1-A52516E6F90A", "uptime": 95747.674733, "width": 840}
+{"event": "session_finished", "result": "已复制图片", "uptime": 95747.67645825}
+{"event": "trigger", "source": "orb", "uptime": 95747.90262816667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 1.9117500050924718, "uptime": 95747.90285816668}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 40.35325000586454, "uptime": 95747.94130320834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 108.69370834552683, "session": "32FC480D-5D28-47F8-838A-DA050198E9B2", "uptime": 95748.00964283333}
+{"event": "clipboard_complete", "height": 136, "ms": 0.9663333330536261, "session": "32FC480D-5D28-47F8-838A-DA050198E9B2", "uptime": 95748.53592195833, "width": 136}
+{"event": "session_finished", "result": "已复制图片", "uptime": 95748.53783408334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95748.98259725001}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 2.2217083314899355, "uptime": 95748.98288950001}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 39.64504167379346, "uptime": 95749.02031554167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 109.2696249979781, "session": "A1986AFD-682B-4922-880A-42723BA0658D", "uptime": 95749.08993825}
+{"event": "session_finished", "result": "已保存图片", "uptime": 95749.69393741667}

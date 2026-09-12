@@ -1,0 +1,3 @@
+PASS: normalization, negative origin, fractional pixels, clipping, resize, toolbar and 1,972 boundary cases
+PASS: permission failure propagated
+PASS: native pixel crop, negative origin, mixed density composition, PNG roundtrip, 10 collision-safe saves, temporary cleanup

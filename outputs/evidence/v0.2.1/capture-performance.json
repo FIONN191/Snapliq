@@ -1,0 +1,26 @@
+{
+  "date": "2026-09-09T22:28:35.059681+10:00",
+  "configuration": "MacBook Air M2 16GB; macOS 15.7.7; 1470x956 logical / 2940x1912 capture; 60Hz",
+  "samples": 100,
+  "passed": 100,
+  "chromeAbsentEveryIteration": true,
+  "measurement": "CGEvent pre-post uptime to app milestone. Feedback and selectable are app submissions, NOT measured physical display presentation. Clipboard begins before Enter key-down.",
+  "latencyMs": {
+    "feedback_submitted": {
+      "p50": 20.551354165945668,
+      "p95": 21.553304167173337
+    },
+    "background_ready": {
+      "p50": 69.5372916670749,
+      "p95": 73.0077333326335
+    },
+    "selectable": {
+      "p50": 147.86239583190763,
+      "p95": 265.85351459289086
+    },
+    "clipboard_complete": {
+      "p50": 113.86816666345112,
+      "p95": 120.22429792123148
+    }
+  }
+}

@@ -1,0 +1,8 @@
+Toolbar geometry: 提取文字 width: 66.0 intrinsic: 66.0 panel: 382.0
+Toolbar geometry: 复制 width: 40.0 intrinsic: 40.0 panel: 382.0
+Toolbar geometry: AirDrop width: 62.0 intrinsic: 62.0 panel: 382.0
+Toolbar geometry: 下载 ▾ width: 50.0 intrinsic: 50.0 panel: 382.0
+Toolbar geometry: 取消 width: 40.0 intrinsic: 40.0 panel: 382.0
+Toolbar geometry: 完成 ↵ width: 56.0 intrinsic: 56.0 panel: 382.0
+PASS toolbar actions fit within the actual native window
+PASS actual selection UI: editable OCR, text copy, close restores selection, image copy, toolbar actions

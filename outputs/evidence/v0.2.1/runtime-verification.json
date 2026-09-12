@@ -1,0 +1,18 @@
+{
+  "date": "2026-09-09",
+  "version": "0.2.1",
+  "bundleId": "com.snapliq.desktop.development",
+  "cdhash": "8be686f08580b4a8be08324249676c77b390e983",
+  "appRebuiltOrResignedDuringValidation": false,
+  "fullVideoDecodeExitCode": 0,
+  "videoSHA256": "85b7262837521b08ca15bb2ab419a6e6bc3388ecf96f5e324e3a23b20ff29156",
+  "screenRecordingPermission": "actual screenshot and recording succeeded",
+  "physicalFootprintMiB": 81.1,
+  "peakFootprintMiB": 223.8,
+  "footprintScope": "single snapshot after mixed screenshot and recording regression, not a long-duration leak test",
+  "chromeRestored": true,
+  "testFixtureTerminated": true,
+  "recordingAudioEnabled": false,
+  "videoExcludedFromDistribution": true,
+  "clipboardBackupsExcludedFromDistribution": true
+}

@@ -1,0 +1,15 @@
+PASS local Chinese/English OCR: Snapliq Capture 123 / 截图与录屏工具
+PASS MP4 finalization and pause timeline: seconds=2.0, frames=60, dropped=0
+PASS static screen duration: 8.0 seconds, 2 retained/written frames
+PASS native bridge: peer-only socket, permissions, bounded frames, allowlist, main-loop dispatch, idle timeout
+PASS bundled Chrome host: origin validation, framed reply, unsupported-action rejection, clean stdin EOF
+✔ only desktop request actions can be serialized (0.980792ms)
+✔ acknowledgements do not claim capture completion (0.123167ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.095375

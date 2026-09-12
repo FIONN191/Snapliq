@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "samples": 100,
+  "passed": 100,
+  "chromeAbsentEveryIteration": true,
+  "input": "OS-injected Command+X, mouse drag and Enter; not physical keyboard",
+  "configuration": "MacBook Air M2 16 GB, macOS 15.7.7, one 1470x956 logical / 2940x1912 captured display, 60 Hz",
+  "state": "Includes first capture since reboot, then 99 repeated captures; no warm-up discarded; OCR not initialized on wake",
+  "measurement": "CGEvent pre-post timestamp to app milestone uptime; includes OS dispatch; feedback is view submission, not physical display presentation",
+  "date": "2026-09-08",
+  "latencyMs": {
+    "feedback_submitted": {
+      "p50": 19.994312499875377,
+      "p95": 20.853737500101488
+    },
+    "background_ready": {
+      "p50": 66.703791666896,
+      "p95": 69.5243541664695
+    },
+    "selectable": {
+      "p50": 145.35189583330066,
+      "p95": 254.2045374997997
+    },
+    "clipboard_complete": {
+      "p50": 114.52939583341504,
+      "p95": 121.40726041625385
+    }
+  }
+}

@@ -1,0 +1,4 @@
+#include <windows.h>
+1 ICON "@CMAKE_SOURCE_DIR@/assets/generated/Snapliq-dark.ico"
+2 ICON "@CMAKE_SOURCE_DIR@/assets/generated/Snapliq-black.ico"
+3 ICON "@CMAKE_SOURCE_DIR@/assets/generated/Snapliq-white.ico"

@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-13",
+  "source": "generated native quadrant window",
+  "testHost": "region_recording_tests (not final Snapliq.app)",
+  "encodedPixels": [
+    440,
+    340
+  ],
+  "singleDisplayRetina": true,
+  "decodedProbeCount": 8,
+  "ownMagentaOverlayExcluded": true,
+  "pauseResumeFinalization": true,
+  "decodedFrames": 66,
+  "decodedPresentationTimestampsStrictlyIncreasing": true,
+  "packetDecodeTimestampsStrictlyIncreasing": true,
+  "fullDecodeCommand": "ffmpeg -v error -i region.mp4 -fps_mode passthrough -enc_time_base demux -f null -",
+  "fullDecodeExitCode": 0,
+  "colorTags": "bt709 primaries/transfer/matrix",
+  "microphoneEnabled": false,
+  "systemAudioEnabled": false,
+  "note": "Default null-output encoder time base emitted rounding DTS warnings; demux time base preserves source timestamps and decodes cleanly."
+}

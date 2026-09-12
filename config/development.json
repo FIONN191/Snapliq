@@ -1,0 +1,5 @@
+{
+  "macBundleIdentifier": "com.snapliq.desktop.development",
+  "dataDirectory": "Snapliq Development",
+  "status": "development identity; release signing identity is not configured"
+}

@@ -1,0 +1,600 @@
+{"event": "trigger", "source": "global_hotkey", "uptime": 95349.20895075}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 8.43850000819657, "uptime": 95349.20958091668}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 101.82054166216403, "uptime": 95349.30297229167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 297.1642083284678, "session": "E4ECB4A2-B721-4933-A7C9-0078B1E16431", "uptime": 95349.49830675}
+{"event": "clipboard_complete", "height": 480, "ms": 11.861249993671663, "session": "E4ECB4A2-B721-4933-A7C9-0078B1E16431", "uptime": 95350.16715116668, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95350.171949875}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95350.45572220834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.592291665379889, "uptime": 95350.456363}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.295958322356455, "uptime": 95350.50807116667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 257.4157916678814, "session": "8977A626-F8AF-48E7-86F5-E73665A58351", "uptime": 95350.708185625}
+{"event": "clipboard_complete", "height": 480, "ms": 8.864000003086403, "session": "8977A626-F8AF-48E7-86F5-E73665A58351", "uptime": 95351.22096791667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95351.22572204168}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95351.349122375}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.503458334715106, "uptime": 95351.34997904167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.281208341009915, "uptime": 95351.401759}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 137.78133333835285, "session": "579382EE-E307-4421-B59C-8AF8F6AF2108", "uptime": 95351.48225366668}
+{"event": "clipboard_complete", "height": 480, "ms": 10.109166672918946, "session": "579382EE-E307-4421-B59C-8AF8F6AF2108", "uptime": 95351.98615075, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95351.99128845835}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95352.11356158333}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.374041676986963, "uptime": 95352.11425179167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.43762500747107, "uptime": 95352.16432329167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 252.95462500071153, "session": "761A3273-EC1B-4D10-930F-D1DFBB6B91DB", "uptime": 95352.36183050001}
+{"event": "clipboard_complete", "height": 480, "ms": 9.670125000411645, "session": "761A3273-EC1B-4D10-930F-D1DFBB6B91DB", "uptime": 95352.86361866667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95352.868024375}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95352.99075900001}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.313333327649161, "uptime": 95352.99138570834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.76566666725557, "uptime": 95353.03884133334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.54637500317767, "session": "7F1EA1D3-9607-4B7B-80CC-8D3505988EE9", "uptime": 95353.11661825}
+{"event": "clipboard_complete", "height": 480, "ms": 8.018583335797302, "session": "7F1EA1D3-9607-4B7B-80CC-8D3505988EE9", "uptime": 95353.61758433333, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95353.62250791668}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95353.73901145834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.063958341954276, "uptime": 95353.73941254168}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 48.143791675101966, "uptime": 95353.78449820833}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 126.76770833786577, "session": "B0F8F79C-0742-4D17-8F9E-AA1E1A1E0FA9", "uptime": 95353.86311795835}
+{"event": "clipboard_complete", "height": 480, "ms": 8.642833330668509, "session": "B0F8F79C-0742-4D17-8F9E-AA1E1A1E0FA9", "uptime": 95354.36721166667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95354.37170820835}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95354.49056591667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.2305833301506937, "uptime": 95354.49092241668}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 46.46716665592976, "uptime": 95354.53415766667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 117.52083332976326, "session": "5A8F44FC-6D80-46D6-99F8-96A6257AF5BB", "uptime": 95354.60520641667}
+{"event": "clipboard_complete", "height": 480, "ms": 9.561958329868503, "session": "5A8F44FC-6D80-46D6-99F8-96A6257AF5BB", "uptime": 95355.10328808334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95355.10827620834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95355.22801095834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.008166666608304, "uptime": 95355.228449375}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 49.76758333214093, "uptime": 95355.27421287501}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 127.4321666569449, "session": "A1854C21-0735-4655-9CE4-C94C0B30BCD1", "uptime": 95355.35187520833}
+{"event": "clipboard_complete", "height": 480, "ms": 9.130291669862345, "session": "A1854C21-0735-4655-9CE4-C94C0B30BCD1", "uptime": 95355.85601204167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95355.85992558334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95355.97278320834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.560458339052275, "uptime": 95355.97328725}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.573583332356066, "uptime": 95356.021304625}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 129.7538750077365, "session": "988F90D5-7C8D-4B8F-98BB-B91F71ADE0FE", "uptime": 95356.09948191667}
+{"event": "clipboard_complete", "height": 480, "ms": 9.338958334410563, "session": "988F90D5-7C8D-4B8F-98BB-B91F71ADE0FE", "uptime": 95356.602035, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95356.60701058334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95356.73184875}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.661166662117466, "uptime": 95356.73236870834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.847041661152616, "uptime": 95356.780559125}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.56579166045412, "session": "0C377D7E-4984-4676-B858-2F9A9656A28C", "uptime": 95356.860274125}
+{"event": "clipboard_complete", "height": 480, "ms": 5.977291657472961, "session": "0C377D7E-4984-4676-B858-2F9A9656A28C", "uptime": 95357.34305033334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95357.346209875}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95357.46435375001}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.534666663152166, "uptime": 95357.46510233334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.020291666849516, "uptime": 95357.51158845834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.56758332822938, "session": "57644C6F-15F5-42A0-9479-2ADC26855924", "uptime": 95357.59013170833}
+{"event": "clipboard_complete", "height": 480, "ms": 7.33212499471847, "session": "57644C6F-15F5-42A0-9479-2ADC26855924", "uptime": 95358.09517691667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95358.09982625}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95358.22183608334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.141541667398997, "uptime": 95358.22257733333}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 56.697499996516854, "uptime": 95358.27413604167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 138.46208332688548, "session": "0F2184B0-7049-40E2-AD67-8DF8CEC484AA", "uptime": 95358.35589675}
+{"event": "clipboard_complete", "height": 480, "ms": 8.243916658102535, "session": "0F2184B0-7049-40E2-AD67-8DF8CEC484AA", "uptime": 95358.866629375, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95358.87072541667}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95358.98644095834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.993833324988373, "uptime": 95358.98718745833}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.92612500488758, "uptime": 95359.03512366668}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.62012499722186, "session": "9E06232B-81E7-4991-BC39-EF942AE6A68F", "uptime": 95359.112813375}
+{"event": "clipboard_complete", "height": 480, "ms": 8.39758332585916, "session": "9E06232B-81E7-4991-BC39-EF942AE6A68F", "uptime": 95359.61757862501, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95359.62175229167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95359.7356935}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.489208342623897, "uptime": 95359.7364355}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 56.13212499883957, "uptime": 95359.7870815}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 135.55895833997056, "session": "6729D887-AA6C-475D-998F-13662C0E6DE0", "uptime": 95359.86650354168}
+{"event": "clipboard_complete", "height": 480, "ms": 7.645624995348044, "session": "6729D887-AA6C-475D-998F-13662C0E6DE0", "uptime": 95360.36714291667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95360.37223929167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95360.49005720834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.518499994650483, "uptime": 95360.49079641668}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.154750006389804, "uptime": 95360.53643495834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.96891667414457, "session": "40F4F335-82DE-4581-9F94-2E0825BAE87F", "uptime": 95360.61824608334}
+{"event": "clipboard_complete", "height": 480, "ms": 4.881333341472782, "session": "40F4F335-82DE-4581-9F94-2E0825BAE87F", "uptime": 95361.08906566667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95361.09323820834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95361.20145208333}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 2.8349166677799076, "uptime": 95361.201797375}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.808791657094844, "uptime": 95361.25077454167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 131.33904166170396, "session": "4B4B403F-57EA-4120-82D9-09641648304F", "uptime": 95361.33030295833}
+{"event": "clipboard_complete", "height": 480, "ms": 9.672041676822118, "session": "4B4B403F-57EA-4120-82D9-09641648304F", "uptime": 95361.83234425001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95361.83718225}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95361.95363633335}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.391208323999308, "uptime": 95361.95435825}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.23754166602157, "uptime": 95362.00220887501}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.36674998875242, "session": "428319C4-87D0-431E-B8F4-8A0D289E87A9", "uptime": 95362.07933304168}
+{"event": "clipboard_complete", "height": 480, "ms": 9.794291661819443, "session": "428319C4-87D0-431E-B8F4-8A0D289E87A9", "uptime": 95362.584323125, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95362.58847229167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95362.70724345834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.943250009091571, "uptime": 95362.70761475}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 56.131083343643695, "uptime": 95362.75881}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 134.73708333913237, "session": "9EF3F7DB-3920-4B6C-8356-D201E39E52BA", "uptime": 95362.83741083334}
+{"event": "clipboard_complete", "height": 480, "ms": 9.487250004895031, "session": "9EF3F7DB-3920-4B6C-8356-D201E39E52BA", "uptime": 95363.350463875, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95363.35568070834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95363.47620725}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.468499992275611, "uptime": 95363.476922125}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 50.74649999733083, "uptime": 95363.52220304168}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 128.21299998904578, "session": "D9D3FDDF-31FE-4DD9-9041-A8F96DCDCC36", "uptime": 95363.599665375}
+{"event": "clipboard_complete", "height": 480, "ms": 10.173749993555248, "session": "D9D3FDDF-31FE-4DD9-9041-A8F96DCDCC36", "uptime": 95364.114201125, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95364.11887166667}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95364.23710804168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.1225000022677705, "uptime": 95364.23754516667}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.770666672382504, "uptime": 95364.28519916667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 134.7959583363263, "session": "8780225E-7F7B-4D7F-AF7E-BF6DE845C24F", "uptime": 95364.36821970834}
+{"event": "clipboard_complete", "height": 480, "ms": 9.38879165914841, "session": "8780225E-7F7B-4D7F-AF7E-BF6DE845C24F", "uptime": 95364.86949045834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95364.87355645833}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95364.99164400001}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.624875004286878, "uptime": 95364.992326875}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.71854166232515, "uptime": 95365.044423625}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 137.85324999480508, "session": "54AE45BE-1664-4A20-B965-DA8792DA9627", "uptime": 95365.12455395833}
+{"event": "clipboard_complete", "height": 480, "ms": 8.840708338539116, "session": "54AE45BE-1664-4A20-B965-DA8792DA9627", "uptime": 95365.62961275001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95365.63397904167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95365.75245320833}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.089208338176832, "uptime": 95365.75310345834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.473833326483145, "uptime": 95365.80249183334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.6825833239127, "session": "4080CA2E-032B-4798-8A4A-DA22D12CBFDF", "uptime": 95365.88069679168}
+{"event": "clipboard_complete", "height": 480, "ms": 8.060791660682298, "session": "4080CA2E-032B-4798-8A4A-DA22D12CBFDF", "uptime": 95366.38342408334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95366.38787033333}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95366.50564504167}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.472624994581565, "uptime": 95366.50636725001}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.235000007087365, "uptime": 95366.55613216668}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 138.72899999842048, "session": "AA5EFE2C-06C3-442E-8EE3-827EC679CE46", "uptime": 95366.63962333334}
+{"event": "clipboard_complete", "height": 480, "ms": 9.083083336008713, "session": "AA5EFE2C-06C3-442E-8EE3-827EC679CE46", "uptime": 95367.14987225001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95367.15398895834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95367.27729095834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.48683333909139, "uptime": 95367.27799370834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 50.749625006574206, "uptime": 95367.32325658335}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 128.03329166490585, "session": "15876E43-BDED-4DDB-9C2A-691971465D3F", "uptime": 95367.40053641667}
+{"event": "clipboard_complete", "height": 480, "ms": 8.432916656602174, "session": "15876E43-BDED-4DDB-9C2A-691971465D3F", "uptime": 95367.90936958334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95367.91422745834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95368.03469508333}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.515333323273808, "uptime": 95368.035424125}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.533541657496244, "uptime": 95368.08544429168}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.3181666674791, "session": "0BA49764-6DC1-4275-A293-6D245F7552BE", "uptime": 95368.16622654167}
+{"event": "clipboard_complete", "height": 480, "ms": 7.642708340426907, "session": "0BA49764-6DC1-4275-A293-6D245F7552BE", "uptime": 95368.66979100001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95368.674212125}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95368.78938779168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.520708320545964, "uptime": 95368.79012370834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 58.853333321167156, "uptime": 95368.84345875001}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 140.4121249943273, "session": "D1F3348F-C606-4268-978C-BFC280989240", "uptime": 95368.92501425001}
+{"event": "clipboard_complete", "height": 480, "ms": 7.9091250081546605, "session": "D1F3348F-C606-4268-978C-BFC280989240", "uptime": 95369.42124025001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95369.42580541667}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95369.54265858333}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.260708319838159, "uptime": 95369.54338916668}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.6513749868609, "uptime": 95369.59278541667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 131.3289999961853, "session": "46D42A91-0503-4AF2-8BC5-DF925E4AC8F7", "uptime": 95369.66945641667}
+{"event": "clipboard_complete", "height": 480, "ms": 9.877541669993661, "session": "46D42A91-0503-4AF2-8BC5-DF925E4AC8F7", "uptime": 95370.183044, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95370.18770570833}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95370.30601620834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.960041667800397, "uptime": 95370.30674945834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.970666668144986, "uptime": 95370.35776420834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 138.17362500412855, "session": "4FE89762-6761-4498-AA3B-3E92B8091519", "uptime": 95370.439962}
+{"event": "clipboard_complete", "height": 480, "ms": 9.778749998076819, "session": "4FE89762-6761-4498-AA3B-3E92B8091519", "uptime": 95370.94814679168, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95370.95198241668}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95371.06759529168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.241708335233852, "uptime": 95371.06831258335}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.18812499940395, "uptime": 95371.11826091667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.73362501058728, "session": "DC34C10C-8D87-48BD-8525-E995282C99F8", "uptime": 95371.195803875}
+{"event": "clipboard_complete", "height": 480, "ms": 7.806375011568889, "session": "DC34C10C-8D87-48BD-8525-E995282C99F8", "uptime": 95371.70542091667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95371.71022508334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95371.82763654167}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.4056666704127565, "uptime": 95371.828352375}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.79154166823719, "uptime": 95371.87774025001}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.15858332801145, "session": "7CD122A5-CB74-43D0-A4C0-B6B4543805CB", "uptime": 95371.95310454167}
+{"event": "clipboard_complete", "height": 480, "ms": 8.927583330660127, "session": "7CD122A5-CB74-43D0-A4C0-B6B4543805CB", "uptime": 95372.45434866667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95372.45840100001}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95372.57790916668}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.382458330132067, "uptime": 95372.57861025}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 46.70891666319221, "uptime": 95372.619939625}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 126.31458333635237, "session": "C921ABE5-9FC9-479B-9B11-6FFD51094CA8", "uptime": 95372.69954112501}
+{"event": "clipboard_complete", "height": 480, "ms": 6.938541671843268, "session": "C921ABE5-9FC9-479B-9B11-6FFD51094CA8", "uptime": 95373.1679635, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95373.17252845834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95373.28958829168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.303333338815719, "uptime": 95373.29029429167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.41154167056084, "uptime": 95373.33940391667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 127.6441249938216, "session": "20BAC4A2-5527-4A4D-BB84-1DBB2F0336C3", "uptime": 95373.41263404167}
+{"event": "clipboard_complete", "height": 480, "ms": 8.963999993284233, "session": "20BAC4A2-5527-4A4D-BB84-1DBB2F0336C3", "uptime": 95373.9200355, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95373.923838}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95374.046552125}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.565416664467193, "uptime": 95374.04726345834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.81949999718927, "uptime": 95374.09551933334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 128.06420832930598, "session": "0CE8033C-3014-4509-9EF2-BBB88EB6C985", "uptime": 95374.16976104167}
+{"event": "clipboard_complete", "height": 480, "ms": 9.668750004493631, "session": "0CE8033C-3014-4509-9EF2-BBB88EB6C985", "uptime": 95374.68188466667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95374.68654966667}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95374.80885075}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.045708327088505, "uptime": 95374.80956529167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.85337499703746, "uptime": 95374.85937641667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.56604166235775, "session": "A5262123-A69B-426D-A4F2-5DB17237C620", "uptime": 95374.93708458333}
+{"event": "clipboard_complete", "height": 480, "ms": 9.315374991274439, "session": "A5262123-A69B-426D-A4F2-5DB17237C620", "uptime": 95375.44818629167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95375.45312650001}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95375.57551683334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.432124991784804, "uptime": 95375.576239}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.46270832524169, "uptime": 95375.62427279167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 131.34029165667016, "session": "0992D943-EF2F-4CD2-A260-DB1B46540207", "uptime": 95375.70214612501}
+{"event": "clipboard_complete", "height": 480, "ms": 6.536500004585832, "session": "0992D943-EF2F-4CD2-A260-DB1B46540207", "uptime": 95376.20525491667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95376.210105125}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95376.32771229168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.7064166612690315, "uptime": 95376.32842229167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.63108333060518, "uptime": 95376.37735395833}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 134.52966666955035, "session": "ED0E184A-7655-4552-9F97-DDFA8810387F", "uptime": 95376.45724462501}
+{"event": "clipboard_complete", "height": 480, "ms": 10.568583340500481, "session": "ED0E184A-7655-4552-9F97-DDFA8810387F", "uptime": 95376.96633916667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95376.97119304167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95377.091089875}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.470749994856305, "uptime": 95377.09177879167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.0971666747937, "uptime": 95377.14341462501}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 138.41220834001433, "session": "B5AE17AB-6663-4504-ACA7-E5E72B4492A9", "uptime": 95377.22471875}
+{"event": "clipboard_complete", "height": 480, "ms": 7.44499999564141, "session": "B5AE17AB-6663-4504-ACA7-E5E72B4492A9", "uptime": 95377.72666820834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95377.73134000001}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95377.85032833334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.10866666061338, "uptime": 95377.85088933333}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 58.54416666261386, "uptime": 95377.90533195833}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 256.7330000019865, "session": "84AA22A7-C103-4D1B-B319-847C4A148E6F", "uptime": 95378.10351500001}
+{"event": "clipboard_complete", "height": 480, "ms": 9.260333332349546, "session": "84AA22A7-C103-4D1B-B319-847C4A148E6F", "uptime": 95378.61483870834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95378.61891450001}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95378.73776370834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.213333333609626, "uptime": 95378.73828250001}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 46.096291669528, "uptime": 95378.78017195834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 129.71358334471006, "session": "3438F0E7-DE86-4F9A-8957-D364968E1B25", "uptime": 95378.863784125}
+{"event": "clipboard_complete", "height": 480, "ms": 6.884291666210629, "session": "3438F0E7-DE86-4F9A-8957-D364968E1B25", "uptime": 95379.36526583334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95379.36914154167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95379.48866504167}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.522999999811873, "uptime": 95379.48938470834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.43770832486916, "uptime": 95379.54130320835}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 133.68787498620804, "session": "38DCABFA-7069-44B8-A824-2B8707A42B39", "uptime": 95379.6175485}
+{"event": "clipboard_complete", "height": 480, "ms": 7.523458334617317, "session": "38DCABFA-7069-44B8-A824-2B8707A42B39", "uptime": 95380.11751583334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95380.12149025}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95380.23784900001}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.460166674107313, "uptime": 95380.23842545834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.98745834059082, "uptime": 95380.28596095834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 134.37029167835135, "session": "082DC3E6-E355-41C1-8128-8A65F4BB0D82", "uptime": 95380.36833591668}
+{"event": "clipboard_complete", "height": 480, "ms": 8.679999999003485, "session": "082DC3E6-E355-41C1-8128-8A65F4BB0D82", "uptime": 95380.87712795835, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95380.881084875}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95380.99943495834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.387208322645165, "uptime": 95381.00009900001}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.00312499538995, "uptime": 95381.05171854167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 137.9307083261665, "session": "2DCB10DE-6BDA-4104-9C4E-21B77CC99CF1", "uptime": 95381.13264125}
+{"event": "clipboard_complete", "height": 480, "ms": 6.0818333440693095, "session": "2DCB10DE-6BDA-4104-9C4E-21B77CC99CF1", "uptime": 95381.62762925001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95381.63201370834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95381.74572850001}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.0422083364101127, "uptime": 95381.74616562501}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 48.03925000305753, "uptime": 95381.79116866668}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 241.31195833615493, "session": "CA66AED4-D4D5-4B67-977B-94D438447785", "uptime": 95381.98443766667}
+{"event": "clipboard_complete", "height": 480, "ms": 9.158333341474645, "session": "CA66AED4-D4D5-4B67-977B-94D438447785", "uptime": 95382.49842304167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95382.50267608334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95382.61934808335}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.172000000835396, "uptime": 95382.619882875}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.9451249971753, "uptime": 95382.67066291667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 134.71866666805, "session": "346D7338-4A07-433C-AA13-D1478377F09E", "uptime": 95382.75042870834}
+{"event": "clipboard_complete", "height": 480, "ms": 9.104750002734363, "session": "346D7338-4A07-433C-AA13-D1478377F09E", "uptime": 95383.265714625, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95383.27024370834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95383.39359575}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.7090833249967545, "uptime": 95383.39406920834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.00541666999925, "uptime": 95383.44136666667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 129.55420833895914, "session": "F39BB974-7DD6-433B-ABD5-17875F3B7600", "uptime": 95383.51891354167}
+{"event": "clipboard_complete", "height": 480, "ms": 10.35779167432338, "session": "F39BB974-7DD6-433B-ABD5-17875F3B7600", "uptime": 95384.033461375, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95384.038182}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95384.16309887501}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.404833340435289, "uptime": 95384.16380729167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 47.514833335299045, "uptime": 95384.20591966667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 248.48491667944472, "session": "36208BB5-809C-4E9D-998D-7CF16F94E94F", "uptime": 95384.406887125}
+{"event": "clipboard_complete", "height": 480, "ms": 7.94820832379628, "session": "36208BB5-809C-4E9D-998D-7CF16F94E94F", "uptime": 95384.90227445833, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95384.90638070834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95385.02380612501}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.992083336925134, "uptime": 95385.02423233334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.522541664075106, "uptime": 95385.07276841668}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.67350000469014, "session": "E60D3FB4-5BA7-4397-9BB5-454B0736D06C", "uptime": 95385.15691566667}
+{"event": "clipboard_complete", "height": 480, "ms": 10.188291664235294, "session": "E60D3FB4-5BA7-4397-9BB5-454B0736D06C", "uptime": 95385.67307745834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95385.67868379167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95385.79884841667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.902291675331071, "uptime": 95385.79928458334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 58.324958343291655, "uptime": 95385.85371404167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 141.87733334256336, "session": "F86248C2-B9C5-467B-A51A-FCEDE148B710", "uptime": 95385.93726133334}
+{"event": "clipboard_complete", "height": 480, "ms": 7.242000006954186, "session": "F86248C2-B9C5-467B-A51A-FCEDE148B710", "uptime": 95386.43670237501, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95386.44150179168}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95386.561264375}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.4918333335081115, "uptime": 95386.56194170834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.827874998911284, "uptime": 95386.609281375}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 126.95691666158382, "session": "77F62A0B-7FCD-4F98-9D85-9A4176494DD7", "uptime": 95386.68340575001}
+{"event": "clipboard_complete", "height": 480, "ms": 6.610916665522382, "session": "77F62A0B-7FCD-4F98-9D85-9A4176494DD7", "uptime": 95387.17066608334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95387.17497433333}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95387.30039154168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.307666666340083, "uptime": 95387.30107158334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.84275000728667, "uptime": 95387.35161537501}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 134.82891667808872, "session": "A5DE8F22-E09E-4BF6-807E-363404A177B9", "uptime": 95387.43059312501}
+{"event": "clipboard_complete", "height": 480, "ms": 6.443249993026257, "session": "A5DE8F22-E09E-4BF6-807E-363404A177B9", "uptime": 95387.946731, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95387.95000333335}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95388.06952529168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.474208330269903, "uptime": 95388.07027145835}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 49.063666665460914, "uptime": 95388.11386120835}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 249.8981666722102, "session": "C38507E5-A81B-4D9F-B2C5-6615E9C246CF", "uptime": 95388.31469058334}
+{"event": "clipboard_complete", "height": 480, "ms": 7.954125001560897, "session": "C38507E5-A81B-4D9F-B2C5-6615E9C246CF", "uptime": 95388.80137716667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95388.80661470834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95388.92907495835}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.766416667029262, "uptime": 95388.92973675001}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.74904166860506, "uptime": 95388.979723625}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.94050000049174, "session": "97C3F40E-3528-48BC-9DFB-7A88ACA63CF8", "uptime": 95389.060910375}
+{"event": "clipboard_complete", "height": 480, "ms": 9.436874999664724, "session": "97C3F40E-3528-48BC-9DFB-7A88ACA63CF8", "uptime": 95389.58222770834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95389.58646829167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95389.70884466667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.419458335381933, "uptime": 95389.70951554168}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.94812500162516, "uptime": 95389.758046375}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.15704166213982, "session": "7CE21696-ED1C-4563-A373-F8C7D35B218A", "uptime": 95389.836251625}
+{"event": "clipboard_complete", "height": 480, "ms": 8.476333328871988, "session": "7CE21696-ED1C-4563-A373-F8C7D35B218A", "uptime": 95390.345229, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95390.349199375}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95390.47294854168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.33433334203437, "uptime": 95390.47364545833}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.47420832933858, "uptime": 95390.52278895833}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 135.60066667560022, "session": "F4727113-B6F7-410E-B626-E4D0A94CB360", "uptime": 95390.60391120834}
+{"event": "clipboard_complete", "height": 480, "ms": 8.596125000622123, "session": "F4727113-B6F7-410E-B626-E4D0A94CB360", "uptime": 95391.11413375, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95391.11857345834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95391.23737887501}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.87879166030325, "uptime": 95391.23798595835}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.02199999964796, "uptime": 95391.28413095835}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 128.56691666820552, "session": "E8D1C3FC-CC4E-4B79-885B-8A939F560A08", "uptime": 95391.36167304167}
+{"event": "clipboard_complete", "height": 480, "ms": 7.128041659598239, "session": "E8D1C3FC-CC4E-4B79-885B-8A939F560A08", "uptime": 95391.84928937501, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95391.853856125}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95391.97721558333}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.534083335078321, "uptime": 95391.97790933333}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.44379166874569, "uptime": 95392.02682108335}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 133.95012500404846, "session": "70F0DFF0-077D-466C-B816-EE8604A52337", "uptime": 95392.10632408333}
+{"event": "clipboard_complete", "height": 480, "ms": 9.27270833926741, "session": "70F0DFF0-077D-466C-B816-EE8604A52337", "uptime": 95392.61570816668, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95392.61946958334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95392.73975141667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 2.7832916675833985, "uptime": 95392.74008054167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 50.841999996919185, "uptime": 95392.78814579167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 129.4190416665515, "session": "4C5A80D3-9373-440C-8B5D-0D576D40ABBF", "uptime": 95392.86671854167}
+{"event": "clipboard_complete", "height": 480, "ms": 8.016541658435017, "session": "4C5A80D3-9373-440C-8B5D-0D576D40ABBF", "uptime": 95393.36870629167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95393.37307504167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95393.49133733334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.4453333432320505, "uptime": 95393.49203529167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.82016667176504, "uptime": 95393.54240945834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 137.05270833452232, "session": "DA5CB10C-EEEE-4B0E-991C-43761F78882C", "uptime": 95393.62363850001}
+{"event": "clipboard_complete", "height": 480, "ms": 8.29662500473205, "session": "DA5CB10C-EEEE-4B0E-991C-43761F78882C", "uptime": 95394.13155058333, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95394.13559875}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95394.24963091667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.0025416635908186, "uptime": 95394.25001404167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.362958329264075, "uptime": 95394.29837983334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.7963333238149, "session": "77D7132E-1C5E-4743-8FDC-178C957D8BC0", "uptime": 95394.37780979167}
+{"event": "clipboard_complete", "height": 480, "ms": 8.260333343059756, "session": "77D7132E-1C5E-4743-8FDC-178C957D8BC0", "uptime": 95394.888177625, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95394.89233716668}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95395.02265595834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.412166676251218, "uptime": 95395.023382875}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.56008333526552, "uptime": 95395.07053354167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.8358333335491, "session": "2E121981-821D-41DC-9C77-7149C0E24DBF", "uptime": 95395.14880566667}
+{"event": "clipboard_complete", "height": 480, "ms": 8.515541660017334, "session": "2E121981-821D-41DC-9C77-7149C0E24DBF", "uptime": 95395.64676091667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95395.65116604167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95395.770281}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.100208334624767, "uptime": 95395.77100062501}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 56.61808332661167, "uptime": 95395.82252150001}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 138.5466250067111, "session": "B6D2ABE3-5034-474F-A2AA-9C96F93767BC", "uptime": 95395.90444620834}
+{"event": "clipboard_complete", "height": 480, "ms": 7.081708332407288, "session": "B6D2ABE3-5034-474F-A2AA-9C96F93767BC", "uptime": 95396.41322683333, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95396.41766404167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95396.53985391668}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.480041669216007, "uptime": 95396.54058504167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.18050001026131, "uptime": 95396.58928833334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 255.18649999867193, "session": "14843411-05E2-461B-87B6-2A310A03BBE7", "uptime": 95396.7902895}
+{"event": "clipboard_complete", "height": 480, "ms": 9.885708335787058, "session": "14843411-05E2-461B-87B6-2A310A03BBE7", "uptime": 95397.31447479167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95397.31869329167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95397.43715875}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.141500001423992, "uptime": 95397.43762879167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.9148333260091, "uptime": 95397.48540658334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.35974999365862, "session": "0B091323-D102-413F-BF15-074D7F2CD7C0", "uptime": 95397.56384816667}
+{"event": "clipboard_complete", "height": 480, "ms": 9.04708333837334, "session": "0B091323-D102-413F-BF15-074D7F2CD7C0", "uptime": 95398.06812154167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95398.07231108334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95398.19231470834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.00345834007021, "uptime": 95398.19291466667}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 56.782875006319955, "uptime": 95398.24469683334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 137.15258333832026, "session": "E096710B-A507-4AE6-A942-8149138218F1", "uptime": 95398.32506570834}
+{"event": "clipboard_complete", "height": 480, "ms": 10.893583341385238, "session": "E096710B-A507-4AE6-A942-8149138218F1", "uptime": 95398.83377445834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95398.83756720833}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95398.95978475001}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.397333326982334, "uptime": 95398.96044683334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.20916665752884, "uptime": 95399.00926329168}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 128.09266666590702, "session": "CE09264A-9EF7-40E5-8934-5FD908EC5BCC", "uptime": 95399.08314154168}
+{"event": "clipboard_complete", "height": 480, "ms": 9.86900000134483, "session": "CE09264A-9EF7-40E5-8934-5FD908EC5BCC", "uptime": 95399.600586875, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95399.60531737501}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95399.73230375}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.150041670072824, "uptime": 95399.73276395834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.131041666143574, "uptime": 95399.78074920834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.97729167202488, "session": "DA643C8D-AD06-4590-AC32-B16157FC330C", "uptime": 95399.85959270834}
+{"event": "clipboard_complete", "height": 480, "ms": 7.365541663602926, "session": "DA643C8D-AD06-4590-AC32-B16157FC330C", "uptime": 95400.36965616667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95400.37438320834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95400.492391}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.320541662513278, "uptime": 95400.49303058334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.24695833364967, "uptime": 95400.53895958334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 129.33229166083038, "session": "6D9EB2AD-74F9-401D-A0A1-3FCB2B59BDF6", "uptime": 95400.61704104167}
+{"event": "clipboard_complete", "height": 480, "ms": 8.284124996862374, "session": "6D9EB2AD-74F9-401D-A0A1-3FCB2B59BDF6", "uptime": 95401.11794058334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95401.12232554167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95401.24087579167}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.4582083355635405, "uptime": 95401.24139325}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 47.55662500974722, "uptime": 95401.28449579167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 124.91529167164117, "session": "1EBF9DD8-4DAF-4439-B94B-2C4172B459C9", "uptime": 95401.36185158334}
+{"event": "clipboard_complete", "height": 480, "ms": 5.981499998597428, "session": "1EBF9DD8-4DAF-4439-B94B-2C4172B459C9", "uptime": 95401.86788775, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95401.87145516668}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95401.99703720833}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.295583338011056, "uptime": 95401.99771416667}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.53562500001863, "uptime": 95402.04495283334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 126.15412499872036, "session": "3DF2F7C2-6970-4860-939E-2D5CD6EDE139", "uptime": 95402.11856795834}
+{"event": "clipboard_complete", "height": 480, "ms": 7.883333339123055, "session": "3DF2F7C2-6970-4860-939E-2D5CD6EDE139", "uptime": 95402.61853566667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95402.62293404168}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95402.73853862501}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.0239583284128457, "uptime": 95402.73892283333}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 56.29045832029078, "uptime": 95402.79219566667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 137.98491665511392, "session": "09C1F2E1-A65F-4E10-8F68-52170AC1600B", "uptime": 95402.87388470834}
+{"event": "clipboard_complete", "height": 480, "ms": 6.37470833316911, "session": "09C1F2E1-A65F-4E10-8F68-52170AC1600B", "uptime": 95403.38069262501, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95403.38476687501}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95403.50346558334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.496416659094393, "uptime": 95403.503841625}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.66166665730998, "uptime": 95403.55101270834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 126.41137499304023, "session": "2CF17904-F16F-4585-BB1E-A0D9DB9B5293", "uptime": 95403.62575929167}
+{"event": "clipboard_complete", "height": 480, "ms": 9.055624992470257, "session": "2CF17904-F16F-4585-BB1E-A0D9DB9B5293", "uptime": 95404.12256829167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95404.126722625}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95404.246881}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.6294166531879455, "uptime": 95404.247543}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.34112499258481, "uptime": 95404.296256375}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 127.6816249883268, "session": "BC539D5D-3DD0-466A-9668-89F1972CE73C", "uptime": 95404.37059433333}
+{"event": "clipboard_complete", "height": 480, "ms": 9.353374989586882, "session": "BC539D5D-3DD0-466A-9668-89F1972CE73C", "uptime": 95404.87890925001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95404.88339279167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95405.0067335}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.5536666623083875, "uptime": 95405.007442125}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.20674999570474, "uptime": 95405.05710291667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 137.2059583372902, "session": "3D19FEA0-204F-48BE-B346-4E28425F19CB", "uptime": 95405.13909400001}
+{"event": "clipboard_complete", "height": 480, "ms": 6.963166670175269, "session": "3D19FEA0-204F-48BE-B346-4E28425F19CB", "uptime": 95405.65176220833, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95405.65612325001}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95405.77722358334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.9254166699247435, "uptime": 95405.77793220834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.247541662538424, "uptime": 95405.82725733334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 133.88058333657682, "session": "6838D65F-AE69-4385-8EB2-9B38D9261990", "uptime": 95405.90588666667}
+{"event": "clipboard_complete", "height": 480, "ms": 6.718541670124978, "session": "6838D65F-AE69-4385-8EB2-9B38D9261990", "uptime": 95406.40646533333, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95406.410992125}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95406.53226991667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.359291662694886, "uptime": 95406.53297266667}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.046000008587725, "uptime": 95406.58366708334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.09616666508373, "session": "AB8C69BA-AB54-4CDC-9210-3B56361C8DE5", "uptime": 95406.66470866668}
+{"event": "clipboard_complete", "height": 480, "ms": 6.005500006722286, "session": "AB8C69BA-AB54-4CDC-9210-3B56361C8DE5", "uptime": 95407.16304433334, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95407.16719975001}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95407.28772554167}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.881375003606081, "uptime": 95407.28845625001}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.55416666821111, "uptime": 95407.335135}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.07508333248552, "session": "4FB1723A-7980-462F-ACF9-B4F96D96840A", "uptime": 95407.41364866667}
+{"event": "clipboard_complete", "height": 480, "ms": 7.378666661679745, "session": "4FB1723A-7980-462F-ACF9-B4F96D96840A", "uptime": 95407.91439779167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95407.918555875}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95408.03867795834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.19300000066869, "uptime": 95408.039394}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 56.15974999091122, "uptime": 95408.09136308334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 133.00187500135507, "session": "40B77E0F-054C-42DF-9660-49E1EF08E826", "uptime": 95408.168202125}
+{"event": "clipboard_complete", "height": 480, "ms": 8.929583345889114, "session": "40B77E0F-054C-42DF-9660-49E1EF08E826", "uptime": 95408.68057304167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95408.68484933334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95408.80131354167}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.560999998124316, "uptime": 95408.80203720834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.01849999604747, "uptime": 95408.85349545834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.96499999787193, "session": "C29F9E92-18A3-41BA-BF83-B14C3887C3E3", "uptime": 95408.93343725}
+{"event": "clipboard_complete", "height": 480, "ms": 6.331875003525056, "session": "C29F9E92-18A3-41BA-BF83-B14C3887C3E3", "uptime": 95409.42349141667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95409.42789745834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95409.550589}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.460750006022863, "uptime": 95409.55130125}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.22354166896548, "uptime": 95409.60106687501}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.27887499751523, "session": "60748527-96EB-4A6D-BCA3-B0D33C079B02", "uptime": 95409.68211883334}
+{"event": "clipboard_complete", "height": 480, "ms": 8.048874995438382, "session": "60748527-96EB-4A6D-BCA3-B0D33C079B02", "uptime": 95410.18374450001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95410.187773375}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95410.31693545834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.433541664388031, "uptime": 95410.31764233334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.57824999373406, "uptime": 95410.36578970833}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 135.36966666288208, "session": "891FDEAA-37A6-4313-A738-D5C1565D3FC8", "uptime": 95410.44757729168}
+{"event": "clipboard_complete", "height": 480, "ms": 7.573541661258787, "session": "891FDEAA-37A6-4313-A738-D5C1565D3FC8", "uptime": 95410.94856066667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95410.95353833334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95411.073710375}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.5660416692262515, "uptime": 95411.0743685}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.13366667623632, "uptime": 95411.12593920834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 135.3382083325414, "session": "45ED9CA8-2CEE-4261-A46C-105A420A1251", "uptime": 95411.20413933333}
+{"event": "clipboard_complete", "height": 480, "ms": 8.822749994578771, "session": "45ED9CA8-2CEE-4261-A46C-105A420A1251", "uptime": 95411.71615779167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95411.72055150001}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95411.83813729168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.4103750007925555, "uptime": 95411.83885979168}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.980208332883194, "uptime": 95411.88643275}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.03991667251103, "session": "A8BA530D-AA11-4A78-8B98-0C13ED26F7C8", "uptime": 95411.96548825}
+{"event": "clipboard_complete", "height": 480, "ms": 7.648458340554498, "session": "A8BA530D-AA11-4A78-8B98-0C13ED26F7C8", "uptime": 95412.47181670833, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95412.47786308335}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95412.59724795834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.109916670131497, "uptime": 95412.59781975001}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.30075000913348, "uptime": 95412.64801275001}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 131.60808333486784, "session": "7C255A12-B08C-4B33-ABBF-0423F37AE22F", "uptime": 95412.72531645834}
+{"event": "clipboard_complete", "height": 480, "ms": 8.288500001071952, "session": "7C255A12-B08C-4B33-ABBF-0423F37AE22F", "uptime": 95413.237708625, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95413.241654125}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95413.35992729168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.455208331113681, "uptime": 95413.360644625}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.81004166358616, "uptime": 95413.41000125001}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 131.45362499926705, "session": "D6906EAA-E561-4FE8-9C2D-39D6FF7A40E8", "uptime": 95413.486642}
+{"event": "clipboard_complete", "height": 480, "ms": 8.623499990790151, "session": "D6906EAA-E561-4FE8-9C2D-39D6FF7A40E8", "uptime": 95413.99787666668, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95414.00184666667}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95414.12207116667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.405708332546055, "uptime": 95414.12279583333}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.468249989440665, "uptime": 95414.17186170834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.23591666610446, "session": "222802F8-E906-48D8-93EA-1E392D55FD1E", "uptime": 95414.249624125}
+{"event": "clipboard_complete", "height": 480, "ms": 8.521458323230036, "session": "222802F8-E906-48D8-93EA-1E392D55FD1E", "uptime": 95414.74740050001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95414.75225754167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95414.87053995834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.478708335431293, "uptime": 95414.87127520834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.61162499664351, "uptime": 95414.91841116667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 127.77674999961164, "session": "839AD289-5BD2-491A-8993-3B57DDA45608", "uptime": 95414.99357220833}
+{"event": "clipboard_complete", "height": 480, "ms": 9.316791663877666, "session": "839AD289-5BD2-491A-8993-3B57DDA45608", "uptime": 95415.49804250001, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95415.50210187501}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95415.62067991667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.397999993874691, "uptime": 95415.62139975}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.58929167455062, "uptime": 95415.67159270834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 135.3744583320804, "session": "89662ABB-8160-4F37-BD06-551F0F9B87F5", "uptime": 95415.7513745}
+{"event": "clipboard_complete", "height": 480, "ms": 7.521500010625459, "session": "89662ABB-8160-4F37-BD06-551F0F9B87F5", "uptime": 95416.26097241667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95416.26552891667}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95416.38376529167}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.420083336299285, "uptime": 95416.38446766668}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 56.16470833774656, "uptime": 95416.43621983334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.4027083327528, "session": "D7653A31-3586-4B62-AEFB-89EA92914164", "uptime": 95416.51644895834}
+{"event": "clipboard_complete", "height": 480, "ms": 11.220500004128553, "session": "D7653A31-3586-4B62-AEFB-89EA92914164", "uptime": 95417.01459195834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95417.01870308333}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95417.13914866667}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.494249999173917, "uptime": 95417.13988595834}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.83299999043811, "uptime": 95417.18622783334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 131.57170833437704, "session": "A9DEB4D2-FC9C-4357-8C31-0DE2F6B88F02", "uptime": 95417.2659615}
+{"event": "clipboard_complete", "height": 480, "ms": 8.783416677033529, "session": "A9DEB4D2-FC9C-4357-8C31-0DE2F6B88F02", "uptime": 95417.77646941667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95417.78147887501}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95417.90314408334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.100166657939553, "uptime": 95417.90390466667}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.71629165892955, "uptime": 95417.952523125}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 132.50866666203365, "session": "50B14CAF-7A70-43BB-B15C-65719C87B924", "uptime": 95418.03131195834}
+{"event": "clipboard_complete", "height": 480, "ms": 8.363958331756294, "session": "50B14CAF-7A70-43BB-B15C-65719C87B924", "uptime": 95418.53380141668, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95418.53841470834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95418.66169675}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.480458334204741, "uptime": 95418.66243333335}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.074416668503545, "uptime": 95418.71202945834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.92591665918007, "session": "86F339EB-DC51-4957-91BD-3B8B1B7E7E40", "uptime": 95418.78787691667}
+{"event": "clipboard_complete", "height": 480, "ms": 8.006750009371899, "session": "86F339EB-DC51-4957-91BD-3B8B1B7E7E40", "uptime": 95419.29434012501, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95419.29887145833}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95419.41634920835}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 4.026208334835246, "uptime": 95419.41672933334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 50.075291670509614, "uptime": 95419.46278308333}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 127.93845833220985, "session": "313EBFCD-53D4-4A8D-9110-46F787168C31", "uptime": 95419.540643625}
+{"event": "clipboard_complete", "height": 480, "ms": 7.485458336304873, "session": "313EBFCD-53D4-4A8D-9110-46F787168C31", "uptime": 95420.03740770834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95420.04269304167}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95420.16505654168}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.12308333418332, "uptime": 95420.16573983333}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.25279166956898, "uptime": 95420.21487129167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 133.32475000061095, "session": "AD12D075-7289-46B1-B249-4EA2E419D37E", "uptime": 95420.29393970834}
+{"event": "clipboard_complete", "height": 480, "ms": 8.729833323741332, "session": "AD12D075-7289-46B1-B249-4EA2E419D37E", "uptime": 95420.80345495834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95420.80791783334}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95420.93134983334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.548791668843478, "uptime": 95420.93209120833}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 51.89537499973085, "uptime": 95420.97843920834}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.1229166710982, "session": "43314214-ED46-4EB8-8115-405C638D76CC", "uptime": 95421.05666433334}
+{"event": "clipboard_complete", "height": 480, "ms": 10.634999998728745, "session": "43314214-ED46-4EB8-8115-405C638D76CC", "uptime": 95421.55970329167, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95421.56403495834}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95421.69031625001}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.08849999459926, "uptime": 95421.69101929167}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 52.28045833064243, "uptime": 95421.73821233334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.36941667087376, "session": "7A6A3265-7495-43A2-A243-208CF9E92E82", "uptime": 95421.81630029167}
+{"event": "clipboard_complete", "height": 480, "ms": 8.81087500602007, "session": "7A6A3265-7495-43A2-A243-208CF9E92E82", "uptime": 95422.32949125, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95422.334132}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95422.45585658334}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.293333335430361, "uptime": 95422.45659366668}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 57.07191665715072, "uptime": 95422.50837554167}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.79191666597035, "session": "3E47FEC3-3B71-4EB4-8472-14066367036A", "uptime": 95422.588091875}
+{"event": "clipboard_complete", "height": 480, "ms": 9.67945832235273, "session": "3E47FEC3-3B71-4EB4-8472-14066367036A", "uptime": 95423.09566870834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95423.10003875001}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95423.22644937501}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.383416675613262, "uptime": 95423.227102125}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 54.0890416741604, "uptime": 95423.27581658334}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 134.81154166220222, "session": "C2491821-134D-4C96-9EEC-D615E0786830", "uptime": 95423.35652983334}
+{"event": "clipboard_complete", "height": 480, "ms": 8.178666670573875, "session": "C2491821-134D-4C96-9EEC-D615E0786830", "uptime": 95423.843794875, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95423.84842116667}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95423.96576379167}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.293499998515472, "uptime": 95423.96648208334}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.57324999931734, "uptime": 95424.01476458333}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 130.34950000292156, "session": "582FCCA6-99DA-4CF3-B34E-01B999C49CAB", "uptime": 95424.09153670834}
+{"event": "clipboard_complete", "height": 480, "ms": 6.622791668632999, "session": "582FCCA6-99DA-4CF3-B34E-01B999C49CAB", "uptime": 95424.59366241668, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95424.59838441668}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95424.72038112501}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 3.726916664163582, "uptime": 95424.72113041667}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 55.551708326675, "uptime": 95424.77295866667}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 136.4800416631624, "session": "7480FDBF-B3B5-4D7E-AA8B-11EE83684941", "uptime": 95424.85388225001}
+{"event": "clipboard_complete", "height": 480, "ms": 9.442458336707205, "session": "7480FDBF-B3B5-4D7E-AA8B-11EE83684941", "uptime": 95425.36720870834, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95425.37204541668}
+{"event": "trigger", "source": "global_hotkey", "uptime": 95425.49888545834}
+{"event": "feedback_submitted", "measurement": "view_submission_not_physical_presentation", "ms": 5.4683333291905, "uptime": 95425.49962716668}
+{"displays": [{"height": 1912, "id": 1, "width": 2940}], "event": "background_ready", "ms": 53.30129167123232, "uptime": 95425.547464375}
+{"event": "selectable", "measurement": "runloop_after_window_submission; physical presentation not measured", "ms": 131.81824999628589, "session": "D374FDE0-F167-42D8-9DF7-5DCBADE96669", "uptime": 95425.62597587501}
+{"event": "clipboard_complete", "height": 480, "ms": 9.493125005974434, "session": "D374FDE0-F167-42D8-9DF7-5DCBADE96669", "uptime": 95426.13262091667, "width": 840}
+{"event": "session_finished", "result": "\u5df2\u590d\u5236\u56fe\u7247", "uptime": 95426.13737733333}
