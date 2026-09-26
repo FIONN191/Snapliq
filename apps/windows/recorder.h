@@ -4,8 +4,8 @@
 #include <functional>
 #include <string>
 #include <thread>
-struct RecordingOptions {HMONITOR monitor=nullptr;HWND window=nullptr;bool systemAudio=false,microphone=false;std::wstring path;};
-struct RecordingOutcome {bool saved=false;std::wstring message;long long frames=0,droppedAudio=0;};
+struct RecordingOptions {HMONITOR monitor=nullptr;HWND window=nullptr;bool systemAudio=true,microphone=true;std::wstring path;};
+struct RecordingOutcome {bool saved=false;std::wstring message,path;long long frames=0,droppedAudio=0;};
 class DesktopRecorder {
  std::thread worker_;
  std::atomic<bool> stop_{false},paused_{false},active_{false},started_{false};

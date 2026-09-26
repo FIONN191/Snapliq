@@ -3,13 +3,13 @@ Capture. Record. Share. — 截图与录屏工具
 
 Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureKit，Windows 使用 Win32/C++/WinRT + Windows.Graphics.Capture，两端共享 C++20 几何和布局核心。Snapliq for Chrome 仅提供配套入口；退出 Chrome、断开 Native Messaging 或关闭设置不结束桌面应用。
 
-当前桌面开发版本 **0.2.2**：提供可运行的 macOS Apple Silicon `.app`、DMG 与 ZIP，新增单屏区域录屏并修正视频颜色标记。原生区域裁剪/暂停/封装和截图 UI 测试通过；**最终 0.2.2 App 仍需用户授予屏幕录制权限后回归**。详见 [0.2.2 验收报告](outputs/Snapliq-0.2.2-validation.md)。已验收的 0.2.1 App 保留作为回退版本，其 100 次快捷键与录屏结论见 [0.2.1 报告](outputs/Snapliq-0.2.1-validation.md)。Windows 提供源码和 GitHub Actions 构建配置；云端编译结果见 Actions，真实桌面截图、录屏及权限仍待 Windows 实机验收。Chrome 开发与商店提交暂缓。
+当前桌面开发版本 **0.2.3**：新增独立快捷录屏、自动保存和默认双音频。macOS 默认 **⌥⌘ R**、Windows 默认 **Ctrl+Alt+R**，可在桌面设置修改；录制鼠标所在屏幕，再按一次结束并保存。验收范围见 [0.2.3 验收报告](outputs/Snapliq-0.2.3-validation.md)。Windows 实际桌面、音频与混合 DPI 仍待实机验收。Chrome 开发与商店提交暂缓。
 
 ## 启动与使用
 
-桌面开发版下载：[macOS 安装包（DMG）](https://github.com/FIONN191/Snapliq/releases/download/v0.2.2/Snapliq-0.2.2-macOS-arm64-development.dmg) · [0.2.2 预发布说明](https://github.com/FIONN191/Snapliq/releases/tag/v0.2.2)。本仓库跟踪源码、品牌资产和验收证据；本机 App、DMG、视频和剪贴板备份不进入 Git 历史。
+此前已发布的 0.2.2 开发版下载：[macOS 安装包（DMG）](https://github.com/FIONN191/Snapliq/releases/download/v0.2.2/Snapliq-0.2.2-macOS-arm64-development.dmg) · [0.2.2 预发布说明](https://github.com/FIONN191/Snapliq/releases/tag/v0.2.2)。本仓库跟踪源码、品牌资产和验收证据；本机 App、DMG、视频和剪贴板备份不进入 Git 历史。
 
-新构建应用位于 `outputs/builds/0.2.2/Snapliq.app`；安装文件为 `outputs/Snapliq-0.2.2-macOS-arm64-development.dmg`。已验收的 0.2.1 保留于 `outputs/builds/0.2.1/Snapliq.app`。已授权的 0.2.0 位于 `outputs/candidate/Snapliq.app`，更早的 `outputs/Snapliq.app` 也保留。0.2.1 已在恢复授权后通过最终 App 的 100 次 Chrome 退出截图、设置关闭、原生保存和录屏暂停/继续/停止回归；模块测试与最终 App 验收分别记录，不沿用旧签名结果。当前 macOS 构建要求 macOS 14+、Apple Silicon。不要同时启动两份开发应用。
+新构建应用位于 `outputs/builds/0.2.3/Snapliq.app`；安装文件为 `outputs/Snapliq-0.2.3-macOS-arm64-development.dmg`。历史签名的权限与测试结论不自动沿用到新构建。当前 macOS 构建要求 macOS 14+、Apple Silicon；麦克风需要 macOS 15+。不要同时启动两份开发应用。
 
 首次截图需要系统屏幕录制权限。Command + X 是默认候选，只有用户接受普通剪切冲突后才启用；注册成功不代表它与剪切兼容。设置中可以直接修改快捷键。菜单栏、独立悬浮球与 Chrome 配套入口都可唤醒截图。关闭设置后继续常驻；选择「退出 Snapliq」才结束后台运行。
 
@@ -18,7 +18,7 @@ Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureK
 - 智能框选：先匹配系统窗口边界；可选 Accessibility/UI Automation 控件识别，失败退回窗口。窗口截图当前基于可见桌面区域，不恢复被遮挡内容。
 - 提取文字：本地识别中文和英文，弹出可编辑结果并复制文本。macOS 使用 Vision；Windows 使用已安装的系统 OCR 语言包。
 - AirDrop：macOS 直接进入系统分享服务，由用户选择接收设备。Windows 不显示 AirDrop。
-- 录屏：原生屏幕/窗口来源、开始/暂停/继续/停止、时长、可选系统声音。macOS 15+ 提供 SCK 麦克风输入，macOS 14 禁用该选项。保存 H.264/AAC MP4，暂停时间从时间轴扣除。macOS 0.2.2 支持单显示器内的真实区域视频裁剪：点击“框选录制区域…”，Enter 确认区域，再选择保存文件并开始。跨屏区域与 Windows 区域录屏仍未实现。
+- 录屏：原生屏幕/窗口来源、开始/暂停/继续/停止、时长、默认开启系统声音和麦克风（记住用户关闭的选择）。macOS 15+ 提供 SCK 麦克风输入，macOS 14 禁用该选项。保存 H.264/AAC MP4，暂停时间从时间轴扣除。macOS 0.2.2 支持单显示器内的真实区域视频裁剪：点击“框选录制区域…”，Enter 确认区域，点击“开始录制”。快捷录屏和来源面板均自动保存至默认目录；未设置目录时使用 macOS `~/Movies/Snapliq` / Windows `Videos/Snapliq`，无保存对话框。跨屏区域与 Windows 区域录屏仍未实现。
 - 悬浮球：拖动、靠边停靠、记住位置、右键停用/仅今天停用/设置；菜单栏或托盘可恢复。当日停用按本地日期并在唤醒时复核。
 - 空闲时不保持屏幕捕获流，不存储屏幕历史。OCR、编码器按需初始化。
 
@@ -45,7 +45,7 @@ macOS 需要 Xcode Command Line Tools、Python 3：
 zsh scripts/build-macos.sh
 zsh scripts/test-macos.sh
 zsh scripts/test-services-macos.sh
-open outputs/builds/0.2.2/Snapliq.app
+open outputs/builds/0.2.3/Snapliq.app
 ```
 
 默认构建输出 outputs/builds/<版本>/Snapliq.app，避免覆盖此前已授权版本。可用 SNAPLIQ_APP_PATH 指定另一输出位置。默认临时签名；重新构建可能使系统要求重新授权。SNAPLIQ_SIGNING_IDENTITY 可以指定已有签名证书，但脚本并未完成正式 hardened runtime、公证和发行流程。

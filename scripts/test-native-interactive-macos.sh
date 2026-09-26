@@ -17,6 +17,6 @@ if [[ "$2" == "smart" ]]; then
   .build/macos/accessibility_live_tests work/accessibility-fixture.json .build/macos/accessibility_fixture
 else
   swiftc -O tests/macos/AXControl.swift -o .build/macos/ax_control
-  swiftc "${FLAGS[@]}" "${COMMON[@]}" apps/macos/Orb.swift apps/macos/RecordingController.swift apps/macos/RecordingEncoder.swift apps/macos/RecordingUI.swift tests/macos/RecordingControlLiveTests.swift "${LINK[@]}" -framework AVFoundation -framework CoreAudio -o .build/macos/recording_control_tests
+  swiftc "${FLAGS[@]}" "${COMMON[@]}" apps/macos/Orb.swift apps/macos/RecordingController.swift apps/macos/RecordingEncoder.swift apps/macos/RecordingUI.swift apps/macos/RecordingDestination.swift tests/macos/RecordingControlLiveTests.swift "${LINK[@]}" -framework AVFoundation -framework CoreAudio -o .build/macos/recording_control_tests
   python3 scripts/test-recording-controls-macos.py --run-interactive
 fi

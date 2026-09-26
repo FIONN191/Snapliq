@@ -34,14 +34,16 @@ final class RecordingController:NSObject,SCStreamDelegate,@unchecked Sendable {
     private var poll:Timer?
     private var audioListener:AudioObjectPropertyListenerBlock?
     private var systemAudio=false
+    private var overwriteExisting=true
     var elapsed:Double {accumulated+(state == .recording ? now()-activeStarted:0)}
     var active:Bool{state != .idle}
-    @MainActor func start(filter:SCContentFilter,windowID:CGWindowID?,width:Int,height:Int,url:URL,systemAudio:Bool,microphone:Bool,region:RecordingRegion?=nil) async throws {
+    @MainActor func start(filter:SCContentFilter,windowID:CGWindowID?,width:Int,height:Int,url:URL,systemAudio:Bool,microphone:Bool,region:RecordingRegion?=nil,overwriteExisting:Bool=true) async throws {
         guard state == .idle else{throw CaptureFailure.message("已有录屏任务。")}
         if let region=region {
             guard windowID==nil else{throw CaptureFailure.message("区域录屏必须使用显示器来源。")}
             try region.validateCurrentDisplay(pointPixelScale:CGFloat(filter.pointPixelScale))
         }
+        self.overwriteExisting=overwriteExisting
         state = .preparing;destination=url;sourceID=windowID;self.systemAudio=systemAudio
         let temp=url.deletingLastPathComponent().appendingPathComponent(".snapliq-record-"+UUID().uuidString+".mp4")
         temporary=temp;hasBothAudio=systemAudio && microphone
@@ -134,7 +136,7 @@ final class RecordingController:NSObject,SCStreamDelegate,@unchecked Sendable {
                     try? FileManager.default.removeItem(at:temp);ready=mixed
                 } else{ready=temp}
                 do {
-                    if FileManager.default.fileExists(atPath:target.path){_ = try FileManager.default.replaceItemAt(target,withItemAt:ready)}
+                    if self.overwriteExisting && FileManager.default.fileExists(atPath:target.path){_ = try FileManager.default.replaceItemAt(target,withItemAt:ready)}
                     else{try FileManager.default.moveItem(at:ready,to:target)}
                 }catch{throw CaptureFailure.message("录屏已封装，但保存失败。可恢复文件：\(ready.path)\n\(error.localizedDescription)")}
                 final=target

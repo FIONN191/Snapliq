@@ -23,11 +23,18 @@ func showError(_ message: String) {
 }
 final class Preferences {
     static let shared=Preferences()
-    let defaults=UserDefaults.standard
+    let defaults:UserDefaults
+    init(defaults:UserDefaults = .standard){self.defaults=defaults}
     var shortcutEnabled: Bool { get {defaults.bool(forKey:"shortcutEnabled")} set{defaults.set(newValue,forKey:"shortcutEnabled")} }
     var shortcutKey: UInt32 { get { defaults.object(forKey:"shortcutKey") == nil ? 7 : UInt32(defaults.integer(forKey:"shortcutKey")) } set{defaults.set(Int(newValue),forKey:"shortcutKey")} }
     var shortcutMods: UInt32 { get {defaults.object(forKey:"shortcutMods") == nil ? UInt32(cmdKey) : UInt32(defaults.integer(forKey:"shortcutMods"))} set{defaults.set(Int(newValue),forKey:"shortcutMods")} }
     var shortcutLabel: String { get{defaults.string(forKey:"shortcutLabel") ?? "⌘ X"} set{defaults.set(newValue,forKey:"shortcutLabel")} }
+    var recordingShortcutEnabled:Bool {get{defaults.object(forKey:"recordingShortcutEnabled") == nil ? true:defaults.bool(forKey:"recordingShortcutEnabled")} set{defaults.set(newValue,forKey:"recordingShortcutEnabled")}}
+    var recordingShortcutKey:UInt32 {get{defaults.object(forKey:"recordingShortcutKey") == nil ? UInt32(kVK_ANSI_R):UInt32(defaults.integer(forKey:"recordingShortcutKey"))} set{defaults.set(Int(newValue),forKey:"recordingShortcutKey")}}
+    var recordingShortcutMods:UInt32 {get{defaults.object(forKey:"recordingShortcutMods") == nil ? UInt32(cmdKey|optionKey):UInt32(defaults.integer(forKey:"recordingShortcutMods"))} set{defaults.set(Int(newValue),forKey:"recordingShortcutMods")}}
+    var recordingShortcutLabel:String {get{defaults.string(forKey:"recordingShortcutLabel") ?? "⌥⌘ R"} set{defaults.set(newValue,forKey:"recordingShortcutLabel")}}
+    var recordSystemAudio:Bool {get{defaults.object(forKey:"recordSystemAudio") == nil ? true:defaults.bool(forKey:"recordSystemAudio")} set{defaults.set(newValue,forKey:"recordSystemAudio")}}
+    var recordMicrophone:Bool {get{defaults.object(forKey:"recordMicrophone") == nil ? true:defaults.bool(forKey:"recordMicrophone")} set{defaults.set(newValue,forKey:"recordMicrophone")}}
     var orbHidden: Bool {get{defaults.bool(forKey:"orbHidden")} set{defaults.set(newValue,forKey:"orbHidden")} }
     var dateKey: String {
         let parts=Calendar.current.dateComponents([.era,.year,.month,.day],from:Date())
@@ -69,28 +76,43 @@ final class Metrics {
 }
 
 final class HotkeyService {
+    enum Kind:UInt32 {case screenshot=1,recording=2}
+    private static let signature:OSType=0x534e4150
+    let kind:Kind
+    private let preferences:Preferences
     private var key:EventHotKeyRef?
     private var handler:EventHandlerRef?
+    private var pressed=false
     var onTrigger:(()->Void)?
-    init(){
-        var spec=EventTypeSpec(eventClass:OSType(kEventClassKeyboard),eventKind:UInt32(kEventHotKeyPressed))
-        InstallEventHandler(GetApplicationEventTarget(),{ _,_,context in
-            guard let context=context else{return OSStatus(eventNotHandledErr)}
+    init(kind:Kind = .screenshot,preferences:Preferences = .shared){
+        self.kind=kind;self.preferences=preferences
+        var specs=[EventTypeSpec(eventClass:OSType(kEventClassKeyboard),eventKind:UInt32(kEventHotKeyPressed)),EventTypeSpec(eventClass:OSType(kEventClassKeyboard),eventKind:UInt32(kEventHotKeyReleased))]
+        InstallEventHandler(GetApplicationEventTarget(),{ _,event,context in
+            guard let context=context,let event=event else{return OSStatus(eventNotHandledErr)}
             let service=Unmanaged<HotkeyService>.fromOpaque(context).takeUnretainedValue()
+            var id=EventHotKeyID(signature:0,id:0)
+            let status=GetEventParameter(event,EventParamName(kEventParamDirectObject),EventParamType(typeEventHotKeyID),nil,MemoryLayout<EventHotKeyID>.size,nil,&id)
+            guard status==noErr,service.matches(id) else{return OSStatus(eventNotHandledErr)}
+            if GetEventKind(event)==UInt32(kEventHotKeyReleased){service.pressed=false;return noErr}
+            guard !service.pressed else{return noErr}
+            service.pressed=true
             DispatchQueue.main.async {service.onTrigger?()}
             return noErr
-        },1,&spec,Unmanaged.passUnretained(self).toOpaque(),&handler)
+        },specs.count,&specs,Unmanaged.passUnretained(self).toOpaque(),&handler)
     }
+    func matches(_ id:EventHotKeyID)->Bool{id.signature==Self.signature && id.id==kind.rawValue}
     @discardableResult func register() -> OSStatus {
         unregister()
-        let p=Preferences.shared
-        guard p.shortcutEnabled else{return noErr}
-        let id=EventHotKeyID(signature:0x534e4150,id:1)
-        let result=RegisterEventHotKey(p.shortcutKey,p.shortcutMods,id,GetApplicationEventTarget(),OptionBits(kEventHotKeyExclusive),&key)
-        Metrics.shared.write("hotkey_registration",["status":result,"enabled":result==0])
+        let p=preferences,isRecording=kind == .recording
+        guard isRecording ? p.recordingShortcutEnabled:p.shortcutEnabled else{return noErr}
+        let code=isRecording ? p.recordingShortcutKey:p.shortcutKey
+        let mods=isRecording ? p.recordingShortcutMods:p.shortcutMods
+        let id=EventHotKeyID(signature:Self.signature,id:kind.rawValue)
+        let result=RegisterEventHotKey(code,mods,id,GetApplicationEventTarget(),OptionBits(kEventHotKeyExclusive),&key)
+        Metrics.shared.write("hotkey_registration",["status":result,"enabled":result==0,"kind":isRecording ? "recording":"screenshot"])
         return result
     }
-    func unregister(){if let key=key{UnregisterEventHotKey(key)};key=nil}
+    func unregister(){if let key=key{UnregisterEventHotKey(key)};key=nil;pressed=false}
     deinit{unregister();if let handler=handler{RemoveEventHandler(handler)}}
 }
 final class BrandView:NSView {

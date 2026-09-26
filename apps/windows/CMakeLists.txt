@@ -10,5 +10,5 @@ add_executable(Snapliq WIN32 main.cpp capture.cpp desktop-services.cpp recorder.
 target_include_directories(Snapliq PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_compile_definitions(Snapliq PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN WINVER=0x0A00 _WIN32_WINNT=0x0A00)
 target_compile_options(Snapliq PRIVATE /utf-8 /EHsc /W4)
-target_link_libraries(Snapliq PRIVATE snapliq_core windowsapp d3d11 dxgi windowscodecs shcore shlwapi shell32 ole32 comctl32 dwmapi mfplat mfreadwrite mfuuid uiautomationcore user32 gdi32 advapi32)
+target_link_libraries(Snapliq PRIVATE snapliq_core windowsapp d3d11 dxgi windowscodecs shcore shlwapi shell32 ole32 uuid comctl32 dwmapi mfplat mfreadwrite mfuuid uiautomationcore user32 gdi32 advapi32)
 target_link_options(Snapliq PRIVATE "/MANIFEST:EMBED" "/MANIFESTINPUT:${CMAKE_CURRENT_BINARY_DIR}/app.manifest")

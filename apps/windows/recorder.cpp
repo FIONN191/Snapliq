@@ -92,7 +92,7 @@ struct Mixer {
 }
 void DesktopRecorder::start(RecordingOptions options,std::function<void(RecordingOutcome)> done){
  if(active_.exchange(true))throw std::runtime_error("Recording is already active.");join();stop_=false;paused_=false;started_=false;elapsed_=0;
- worker_=std::thread([this,options,done]{
+ try{worker_=std::thread([this,options,done]{
   RecordingOutcome result;std::wstring temp;
   try {
    Apartment apartment;Foundation foundation;
@@ -116,8 +116,14 @@ void DesktopRecorder::start(RecordingOptions options,std::function<void(Recordin
    com_ptr<IMFMediaType> videoIn;MFCreateMediaType(videoIn.put());videoOut->CopyAllItems(videoIn.get());videoIn->SetGUID(MF_MT_SUBTYPE,MFVideoFormat_RGB32);videoIn->SetUINT32(MF_MT_DEFAULT_STRIDE,width*4);
    check_hresult(writer->SetInputMediaType(videoStream,videoIn.get(),nullptr));
    std::unique_ptr<AudioSource> system,mic;DWORD audioStream=0;Mixer mixer;
-   if(options.systemAudio){system=std::make_unique<AudioSource>();system->start(true);}
-   if(options.microphone){mic=std::make_unique<AudioSource>();mic->start(false);}
+   if(options.systemAudio){
+    system=std::make_unique<AudioSource>();
+    try{system->start(true);}catch(const hresult_error& e){throw hresult_error(e.code(),L"无法录制系统声音，请检查默认播放设备，或在录屏设置中关闭系统声音。\n"+std::wstring(e.message().c_str()));}
+   }
+   if(options.microphone){
+    mic=std::make_unique<AudioSource>();
+    try{mic->start(false);}catch(const hresult_error& e){throw hresult_error(e.code(),L"无法录制麦克风，请检查默认输入设备和 Windows 麦克风隐私权限，或在录屏设置中关闭麦克风。\n"+std::wstring(e.message().c_str()));}
+   }
    if(system||mic){
     com_ptr<IMFMediaType> out;MFCreateMediaType(out.put());out->SetGUID(MF_MT_MAJOR_TYPE,MFMediaType_Audio);out->SetGUID(MF_MT_SUBTYPE,MFAudioFormat_AAC);
     out->SetUINT32(MF_MT_AUDIO_NUM_CHANNELS,2);out->SetUINT32(MF_MT_AUDIO_SAMPLES_PER_SECOND,48000);out->SetUINT32(MF_MT_AUDIO_BITS_PER_SAMPLE,16);out->SetUINT32(MF_MT_AUDIO_AVG_BYTES_PER_SECOND,20000);
@@ -172,16 +178,19 @@ void DesktopRecorder::start(RecordingOptions options,std::function<void(Recordin
      Sleep(4);
     }
    }catch(const hresult_error& e){result.message=e.message().c_str();}catch(const std::exception& e){std::string text=e.what();result.message.assign(text.begin(),text.end());}
-   item.Closed(closedToken);session.Close();pool.Close();system.reset();mic.reset();
+   stop_=true;item.Closed(closedToken);session.Close();pool.Close();system.reset();mic.reset();
    if(result.frames==0)throw std::runtime_error("No video frames captured.");
    const auto duration=std::max<int64_t>(elapsed_.load(),lastWritten+333333);
    if(lastBuffer&&duration>lastWritten+666666){com_ptr<IMFSample> tail;check_hresult(MFCreateSample(tail.put()));tail->AddBuffer(lastBuffer.get());tail->SetSampleTime(duration-333333);tail->SetSampleDuration(333333);check_hresult(writer->WriteSample(videoStream,tail.get()));lastWritten=duration-333333;result.frames++;}lastBuffer=nullptr;
    if(options.systemAudio||options.microphone)mixer.writeUntil(writer.get(),audioStream,(lastWritten+333333)*48000/10000000);
    check_hresult(writer->Finalize());writer=nullptr;result.droppedAudio=mixer.dropped;
-   if(!MoveFileEx(temp.c_str(),options.path.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH))throw hresult_error(HRESULT_FROM_WIN32(GetLastError()));
-   result.saved=true;
+   if(!MoveFileEx(temp.c_str(),options.path.c_str(),MOVEFILE_WRITE_THROUGH))throw hresult_error(HRESULT_FROM_WIN32(GetLastError()));
+   result.saved=true;result.path=options.path;
   }catch(const hresult_error& e){result.message=e.message().c_str();}catch(const std::exception& e){std::string text=e.what();result.message.assign(text.begin(),text.end());}
-  if(!result.saved&&!temp.empty())result.message+=L"\nPartial file (may be incomplete): "+temp;
+  if(!result.saved&&!temp.empty()){
+   if(result.frames==0){DeleteFile(temp.c_str());}
+   else result.message+=L"\nPartial file (may be incomplete): "+temp;
+  }
   active_=false;done(std::move(result));
- });
+ });}catch(...){active_=false;throw;}
 }

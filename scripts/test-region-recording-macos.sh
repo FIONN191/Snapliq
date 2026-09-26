@@ -10,7 +10,7 @@ swiftc "${FLAGS[@]}" "${COMMON[@]}" tests/macos/RecordingRegionTests.swift "${LI
 .build/macos/region_tests
 if [[ "${1:-}" == "--run-interactive" ]]; then
  swiftc -O tests/macos/RegionFixture.swift -o .build/macos/region_fixture
- swiftc "${FLAGS[@]}" "${COMMON[@]}" apps/macos/Orb.swift apps/macos/RecordingController.swift apps/macos/RecordingEncoder.swift apps/macos/RecordingUI.swift tests/macos/RegionRecordingLiveTests.swift "${LINK[@]}" -framework AVFoundation -framework CoreAudio -o .build/macos/region_recording_tests
+ swiftc "${FLAGS[@]}" "${COMMON[@]}" apps/macos/Orb.swift apps/macos/RecordingController.swift apps/macos/RecordingEncoder.swift apps/macos/RecordingUI.swift apps/macos/RecordingDestination.swift tests/macos/RegionRecordingLiveTests.swift "${LINK[@]}" -framework AVFoundation -framework CoreAudio -o .build/macos/region_recording_tests
  .build/macos/region_recording_tests work/region-recording-0.2.2 .build/macos/region_fixture
  ffmpeg -v error -xerror -i work/region-recording-0.2.2/region.mp4 -fps_mode passthrough -enc_time_base demux -f null -
 fi

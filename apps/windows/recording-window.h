@@ -10,10 +10,12 @@ class RecordingWindow {
  HWND owner_;
  std::function<void(RecordingOptions)> start_;
  static LRESULT CALLBACK proc(HWND,UINT,WPARAM,LPARAM);
+ void registerClass();
  void begin();
 public:
  RecordingWindow(DesktopRecorder& recorder,HWND owner,std::function<void(RecordingOptions)> start):recorder_(recorder),owner_(owner),start_(std::move(start)){}
  void present();
+ void hidePicker(){if(picker_)ShowWindow(picker_,SW_HIDE);}
  void update();
  void close();
 };

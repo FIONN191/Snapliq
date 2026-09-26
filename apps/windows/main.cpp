@@ -10,6 +10,7 @@
 #include "capture.h"
 #include "desktop-services.h"
 #include "recording-window.h"
+#include "recording-preferences.h"
 #include "native-bridge.h"
 #include "snapliq_core.h"
 #include <algorithm>
@@ -21,7 +22,7 @@
 #include <sstream>
 #include <cmath>
 constexpr UINT TRAY=WM_APP+1,CAPTURED=WM_APP+2,OCR_DONE=WM_APP+3,HIT_DONE=WM_APP+4,RECORD_DONE=WM_APP+5;
-constexpr int REGION=100,SCREEN=101,RESTORE=102,SETTINGS=103,QUIT=104,TODAY=105,HIDE=106,COPY=107,SAVE=108,SAVEAS=109,APPLYKEY=110,FOLDER=111,STARTUP=112,WINDOW=113,OCR=114,SMART=115,CONTROLS=116,RECORD=117,PAUSE_RECORD=118,STOP_RECORD=119,CONNECT_CHROME=120;
+constexpr int REGION=100,SCREEN=101,RESTORE=102,SETTINGS=103,QUIT=104,TODAY=105,HIDE=106,COPY=107,SAVE=108,SAVEAS=109,APPLYKEY=110,FOLDER=111,STARTUP=112,WINDOW=113,OCR=114,SMART=115,CONTROLS=116,RECORD=117,PAUSE_RECORD=118,STOP_RECORD=119,CONNECT_CHROME=120,APPLY_RECORD_KEY=121,QUICK_RECORD=122;
 const wchar_t* PREFS=L"Software\\Snapliq\\Development";
 DWORD readInt(const wchar_t* name,DWORD fallback){DWORD value=0,bytes=sizeof(value);return RegGetValue(HKEY_CURRENT_USER,PREFS,name,RRF_RT_REG_DWORD,nullptr,&value,&bytes)==ERROR_SUCCESS?value:fallback;}
 void writeInt(const wchar_t* name,DWORD value){HKEY key;if(RegCreateKeyEx(HKEY_CURRENT_USER,PREFS,0,nullptr,0,KEY_SET_VALUE,nullptr,&key,nullptr)==ERROR_SUCCESS){RegSetValueEx(key,name,0,REG_DWORD,reinterpret_cast<BYTE*>(&value),sizeof(value));RegCloseKey(key);}}
@@ -33,19 +34,36 @@ struct HitResult{RECT rect;POINT point;unsigned generation;};
 struct OCRResult{unsigned generation=0;std::wstring text,error;};
 struct Result{unsigned generation=0;std::unique_ptr<Desktop> desktop;std::wstring error;};
 struct App {
- HWND host=nullptr,orb=nullptr,overlay=nullptr,settings=nullptr,hotkeyControl=nullptr;
+ HWND host=nullptr,orb=nullptr,overlay=nullptr,settings=nullptr,hotkeyControl=nullptr,recordHotkeyControl=nullptr;
  std::vector<WindowTarget> targets;SLRect candidate{};bool candidateValid=false,windowMode=false,hitBusy=false,quitAfterRecord=false;
  ULONGLONG lastHit=0;std::thread hitWorker,ocrWorker;HWND ocrWindow=nullptr,ocrEdit=nullptr;
  NativeBridge bridge;unsigned ocrGeneration=0;
- DesktopRecorder recorder;std::unique_ptr<RecordingWindow> recordingWindow;
+ DesktopRecorder recorder;std::unique_ptr<RecordingWindow> recordingWindow;bool recordingSessionPending=false;
  unsigned generation=0;NOTIFYICONDATA tray{};std::thread worker;bool busy=false,full=false,selected=false,dragging=false,moving=false,orbDragging=false;int handle=-1;
  DWORD vk=readInt(L"key",'X'),mods=readInt(L"modifiers",MOD_CONTROL|MOD_ALT);
+ DWORD recordVK=readInt(L"recordKey",'R'),recordMods=readInt(L"recordModifiers",MOD_CONTROL|MOD_ALT);
  std::unique_ptr<Desktop> desktop;Image dim;SLRect selection{},original{};POINT start{},orbStart{};RECT orbOrigin{};RECT bar{},modeBar{};
  std::wstring folder=readString(L"folder");
  void error(const std::wstring& text){if(overlay)ShowWindow(overlay,SW_HIDE);MessageBox(settings?settings:host,text.c_str(),PRODUCT_NAME,MB_OK|MB_ICONWARNING);if(overlay){ShowWindow(overlay,SW_SHOW);SetForegroundWindow(overlay);}}
  void report(const std::wstring& message){tray.uFlags=NIF_INFO;wcscpy_s(tray.szInfoTitle,PRODUCT_NAME);wcsncpy_s(tray.szInfo,message.c_str(),_TRUNCATE);tray.dwInfoFlags=NIIF_INFO;Shell_NotifyIcon(NIM_MODIFY,&tray);}
  void refreshTrayIcon(){DWORD light=0,bytes=sizeof(light);RegGetValue(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",L"SystemUsesLightTheme",RRF_RT_REG_DWORD,nullptr,&light,&bytes);tray.hIcon=LoadIcon(GetModuleHandle(nullptr),MAKEINTRESOURCE(light?2:3));tray.uFlags=NIF_ICON;Shell_NotifyIcon(NIM_MODIFY,&tray);}
  void registerKey(){UnregisterHotKey(host,1);if(!RegisterHotKey(host,1,mods|MOD_NOREPEAT,vk))error(L"Global shortcut registration failed. Choose another combination in Settings.");}
+ void registerRecordingKey(){UnregisterHotKey(host,2);if(!RegisterHotKey(host,2,recordMods|MOD_NOREPEAT,recordVK))error(L"录屏快捷键被占用，请在 Snapliq 设置中修改独立的录屏快捷键。");}
+ void applyShortcut(bool recording){
+  HWND control=recording?recordHotkeyControl:hotkeyControl;WORD key=WORD(SendMessage(control,HKM_GETHOTKEY,0,0));BYTE flags=HIBYTE(key);
+  if(!LOBYTE(key)||!(flags&(HOTKEYF_CONTROL|HOTKEYF_ALT))){error(L"快捷键必须包含 Control 或 Alt 和一个按键。");return;}
+  DWORD nextVK=LOBYTE(key),nextMods=((flags&HOTKEYF_CONTROL)?MOD_CONTROL:0)|((flags&HOTKEYF_ALT)?MOD_ALT:0)|((flags&HOTKEYF_SHIFT)?MOD_SHIFT:0);
+  if(nextVK==(recording?vk:recordVK)&&nextMods==(recording?mods:recordMods)){error(L"截图和录屏必须使用不同的快捷键。");return;}
+  DWORD& currentVK=recording?recordVK:vk;DWORD& currentMods=recording?recordMods:mods;int id=recording?2:1;
+  UnregisterHotKey(host,id);
+  if(!RegisterHotKey(host,id,nextMods|MOD_NOREPEAT,nextVK)){
+   bool restored=RegisterHotKey(host,id,currentMods|MOD_NOREPEAT,currentVK)!=FALSE;
+   BYTE restoredFlags=((currentMods&MOD_CONTROL)?HOTKEYF_CONTROL:0)|((currentMods&MOD_ALT)?HOTKEYF_ALT:0)|((currentMods&MOD_SHIFT)?HOTKEYF_SHIFT:0);
+   SendMessage(control,HKM_SETHOTKEY,MAKEWORD(currentVK,restoredFlags),0);
+   error(restored?L"快捷键不可用，已恢复原快捷键。":L"快捷键注册失败，原快捷键也被占用。请重新选择。");return;
+  }
+  currentVK=nextVK;currentMods=nextMods;writeInt(recording?L"recordKey":L"key",currentVK);writeInt(recording?L"recordModifiers":L"modifiers",currentMods);
+ }
  void refreshOrb(){ShowWindow(orb,((!recorder.active()||SetWindowDisplayAffinity(orb,WDA_EXCLUDEFROMCAPTURE))&&!busy&&!overlay&&!readInt(L"orbHidden",0)&&readInt(L"orbDate",0)!=dateKey())?SW_SHOWNOACTIVATE:SW_HIDE);}
  void placeOrb(bool saved=true){
   MONITORINFO info{sizeof(info)};POINT p{LONG(readInt(L"orbX",200)),LONG(readInt(L"orbY",200))};
@@ -65,7 +83,7 @@ struct App {
   HMENU menu=CreatePopupMenu();
   if(orbMenu){AppendMenu(menu,MF_STRING,TODAY,L"仅今天停用");AppendMenu(menu,MF_STRING,HIDE,L"停用");}
   else{AppendMenu(menu,MF_STRING,REGION,L"区域截图");AppendMenu(menu,MF_STRING,SCREEN,L"当前屏幕截图");AppendMenu(menu,MF_STRING,WINDOW,L"窗口截图");AppendMenu(menu,MF_STRING,RESTORE,L"显示悬浮球");}
-  if(!orbMenu){AppendMenu(menu,MF_STRING,RECORD,recorder.active()?L"显示录屏控制条":L"屏幕录制…");if(recorder.active()){AppendMenu(menu,MF_STRING,PAUSE_RECORD,recorder.paused()?L"继续录屏":L"暂停录屏");AppendMenu(menu,MF_STRING,STOP_RECORD,L"停止并保存录屏");}}
+  if(!orbMenu){if(!recordingSessionPending)AppendMenu(menu,MF_STRING,QUICK_RECORD,L"快速录制当前屏幕");AppendMenu(menu,MF_STRING,RECORD,recorder.active()?L"显示录屏控制条":L"屏幕录制…");if(recorder.active()){AppendMenu(menu,MF_STRING,PAUSE_RECORD,recorder.paused()?L"继续录屏":L"暂停录屏");AppendMenu(menu,MF_STRING,STOP_RECORD,L"停止并保存录屏");}}
   AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING,SETTINGS,L"设置");
   if(!orbMenu){AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING,QUIT,L"退出 Snapliq");}
   POINT point;GetCursorPos(&point);SetForegroundWindow(host);int action=TrackPopupMenu(menu,TPM_RETURNCMD|TPM_RIGHTBUTTON,point.x,point.y,0,host,nullptr);
@@ -216,11 +234,26 @@ struct App {
   ocrWorker=std::thread([this,token,image=std::move(image)]{winrt::init_apartment(winrt::apartment_type::multi_threaded);auto result=new OCRResult;result->generation=token;try{result->text=recognizeText(image);}catch(const winrt::hresult_error& e){result->error=e.message().c_str();}catch(const std::exception& e){std::string t=e.what();result->error.assign(t.begin(),t.end());}if(!PostMessage(host,OCR_DONE,0,reinterpret_cast<LPARAM>(result)))delete result;winrt::uninit_apartment();});
  }
  void startRecording(RecordingOptions options){
+  if(recordingSessionPending||recorder.active())return;
   try{
+   if(options.path.empty())options.path=recording_preferences::automaticPath(folder);
    if(settings)ShowWindow(settings,SW_HIDE);closeCapture();
+   if(recordingWindow)recordingWindow->hidePicker();
+   ShowWindow(orb,SW_HIDE);
+   DwmFlush();recordingSessionPending=true;
    recorder.start(options,[this](RecordingOutcome result){auto value=new RecordingOutcome(std::move(result));if(!PostMessage(host,RECORD_DONE,0,reinterpret_cast<LPARAM>(value)))delete value;});
-   SetTimer(host,2,250,nullptr);refreshOrb();
-  }catch(const std::exception& e){std::string t=e.what();error(std::wstring(t.begin(),t.end()));}
+   SetTimer(host,2,250,nullptr);refreshOrb();if(recordingWindow)recordingWindow->update();
+  }catch(const winrt::hresult_error& e){recordingSessionPending=false;refreshOrb();error(e.message().c_str());}
+  catch(const std::exception& e){recordingSessionPending=false;refreshOrb();std::string t=e.what();error(std::wstring(t.begin(),t.end()));}
+ }
+ void ensureRecordingWindow(){if(!recordingWindow)recordingWindow=std::make_unique<RecordingWindow>(recorder,host,[this](RecordingOptions o){startRecording(o);});}
+ void quickRecording(){
+  // Never turn a rapid repeat during setup/finalization into a second recording.
+  if(recordingSessionPending){if(recorder.active()&&recorder.started()&&!recorder.stopping()){recorder.stop();if(recordingWindow)recordingWindow->update();}return;}
+  if(busy||quitAfterRecord)return;
+  POINT point;GetCursorPos(&point);RecordingOptions options;options.monitor=MonitorFromPoint(point,MONITOR_DEFAULTTOPRIMARY);
+  options.systemAudio=recording_preferences::enabled(recording_preferences::systemAudioKey);options.microphone=recording_preferences::enabled(recording_preferences::microphoneKey);
+  ensureRecordingWindow();startRecording(options);
  }
  void showSettings();
  void command(int action){
@@ -230,7 +263,8 @@ struct App {
    case CONNECT_CHROME:try{NativeBridge::registerHost();report(L"Chrome connection registered for this application.");}catch(const winrt::hresult_error& e){error(e.message().c_str());}catch(const std::exception& e){std::string t=e.what();error(std::wstring(t.begin(),t.end()));}break;
    case SMART:writeInt(L"smart",IsDlgButtonChecked(settings,SMART)==BST_CHECKED);break;
    case CONTROLS:writeInt(L"controls",IsDlgButtonChecked(settings,CONTROLS)==BST_CHECKED);break;
-   case RECORD:if(!recordingWindow)recordingWindow=std::make_unique<RecordingWindow>(recorder,host,[this](RecordingOptions o){startRecording(o);});recordingWindow->present();break;
+   case RECORD:ensureRecordingWindow();recordingWindow->present();break;
+   case QUICK_RECORD:quickRecording();break;
    case PAUSE_RECORD:recorder.pause();if(recordingWindow)recordingWindow->update();break;
    case STOP_RECORD:recorder.stop();break;
    case RESTORE:writeInt(L"orbHidden",0);writeInt(L"orbDate",0);refreshOrb();break;
@@ -238,12 +272,8 @@ struct App {
    case SETTINGS:showSettings();break;case QUIT:closeCapture();if(recorder.active()){quitAfterRecord=true;recorder.stop();report(L"正在停止并保存录屏…");}else DestroyWindow(host);break;
    case COPY:copied();break;case SAVE:save(false);break;case SAVEAS:save(true);break;
    case FOLDER:{auto path=choosePath(true);if(!path.empty()){folder=path;writeString(L"folder",folder);}break;}
-   case APPLYKEY:{
-    WORD key=WORD(SendMessage(hotkeyControl,HKM_GETHOTKEY,0,0));BYTE flags=HIBYTE(key);
-    if(!(flags&(HOTKEYF_CONTROL|HOTKEYF_ALT))){error(L"Use Control or Alt in the shortcut.");break;}
-    DWORD oldVK=vk,oldMods=mods;vk=LOBYTE(key);mods=((flags&HOTKEYF_CONTROL)?MOD_CONTROL:0)|((flags&HOTKEYF_ALT)?MOD_ALT:0)|((flags&HOTKEYF_SHIFT)?MOD_SHIFT:0);
-    UnregisterHotKey(host,1);if(!RegisterHotKey(host,1,mods|MOD_NOREPEAT,vk)){vk=oldVK;mods=oldMods;registerKey();error(L"Shortcut unavailable; original restored.");}else{writeInt(L"key",vk);writeInt(L"modifiers",mods);}break;
-   }
+   case APPLYKEY:applyShortcut(false);break;
+   case APPLY_RECORD_KEY:applyShortcut(true);break;
    case STARTUP:{
     HKEY key;auto enabled=IsDlgButtonChecked(settings,STARTUP)==BST_CHECKED;
     if(RegCreateKeyEx(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",0,nullptr,0,KEY_SET_VALUE,nullptr,&key,nullptr)==ERROR_SUCCESS){
@@ -256,19 +286,19 @@ struct App {
 } app;
 LRESULT CALLBACK HostProc(HWND w,UINT m,WPARAM a,LPARAM b){
  switch(m){
- case WM_HOTKEY:app.capture(false);return 0;
+ case WM_HOTKEY:if(a==1)app.capture(false);else if(a==2)app.quickRecording();return 0;
  case WM_COMMAND:app.command(LOWORD(a));return 0;
  case TRAY:if(b==WM_LBUTTONUP)app.capture(false);else if(b==WM_RBUTTONUP)app.popup(false);return 0;
  case CAPTURED:app.showCapture(reinterpret_cast<Result*>(b));return 0;
  case OCR_DONE:{std::unique_ptr<OCRResult> r(reinterpret_cast<OCRResult*>(b));if(app.ocrEdit&&r->generation==app.ocrGeneration)SetWindowText(app.ocrEdit,r->error.empty()?r->text.c_str():r->error.c_str());return 0;}
  case HIT_DONE:{std::unique_ptr<HitResult> r(reinterpret_cast<HitResult*>(b));app.hitBusy=false;POINT p;GetCursorPos(&p);if(app.desktop&&app.overlay&&!app.selected&&!app.dragging&&r->generation==app.generation&&std::abs(p.x-r->point.x)+std::abs(p.y-r->point.y)<5&&r->rect.right>r->rect.left){app.candidate={double(r->rect.left-app.desktop->bounds.left),double(r->rect.top-app.desktop->bounds.top),double(r->rect.right-r->rect.left),double(r->rect.bottom-r->rect.top)};app.candidateValid=true;InvalidateRect(app.overlay,nullptr,FALSE);}return 0;}
- case RECORD_DONE:{app.tray.uFlags=NIF_TIP;wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_MODIFY,&app.tray);std::unique_ptr<RecordingOutcome> r(reinterpret_cast<RecordingOutcome*>(b));KillTimer(w,2);if(app.recordingWindow)app.recordingWindow->update();app.refreshOrb();app.report(r->saved?L"已保存录屏":L"录屏停止，文件需要恢复");if(!r->message.empty()&&!app.quitAfterRecord)app.error(r->message);if(app.quitAfterRecord)DestroyWindow(w);return 0;}
+ case RECORD_DONE:{app.recordingSessionPending=false;app.tray.uFlags=NIF_TIP;wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_MODIFY,&app.tray);std::unique_ptr<RecordingOutcome> r(reinterpret_cast<RecordingOutcome*>(b));KillTimer(w,2);if(app.recordingWindow)app.recordingWindow->update();app.refreshOrb();app.report(r->saved?L"已保存录屏\n"+r->path:L"录屏未完成");if(!r->message.empty()&&!app.quitAfterRecord)app.error(r->message);if(app.quitAfterRecord)DestroyWindow(w);return 0;}
  case WM_TIMER:if(a==2){if(app.recordingWindow)app.recordingWindow->update();app.tray.uFlags=NIF_TIP;wcsncpy_s(app.tray.szTip,app.recorder.stopping()?L"Snapliq - Finishing":!app.recorder.started()?L"Snapliq - Preparing":app.recorder.paused()?L"Snapliq - Paused":L"Snapliq - Recording",_TRUNCATE);Shell_NotifyIcon(NIM_MODIFY,&app.tray);}else app.refreshOrb();return 0;
  case WM_DISPLAYCHANGE:app.recorder.stop();app.closeCapture();app.placeOrb();return 0;
  case WM_TIMECHANGE:app.refreshOrb();return 0;
  case WM_SETTINGCHANGE:app.refreshTrayIcon();return 0;
  case WM_POWERBROADCAST:if(a==PBT_APMSUSPEND){app.recorder.stop();app.closeCapture();}else if(a==PBT_APMRESUMEAUTOMATIC){app.placeOrb();app.refreshOrb();}return TRUE;
- case WM_DESTROY:app.bridge.stop();UnregisterHotKey(w,1);Shell_NotifyIcon(NIM_DELETE,&app.tray);app.recorder.stop();app.recorder.join();if(app.recordingWindow)app.recordingWindow->close();if(app.worker.joinable())app.worker.join();if(app.ocrWorker.joinable())app.ocrWorker.join();if(app.hitWorker.joinable())app.hitWorker.join();PostQuitMessage(0);return 0;
+ case WM_DESTROY:app.bridge.stop();UnregisterHotKey(w,1);UnregisterHotKey(w,2);Shell_NotifyIcon(NIM_DELETE,&app.tray);app.recorder.stop();app.recorder.join();if(app.recordingWindow)app.recordingWindow->close();if(app.worker.joinable())app.worker.join();if(app.ocrWorker.joinable())app.ocrWorker.join();if(app.hitWorker.joinable())app.hitWorker.join();PostQuitMessage(0);return 0;
  }return DefWindowProc(w,m,a,b);
 }
 LRESULT CALLBACK OrbProc(HWND w,UINT m,WPARAM a,LPARAM b){
@@ -317,23 +347,29 @@ LRESULT CALLBACK OCRProc(HWND w,UINT m,WPARAM a,LPARAM b){
 LRESULT CALLBACK SettingsProc(HWND w,UINT m,WPARAM a,LPARAM b){if(m==WM_DPICHANGED){applyWindowDpi(w,HIWORD(a),reinterpret_cast<RECT*>(b));return 0;}if(m==WM_NCDESTROY)releaseDpiFont(w);if(m==WM_COMMAND){app.command(LOWORD(a));return 0;}if(m==WM_CLOSE){ShowWindow(w,SW_HIDE);return 0;}return DefWindowProc(w,m,a,b);}
 void App::showSettings(){
  if(settings){ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);return;}
- settings=CreateWindowEx(WS_EX_APPWINDOW,L"SnapliqSettings",L"Snapliq 设置",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,CW_USEDEFAULT,CW_USEDEFAULT,570,500,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
+ settings=CreateWindowEx(WS_EX_APPWINDOW,L"SnapliqSettings",L"Snapliq 设置",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,CW_USEDEFAULT,CW_USEDEFAULT,570,590,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
  auto child=[&](const wchar_t* cls,const wchar_t* title,DWORD style,int x,int y,int width,int height,int id){return CreateWindowEx(0,cls,title,WS_CHILD|WS_VISIBLE|style,x,y,width,height,settings,reinterpret_cast<HMENU>(INT_PTR(id)),GetModuleHandle(nullptr),nullptr);};
- child(L"STATIC",PRODUCT_NAME,0,24,22,480,28,0);child(L"STATIC",L"Capture. Record. Share. · 独立桌面截图开发版",0,24,54,500,25,0);
+ child(L"STATIC",PRODUCT_NAME,0,24,22,480,28,0);child(L"STATIC",L"Capture. Record. Share. · 独立桌面截图与录屏",0,24,54,500,25,0);
  child(L"STATIC",L"全局截图快捷键",0,24,104,145,25,0);
  hotkeyControl=child(HOTKEY_CLASS,L"",WS_BORDER|WS_TABSTOP,180,100,180,28,0);
  BYTE flags=((mods&MOD_CONTROL)?HOTKEYF_CONTROL:0)|((mods&MOD_ALT)?HOTKEYF_ALT:0)|((mods&MOD_SHIFT)?HOTKEYF_SHIFT:0);SendMessage(hotkeyControl,HKM_SETHOTKEY,MAKEWORD(vk,flags),0);
  child(L"BUTTON",L"应用",BS_PUSHBUTTON|WS_TABSTOP,385,100,95,28,APPLYKEY);
- child(L"BUTTON",L"默认保存位置…",BS_PUSHBUTTON|WS_TABSTOP,24,153,210,32,FOLDER);
- child(L"BUTTON",L"显示悬浮球",BS_PUSHBUTTON|WS_TABSTOP,255,153,210,32,RESTORE);
- child(L"BUTTON",L"登录时启动 Snapliq",BS_AUTOCHECKBOX|WS_TABSTOP,24,205,400,28,STARTUP);
+ child(L"STATIC",L"快速录屏快捷键",0,24,149,145,25,0);
+ recordHotkeyControl=child(HOTKEY_CLASS,L"",WS_BORDER|WS_TABSTOP,180,145,180,28,0);
+ BYTE recordFlags=((recordMods&MOD_CONTROL)?HOTKEYF_CONTROL:0)|((recordMods&MOD_ALT)?HOTKEYF_ALT:0)|((recordMods&MOD_SHIFT)?HOTKEYF_SHIFT:0);SendMessage(recordHotkeyControl,HKM_SETHOTKEY,MAKEWORD(recordVK,recordFlags),0);
+ child(L"BUTTON",L"应用",BS_PUSHBUTTON|WS_TABSTOP,385,145,95,28,APPLY_RECORD_KEY);
+ child(L"STATIC",L"录制鼠标所在屏幕；再次按下停止并自动保存。",0,24,182,500,25,0);
+ child(L"BUTTON",L"默认保存位置…",BS_PUSHBUTTON|WS_TABSTOP,24,228,210,32,FOLDER);
+ child(L"BUTTON",L"显示悬浮球",BS_PUSHBUTTON|WS_TABSTOP,255,228,210,32,RESTORE);
+ child(L"STATIC",L"未设置录屏目录时使用：视频 / Snapliq",0,24,267,500,25,0);
+ child(L"BUTTON",L"登录时启动 Snapliq",BS_AUTOCHECKBOX|WS_TABSTOP,24,302,400,28,STARTUP);
  DWORD bytes=0;bool enabled=RegGetValue(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",L"SnapliqDevelopment",RRF_RT_REG_SZ,nullptr,nullptr,&bytes)==ERROR_SUCCESS;CheckDlgButton(settings,STARTUP,enabled?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"开始截图",BS_DEFPUSHBUTTON|WS_TABSTOP,24,257,180,34,REGION);
- child(L"BUTTON",L"屏幕录制…",BS_PUSHBUTTON|WS_TABSTOP,230,257,190,34,RECORD);
- child(L"BUTTON",L"智能框选窗口",BS_AUTOCHECKBOX|WS_TABSTOP,24,300,220,28,SMART);CheckDlgButton(settings,SMART,readInt(L"smart",0)?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"识别窗口内控件",BS_AUTOCHECKBOX|WS_TABSTOP,255,300,250,28,CONTROLS);CheckDlgButton(settings,CONTROLS,readInt(L"controls",0)?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"Connect Snapliq for Chrome",BS_PUSHBUTTON|WS_TABSTOP,24,330,300,28,CONNECT_CHROME);
- child(L"STATIC",L"关闭设置后，系统托盘和快捷键继续运行。",0,24,360,500,24,0);
+ child(L"BUTTON",L"开始截图",BS_DEFPUSHBUTTON|WS_TABSTOP,24,352,180,34,REGION);
+ child(L"BUTTON",L"屏幕录制…",BS_PUSHBUTTON|WS_TABSTOP,230,352,190,34,RECORD);
+ child(L"BUTTON",L"智能框选窗口",BS_AUTOCHECKBOX|WS_TABSTOP,24,402,220,28,SMART);CheckDlgButton(settings,SMART,readInt(L"smart",0)?BST_CHECKED:BST_UNCHECKED);
+ child(L"BUTTON",L"识别窗口内控件",BS_AUTOCHECKBOX|WS_TABSTOP,255,402,250,28,CONTROLS);CheckDlgButton(settings,CONTROLS,readInt(L"controls",0)?BST_CHECKED:BST_UNCHECKED);
+ child(L"BUTTON",L"Connect Snapliq for Chrome",BS_PUSHBUTTON|WS_TABSTOP,24,442,300,28,CONNECT_CHROME);
+ child(L"STATIC",L"关闭设置后，系统托盘和两组快捷键继续运行。",0,24,486,500,24,0);
  SendMessage(settings,WM_SETICON,ICON_BIG,reinterpret_cast<LPARAM>(LoadIcon(GetModuleHandle(nullptr),MAKEINTRESOURCE(1))));
  applyWindowDpi(settings);ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);
 }
@@ -351,7 +387,7 @@ int WINAPI wWinMain(HINSTANCE instance,HINSTANCE,PWSTR,int){
  app.placeOrb(readInt(L"orbX",0)!=0);app.refreshOrb();
  app.tray.cbSize=sizeof(app.tray);app.tray.hWnd=app.host;app.tray.uID=1;app.tray.uCallbackMessage=TRAY;app.tray.uFlags=NIF_MESSAGE|NIF_ICON|NIF_TIP;app.tray.hIcon=LoadIcon(instance,MAKEINTRESOURCE(2));wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_ADD,&app.tray);
  app.bridge.start([](int action){PostMessage(app.host,WM_COMMAND,action,0);});
- app.refreshTrayIcon();app.registerKey();SetTimer(app.host,1,60000,nullptr);app.showSettings();
+ app.refreshTrayIcon();app.registerKey();app.registerRecordingKey();SetTimer(app.host,1,60000,nullptr);app.showSettings();
  MSG message;while(GetMessage(&message,nullptr,0,0)>0){if(app.settings&&IsWindowVisible(app.settings)&&IsDialogMessage(app.settings,&message))continue;TranslateMessage(&message);DispatchMessage(&message);}
  if(single)CloseHandle(single);return 0;
 }

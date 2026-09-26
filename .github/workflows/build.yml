@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: zsh scripts/build-macos.sh
       - run: zsh scripts/test-macos.sh
+      - run: zsh scripts/test-quick-recording-macos.sh
       - run: zsh scripts/package-macos-dmg.sh
       - run: python3 scripts/package-development.py --desktop-only
       - uses: actions/upload-artifact@v4

@@ -4,15 +4,19 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
     let bridge=DesktopBridge()
     let backend=CaptureBackend()
     let hotkey=HotkeyService()
+    let recordingHotkey=HotkeyService(kind:.recording)
     let orb=OrbController()
     let settings=SettingsController()
     let recorder=RecordingController()
     lazy var recordingUI:RecordingUI = {
         let ui=RecordingUI(controller:recorder)
+        ui.onStartingChanged={ [weak self] in self?.rebuildMenu() }
+        ui.onPreferencesChanged={ [weak self] in self?.settings.refresh() }
         ui.onChooseRegion={ [weak self] in self?.begin(.region,trigger:"recording_region",recordingSelection:true) }
         return ui
     }()
     private var waitingToQuit=false
+    private var lastRecordingURL:URL?
     private var permissionPrompt=false
     private var lastPermissionPrompt=0.0
     private var statusItem:NSStatusItem!
@@ -25,12 +29,16 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
         statusItem=NSStatusBar.system.statusItem(withLength:NSStatusItem.variableLength);statusItem.button?.image=brandImage()
         statusItem.button?.toolTip="\(Product.name) — 截图开发版";rebuildMenu()
         hotkey.onTrigger={ [weak self] in self?.begin(.region,trigger:"global_hotkey") }
+        recordingHotkey.onTrigger={ [weak self] in self?.quickRecord() }
         orb.onCapture={ [weak self] in self?.begin(.region,trigger:"orb") }
         orb.onSettings={ [weak self] in self?.settings.present() }
         orb.onStateChanged={ [weak self] in self?.rebuildMenu();self?.settings.refresh() }
         settings.onCapture={ [weak self] in self?.begin(.region,trigger:"settings") }
         settings.onHotkeyChanged={ [weak self] in self?.hotkey.register() ?? -1 }
-        settings.onSuspendHotkey={ [weak self] in self?.hotkey.unregister() }
+        settings.onSuspendHotkey={ [weak self] in self?.hotkey.unregister();self?.recordingHotkey.unregister() }
+        settings.onRecordingHotkeyChanged={ [weak self] in self?.recordingHotkey.register() ?? -1 }
+        settings.onRecordingPreferencesChanged={ [weak self] in self?.recordingUI.refreshPreferences() }
+        settings.onQuickRecord={ [weak self] in self?.quickRecord() }
         settings.onOrbChanged={ [weak self] in self?.orb.refresh();self?.rebuildMenu() }
         bridge.onAction={ [weak self] action in
             guard let self=self else{return}
@@ -53,10 +61,15 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
             guard let self=self else{return}
             if self.waitingToQuit{NSApp.reply(toApplicationShouldTerminate:true);return}
             if let error=error{showError(error)}
-            else if let url=url{self.statusItem.button?.toolTip="已保存录屏："+url.lastPathComponent}
+            else if let url=url{self.lastRecordingURL=url;self.statusItem.button?.toolTip="已保存录屏："+url.path;self.rebuildMenu()}
         }
         let result=hotkey.register()
         if result != 0{Preferences.shared.shortcutEnabled=false}
+        let recordingResult=recordingHotkey.register()
+        if recordingResult != 0 {
+            Preferences.shared.recordingShortcutEnabled=false
+            DispatchQueue.main.async {showError("录屏快捷键注册失败（\(recordingResult)），可能被其他应用占用。请在 Snapliq 设置中修改或重新启用。")}
+        }
         orb.refresh()
         Metrics.shared.write("launch",["version":Product.version,"pid":getpid(),"screenPermission":CGPreflightScreenCaptureAccess(),"screens":NSScreen.screens.count])
         if CommandLine.arguments.contains("--self-test"){Task{await runDiagnostics(app:self)}}
@@ -67,22 +80,26 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication)->Bool{false}
     func applicationShouldTerminate(_ sender:NSApplication)->NSApplication.TerminateReply {
-        if recorder.state == .preparing {showError("录屏正在准备，请稍后退出。");return .terminateCancel}
+        if recordingUI.starting || recorder.state == .preparing {showError("录屏正在准备，请稍后退出。");return .terminateCancel}
         if recorder.active {waitingToQuit=true;recorder.stop();return .terminateLater}
         return .terminateNow
     }
-    func applicationWillTerminate(_ notification:Notification){bridge.stop();hotkey.unregister();Metrics.shared.write("quit")}
+    func applicationWillTerminate(_ notification:Notification){bridge.stop();hotkey.unregister();recordingHotkey.unregister();Metrics.shared.write("quit")}
     func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows flag:Bool)->Bool{settings.present();return true}
     private func item(_ title:String,_ action:Selector)->NSMenuItem{let m=NSMenuItem(title:title,action:action,keyEquivalent:"");m.target=self;return m}
     func rebuildMenu(){
         guard statusItem != nil else{return}
         let m=NSMenu();m.addItem(item("区域截图",#selector(region)));m.addItem(item("窗口截图",#selector(windowCapture)));m.addItem(item("当前屏幕截图",#selector(screenCapture)))
         m.addItem(.separator())
-        m.addItem(item(recorder.active ? "显示录屏控制条":"屏幕录制…",#selector(recordScreen)))
+        m.addItem(item(recorder.active ? "显示录屏控制条":"选择录屏来源…",#selector(recordScreen)))
+        let quick=item(recorder.active ? "结束快捷录屏":"快速录屏  ·  \(Preferences.shared.recordingShortcutLabel)",#selector(quickRecord))
+        quick.isEnabled = !recordingUI.starting && recorder.state != .preparing && recorder.state != .finishing
+        m.addItem(quick)
         if recorder.state == .recording || recorder.state == .paused {
             m.addItem(item(recorder.state == .paused ? "继续录屏":"暂停录屏",#selector(pauseRecording)))
             m.addItem(item("停止并保存录屏",#selector(stopRecording)))
         }
+        if lastRecordingURL != nil{m.addItem(item("在 Finder 中显示最近录屏",#selector(revealRecording)))}
         m.addItem(.separator());m.addItem(item("显示悬浮球",#selector(restoreOrb)));m.addItem(item("设置…",#selector(openSettings)))
         m.addItem(.separator());m.addItem(item("退出 Snapliq",#selector(quit)));statusItem.menu=m
     }
@@ -129,7 +146,7 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
             }
         }
     }
-    func ensureCapturePermission()->Bool {
+    func ensureCapturePermission(operation:String="截图")->Bool {
         if CGPreflightScreenCaptureAccess(){return true}
         Metrics.shared.write("permission_required")
         guard !permissionPrompt,now()-lastPermissionPrompt>2 else{return false}
@@ -137,15 +154,22 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
         if CGRequestScreenCaptureAccess(){return true}
         NSApp.activate(ignoringOtherApps:true)
         let alert=NSAlert();alert.messageText="当前版本尚未获得屏幕捕获权限"
-        alert.informativeText="请在系统设置中允许 Snapliq，然后退出并重新打开。若权限开关已开启，开发版更新可能改变了签名，需要移除旧 Snapliq 条目并重新添加当前应用。快捷键已经收到，截图尚未开始。"
+        alert.informativeText="请在系统设置中允许 Snapliq，然后退出并重新打开。若权限开关已开启，开发版更新可能改变了签名，需要移除旧 Snapliq 条目并重新添加当前应用。快捷键已经收到，\(operation)尚未开始。"
         alert.addButton(withTitle:"打开系统权限设置");alert.addButton(withTitle:"稍后")
         if alert.runModal() == .alertFirstButtonReturn{NSWorkspace.shared.open(URL(string:"x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)}
         return false
     }
+    @objc func quickRecord(){
+        if recordingUI.starting || recorder.active {recordingUI.quickToggle();return}
+        guard !busy,session==nil else{NSSound.beep();return}
+        guard ensureCapturePermission(operation:"录屏") else{return}
+        settings.window?.orderOut(nil);recordingUI.quickToggle()
+    }
     @objc func recordScreen(){
-        guard ensureCapturePermission() else{return}
+        guard ensureCapturePermission(operation:"录屏") else{return}
         settings.window?.orderOut(nil);recordingUI.present()
     }
+    @objc func revealRecording(){if let url=lastRecordingURL{NSWorkspace.shared.activateFileViewerSelecting([url])}}
     @objc func pauseRecording(){recorder.togglePause()}
     @objc func stopRecording(){recorder.stop()}
     @objc func region(){begin(.region,trigger:"menu")}
