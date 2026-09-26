@@ -22,9 +22,11 @@ Apple M2 MacBook Air，16 GB，macOS 15.6.1 (24G90)，SDK 15.5，单屏。截图
 - 独立 AppKit 设置探针：550×670 与 520×450 视口无约束歧义，可滚动，默认双音频勾选；快捷键录入 Esc 与关闭窗口均恢复两组回调。
 - 0.2.3 已复制到 `/Applications/Snapliq.app` 并启动。实际进程日志记录截图与录屏两个全局快捷键 RegisterEventHotKey 均返回 0。
 
+- DMG 经 `hdiutil verify` 校验通过，ZIP CRC 与版本校验通过；安装的 App、构建 App 和 ZIP 内可执行文件逐字节一致。
+
 ## 仍待实际交互验收
-当前系统锁屏，Computer Use 返回锁屏错误，无法按真实快捷键完成屏幕录制；新开发签名启动日志的 `screenPermission` 为 false，需用户在系统隐私设置允许当前 Snapliq 后重启。不能将模块通过或注册成功当作最终 App 录屏成功。
+首次验证因系统锁屏无法操作；用户解锁后已实际检查 0.2.3 设置界面，确认两组快捷键独立开启、双音频选项勾选、已有 Documents 保存目录保留。新开发签名启动日志的 `screenPermission` 为 false，应用实际显示系统授权提示，需用户在系统隐私设置允许当前 Snapliq 后重启。不能将模块通过或注册成功当作最终 App 录屏成功。
 
 需解锁/授权后验证：快捷键一次开始、再次停止、MP4 双音频输出、设置关闭后继续生效、声音手动关闭后重开仍保留、面板开始不出现保存对话框。本轮没有取得最终 App 的录屏时延 P50/P95。
 
-Windows 源码已同步实现，云端编译结果待 GitHub Actions；真实设备的热键、WASAPI 双音频、DPI 与权限交互仍未验收。当前包仍为开发临时签名，没有 Developer ID 公证；不宣称完成正式跨平台发行。
+GitHub Actions [36233655807](https://github.com/FIONN191/Snapliq/actions/runs/36233655807) 已完成，macOS 与 Windows 两项均成功，所验证的功能提交为 `db74ae535631d05566e5604330f523815d9133ec`。Windows 云端编译与共享测试通过；真实设备的热键、WASAPI 双音频、DPI 与权限交互仍未验收。当前包仍为开发临时签名，没有 Developer ID 公证；不宣称完成正式跨平台发行。
