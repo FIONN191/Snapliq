@@ -27,6 +27,8 @@ Apple M2 MacBook Air (Mac14,2)，16 GB，macOS 15.6.1 (24G90)，SDK 15.5；单�
 - Windows 可移植布局测试 2,422 项通过，在 macOS 使用 Clang C++20 和 `-Wall -Wextra -Werror` 编译运行，包含 200%→100% DPI 的右边/下边停靠与自由位置回归。实际 Windows 构建由 GitHub Actions 单独检查；本机可移植测试不等于 Win32 交互验收。
 - DMG 已通过 `hdiutil verify`；App ZIP 和源码 ZIP 的 CRC 校验通过，App ZIP 中的可执行文件与已安装版本逐字节一致。
 
+GitHub Actions [38445861523](https://github.com/FIONN191/Snapliq/actions/runs/38445861523) 已完成，macOS 与 Windows 两项均成功，验证的功能提交为 `40c780aac2fee691be35d84d151b5ce721a7cd50`。Windows 原生编译和 CTest 通过，macOS 原生构建、截图模块、快捷录屏、悬浮球测试与打包通过。云端通过不扩展下列实际桌面验收范围。
+
 ## 最终 App 实际界面检查
 
 已通过桌面自动化操作安装的 0.2.4：关闭边缘吸附，将大小从 48 改成 80；关闭设置后可见 160×160 Retina 像素的圆形悬浮球，品牌符号比例正常。右键菜单锁定后，再次右键可打开设置，设置正确显示大小 80、吸附关闭、位置锁定。设置窗口滚动后新增控件可见、可操作，没有底部溢出。
