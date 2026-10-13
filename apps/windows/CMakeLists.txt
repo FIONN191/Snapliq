@@ -12,3 +12,5 @@ target_compile_definitions(Snapliq PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_
 target_compile_options(Snapliq PRIVATE /utf-8 /EHsc /W4)
 target_link_libraries(Snapliq PRIVATE snapliq_core windowsapp d3d11 dxgi windowscodecs shcore shlwapi shell32 ole32 uuid comctl32 dwmapi mfplat mfreadwrite mfuuid uiautomationcore user32 gdi32 advapi32)
 target_link_options(Snapliq PRIVATE "/MANIFEST:EMBED" "/MANIFESTINPUT:${CMAKE_CURRENT_BINARY_DIR}/app.manifest")
+add_executable(orb_layout_tests orb-layout-tests.cpp)
+add_test(NAME windows_orb_layout COMMAND orb_layout_tests)

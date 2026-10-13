@@ -25,6 +25,10 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
     private let systemAudioToggle=NSButton(checkboxWithTitle:"录制系统声音",target:nil,action:nil)
     private let microphoneToggle=NSButton(checkboxWithTitle:"录制麦克风",target:nil,action:nil)
     private let orbToggle=NSButton(checkboxWithTitle:"显示桌面悬浮球",target:nil,action:nil)
+    private let orbSnapToggle=NSButton(checkboxWithTitle:"吸附屏幕边缘",target:nil,action:nil)
+    private let orbSize=NSSlider(value:48,minValue:32,maxValue:96,target:nil,action:nil)
+    private let orbSizeValue=NSTextField(labelWithString:"48 pt")
+    private let orbLockToggle=NSButton(checkboxWithTitle:"锁定当前位置",target:nil,action:nil)
     private let loginToggle=NSButton(checkboxWithTitle:"登录时启动 Snapliq",target:nil,action:nil)
     private let folder=NSTextField(labelWithString:"")
     private let permission=NSTextField(labelWithString:"")
@@ -63,6 +67,22 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
         let controls=NSButton(checkboxWithTitle:"识别应用内控件（需要辅助功能授权）",target:self,action:#selector(toggleControls(_:)))
         controls.state=Preferences.shared.defaults.bool(forKey:"smartControls") ? .on:.off;root.addArrangedSubview(controls)
         orbToggle.target=self;orbToggle.action=#selector(toggleOrb);root.addArrangedSubview(orbToggle)
+        orbSnapToggle.target=self;orbSnapToggle.action=#selector(toggleOrbSnap);orbSnapToggle.setAccessibilityIdentifier("snapliq.settings.orbSnap")
+        orbSnapToggle.setAccessibilityHelp("开启后，拖动结束时悬浮球会吸附到屏幕最近的边缘。")
+        root.addArrangedSubview(orbSnapToggle)
+        orbSize.target=self;orbSize.action=#selector(changeOrbSize);orbSize.isContinuous=true
+        orbSize.setAccessibilityIdentifier("snapliq.settings.orbSize");orbSize.setAccessibilityLabel("悬浮球大小")
+        orbSize.setAccessibilityHelp("调整悬浮球大小，范围为 32 至 96 pt，立即生效。")
+        orbSize.widthAnchor.constraint(equalToConstant:210).isActive=true
+        orbSizeValue.font = .monospacedDigitSystemFont(ofSize:12,weight:.regular);orbSizeValue.textColor = .secondaryLabelColor
+        orbSizeValue.setAccessibilityIdentifier("snapliq.settings.orbSizeValue");orbSizeValue.widthAnchor.constraint(equalToConstant:54).isActive=true
+        let orbSizeRow=NSStackView(views:[NSTextField(labelWithString:"悬浮球大小"),orbSize,orbSizeValue]);orbSizeRow.spacing=12;root.addArrangedSubview(orbSizeRow)
+        orbLockToggle.target=self;orbLockToggle.action=#selector(toggleOrbLock);orbLockToggle.setAccessibilityIdentifier("snapliq.settings.orbLock")
+        orbLockToggle.setAccessibilityHelp("锁定后不能拖动悬浮球，但仍可单击截图或打开右键菜单。")
+        root.addArrangedSubview(orbLockToggle)
+        let orbHint=NSTextField(wrappingLabelWithString:"将悬浮球拖到合适位置后，可锁定当前位置。锁定只限制拖动，单击截图和右键菜单仍可使用；显示器断开后，悬浮球会回到可见屏幕。")
+        orbHint.font = .systemFont(ofSize:12);orbHint.textColor = .secondaryLabelColor;orbHint.preferredMaxLayoutWidth=480
+        orbHint.setAccessibilityIdentifier("snapliq.settings.orbHelp");root.addArrangedSubview(orbHint)
         loginToggle.target=self;loginToggle.action=#selector(toggleLogin);root.addArrangedSubview(loginToggle)
         let choose=NSButton(title:"默认保存位置…",target:self,action:#selector(folderAction));choose.bezelStyle = .rounded
         folder.lineBreakMode = .byTruncatingMiddle;folder.font = .systemFont(ofSize:12);folder.textColor = .secondaryLabelColor
@@ -88,6 +108,8 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
         recordingHotkeyToggle.state=p.recordingShortcutEnabled ? .on:.off
         systemAudioToggle.state=p.recordSystemAudio ? .on:.off;microphoneToggle.state=p.recordMicrophone ? .on:.off
         orbToggle.state=(!p.orbHidden && !p.orbDisabledToday) ? .on:.off
+        orbSnapToggle.state=p.orbSnapToEdge ? .on:.off;orbLockToggle.state=p.orbPositionLocked ? .on:.off
+        orbSize.doubleValue=p.orbSize;orbSizeValue.stringValue="\(Int(p.orbSize.rounded())) pt"
         loginToggle.state=SMAppService.mainApp.status == .enabled ? .on:.off
         folder.stringValue=p.folderURL?.path ?? (p.defaults.object(forKey:"folderBookmark") == nil ? "录屏默认：~/Movies/Snapliq":"保存位置失效，请重新选择")
         permission.stringValue=CGPreflightScreenCaptureAccess() ? "屏幕捕获权限：已授权":"屏幕捕获权限：首次截图或录屏时请求"
@@ -174,6 +196,13 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
         Preferences.shared.defaults.set(enabled,forKey:"smartControls")
     }
     @objc func toggleOrb(){if orbToggle.state == .on{Preferences.shared.restoreOrb()}else{Preferences.shared.orbHidden=true};onOrbChanged?();refresh()}
+    @objc func toggleOrbSnap(){Preferences.shared.orbSnapToEdge=orbSnapToggle.state == .on;onOrbChanged?()}
+    @objc func changeOrbSize(){
+        let p=Preferences.shared;p.orbSize=orbSize.doubleValue.rounded()
+        orbSize.doubleValue=p.orbSize;orbSizeValue.stringValue="\(Int(p.orbSize.rounded())) pt"
+        onOrbChanged?()
+    }
+    @objc func toggleOrbLock(){Preferences.shared.orbPositionLocked=orbLockToggle.state == .on;onOrbChanged?()}
     @objc func toggleLogin(){
         do{if loginToggle.state == .on{try SMAppService.mainApp.register()}else{try SMAppService.mainApp.unregister()}}catch{showError("启动项设置失败：\(error.localizedDescription)")};refresh()
     }

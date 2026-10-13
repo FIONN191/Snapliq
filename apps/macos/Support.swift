@@ -35,6 +35,12 @@ final class Preferences {
     var recordingShortcutLabel:String {get{defaults.string(forKey:"recordingShortcutLabel") ?? "⌥⌘ R"} set{defaults.set(newValue,forKey:"recordingShortcutLabel")}}
     var recordSystemAudio:Bool {get{defaults.object(forKey:"recordSystemAudio") == nil ? true:defaults.bool(forKey:"recordSystemAudio")} set{defaults.set(newValue,forKey:"recordSystemAudio")}}
     var recordMicrophone:Bool {get{defaults.object(forKey:"recordMicrophone") == nil ? true:defaults.bool(forKey:"recordMicrophone")} set{defaults.set(newValue,forKey:"recordMicrophone")}}
+    var orbSnapToEdge:Bool {get{defaults.object(forKey:"orbSnapToEdge") == nil ? true:defaults.bool(forKey:"orbSnapToEdge")} set{defaults.set(newValue,forKey:"orbSnapToEdge")}}
+    var orbSize:Double {
+        get{let value=defaults.object(forKey:"orbSize") == nil ? 48:defaults.double(forKey:"orbSize");return value.isFinite ? min(96,max(32,value)):48}
+        set{defaults.set(newValue.isFinite ? min(96,max(32,newValue)):48,forKey:"orbSize")}
+    }
+    var orbPositionLocked:Bool {get{defaults.bool(forKey:"orbPositionLocked")} set{defaults.set(newValue,forKey:"orbPositionLocked")}}
     var orbHidden: Bool {get{defaults.bool(forKey:"orbHidden")} set{defaults.set(newValue,forKey:"orbHidden")} }
     var dateKey: String {
         let parts=Calendar.current.dateComponents([.era,.year,.month,.day],from:Date())

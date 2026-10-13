@@ -17,7 +17,7 @@ TimedKey 在 CGEvent key-down 提交前记录 systemUptime，与应用日志的�
 
 tests/macos/SelectionUITests.swift 使用生成底图执行真实 AppKit OCR 编辑/复制与选区恢复；AirDropSmoke.swift 只用于系统分享取消清理检查，测试中不能选择实际接收设备。LiveRecordingTests.swift 使用真实系统捕获，录下的桌面/系统声音可能涉及用户内容，应仅保留本地，不纳入源码包。测试程序不是最终应用权限身份的替代品。
 
-Windows：已有 CMake 与 PowerShell 构建/核心测试配置。尚无 Windows 机器，所以没有编译、媒体解码、方向、混合 DPI、音频设备、控制条排除或 UIA 的运行结论。首次 Windows 验证应先编译、截图真实 PNG/剪贴板，再做短屏幕/窗口 MP4 解码、暂停与声音，最后做多屏及异常停止。
+Windows：CMake 与 PowerShell 构建/核心测试已接入 GitHub Actions，历史构建已有通过记录。尚无 Windows 实机，云端编译不提供媒体解码、方向、混合 DPI、音频设备、控制条排除或 UIA 的实际桌面运行结论。首次 Windows 验证应先编译、截图真实 PNG/剪贴板，再做短屏幕/窗口 MP4 解码、暂停与声音，最后做多屏及异常停止。
 
 WindowClosureTests.swift 使用真实 SCK 独立窗口来源，关闭自身创建的测试窗口，检查停止回调、文件封装、时长与 idle 状态；该模块测试已通过，最终 UI 的更多来源类型仍应覆盖。
 
@@ -30,3 +30,9 @@ Noninteractive latest-pointer/caching tests are included in scripts/test-service
 `zsh scripts/test-region-recording-macos.sh` runs geometry validation. `--run-interactive` additionally creates a generated native four-color window and a host overlay, records an asymmetric crop through the real ScreenCaptureKit/encoder modules, verifies decoded color probes and dimensions, checks pause/resume/finalization and full ffmpeg decode, then tests the native region-selection UI. These module hosts have separate TCC identities from the final App. The installed SDK states sourceRect is in display logical points and destinationRect is in pixels. Region recording currently supports a single display on macOS; cross-display video and Windows region video are not implemented.
 
 Desktop-only delivery: `zsh scripts/build-macos.sh`, then `zsh scripts/package-macos-dmg.sh`, then `python3 scripts/package-development.py --desktop-only`. This builds the versioned app and DMG/ZIP without rebuilding or submitting the Chrome companion. Do not overwrite the authorized 0.2.1 app.
+
+## 0.2.4 悬浮球偏好
+
+`zsh scripts/test-orb-macos.sh` 在隔离偏好域和隐藏 AppKit 窗口中验证四边吸附、自由位置、32–96 大小、锁定拖动及误点击、恢复位置、旧位置迁移和材质缩放。不会注册全局快捷键、捕获屏幕或改写实际应用偏好。Windows 的 `orb_layout_tests` 纳入 CMake/CTest，也可在 macOS 用 `clang++ -std=c++20 -Wall -Wextra -Werror apps/windows/orb-layout-tests.cpp -o .build/orb-layout-tests` 编译后运行。
+
+最终 App 的指针拖动、跨屏、混合 DPI 和全屏/Spaces 仍需要桌面实测。原生隐藏窗口和纯几何测试不能代替真实鼠标操作；详见当前版本验收报告。

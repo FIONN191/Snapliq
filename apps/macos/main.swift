@@ -39,7 +39,7 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
         settings.onRecordingHotkeyChanged={ [weak self] in self?.recordingHotkey.register() ?? -1 }
         settings.onRecordingPreferencesChanged={ [weak self] in self?.recordingUI.refreshPreferences() }
         settings.onQuickRecord={ [weak self] in self?.quickRecord() }
-        settings.onOrbChanged={ [weak self] in self?.orb.refresh();self?.rebuildMenu() }
+        settings.onOrbChanged={ [weak self] in self?.orb.applyPreferences();self?.rebuildMenu() }
         bridge.onAction={ [weak self] action in
             guard let self=self else{return}
             switch action {

@@ -3,13 +3,13 @@ Capture. Record. Share. — 截图与录屏工具
 
 Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureKit，Windows 使用 Win32/C++/WinRT + Windows.Graphics.Capture，两端共享 C++20 几何和布局核心。Snapliq for Chrome 仅提供配套入口；退出 Chrome、断开 Native Messaging 或关闭设置不结束桌面应用。
 
-当前桌面开发版本 **0.2.3**：新增独立快捷录屏、自动保存和默认双音频。macOS 默认 **⌥⌘ R**、Windows 默认 **Ctrl+Alt+R**，可在桌面设置修改；录制鼠标所在屏幕，再按一次结束并保存。验收范围见 [0.2.3 验收报告](outputs/Snapliq-0.2.3-validation.md)。Windows 实际桌面、音频与混合 DPI 仍待实机验收。Chrome 开发与商店提交暂缓。
+当前桌面开发版本 **0.2.4**：新增悬浮球边缘吸附开关、32–96 大小调节和位置锁定，设置立即生效并记住。独立快捷录屏继续使用 macOS **⌥⌘ R** / Windows **Ctrl+Alt+R**，可在桌面设置修改；录制鼠标所在屏幕，再按一次结束并自动保存。验收范围见 [0.2.4 验收报告](outputs/Snapliq-0.2.4-validation.md)。Windows 实际桌面、音频与混合 DPI 仍待实机验收。Chrome 开发与商店提交暂缓。
 
 ## 启动与使用
 
 此前已发布的 0.2.2 开发版下载：[macOS 安装包（DMG）](https://github.com/FIONN191/Snapliq/releases/download/v0.2.2/Snapliq-0.2.2-macOS-arm64-development.dmg) · [0.2.2 预发布说明](https://github.com/FIONN191/Snapliq/releases/tag/v0.2.2)。本仓库跟踪源码、品牌资产和验收证据；本机 App、DMG、视频和剪贴板备份不进入 Git 历史。
 
-新构建应用位于 `outputs/builds/0.2.3/Snapliq.app`；安装文件为 `outputs/Snapliq-0.2.3-macOS-arm64-development.dmg`。历史签名的权限与测试结论不自动沿用到新构建。当前 macOS 构建要求 macOS 14+、Apple Silicon；麦克风需要 macOS 15+。不要同时启动两份开发应用。
+新构建应用位于 `outputs/builds/0.2.4/Snapliq.app`；安装文件为 `outputs/Snapliq-0.2.4-macOS-arm64-development.dmg`。历史签名的权限与测试结论不自动沿用到新构建。当前 macOS 构建要求 macOS 14+、Apple Silicon；麦克风需要 macOS 15+。不要同时启动两份开发应用。
 
 首次截图需要系统屏幕录制权限。Command + X 是默认候选，只有用户接受普通剪切冲突后才启用；注册成功不代表它与剪切兼容。设置中可以直接修改快捷键。菜单栏、独立悬浮球与 Chrome 配套入口都可唤醒截图。关闭设置后继续常驻；选择「退出 Snapliq」才结束后台运行。
 
@@ -19,7 +19,7 @@ Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureK
 - 提取文字：本地识别中文和英文，弹出可编辑结果并复制文本。macOS 使用 Vision；Windows 使用已安装的系统 OCR 语言包。
 - AirDrop：macOS 直接进入系统分享服务，由用户选择接收设备。Windows 不显示 AirDrop。
 - 录屏：原生屏幕/窗口来源、开始/暂停/继续/停止、时长、默认开启系统声音和麦克风（记住用户关闭的选择）。macOS 15+ 提供 SCK 麦克风输入，macOS 14 禁用该选项。保存 H.264/AAC MP4，暂停时间从时间轴扣除。macOS 0.2.2 支持单显示器内的真实区域视频裁剪：点击“框选录制区域…”，Enter 确认区域，点击“开始录制”。快捷录屏和来源面板均自动保存至默认目录；未设置目录时使用 macOS `~/Movies/Snapliq` / Windows `Videos/Snapliq`，无保存对话框。跨屏区域与 Windows 区域录屏仍未实现。
-- 悬浮球：拖动、靠边停靠、记住位置、右键停用/仅今天停用/设置；菜单栏或托盘可恢复。当日停用按本地日期并在唤醒时复核。
+- 悬浮球：设置中可开关「吸附屏幕边缘」、调节 32–96 大小（macOS pt / Windows DIP，默认 48）并「锁定当前位置」。开启吸附时拖动结束停靠到最近的四边之一；关闭后保留自由位置。锁定限制拖动，点击截图和右键菜单仍可使用；也可直接右键锁定/解锁。记住尺寸、偏好、显示器和相对位置，显示器断开时回到可见屏幕。右键可停用或仅今天停用，菜单栏/托盘可恢复；修改大小不会使已隐藏的悬浮球重新出现。
 - 空闲时不保持屏幕捕获流，不存储屏幕历史。OCR、编码器按需初始化。
 
 ## Chrome 配套入口
@@ -45,7 +45,9 @@ macOS 需要 Xcode Command Line Tools、Python 3：
 zsh scripts/build-macos.sh
 zsh scripts/test-macos.sh
 zsh scripts/test-services-macos.sh
-open outputs/builds/0.2.3/Snapliq.app
+zsh scripts/test-quick-recording-macos.sh
+zsh scripts/test-orb-macos.sh
+open outputs/builds/0.2.4/Snapliq.app
 ```
 
 默认构建输出 outputs/builds/<版本>/Snapliq.app，避免覆盖此前已授权版本。可用 SNAPLIQ_APP_PATH 指定另一输出位置。默认临时签名；重新构建可能使系统要求重新授权。SNAPLIQ_SIGNING_IDENTITY 可以指定已有签名证书，但脚本并未完成正式 hardened runtime、公证和发行流程。
@@ -57,7 +59,7 @@ Windows 需要 Visual Studio 2022 Desktop C++、Windows 11 SDK、CMake：
 ./scripts/build-windows.ps1 -Installer
 ```
 
-GitHub Actions 构建配置已提供，当前未提交运行，不能替代 Windows 编译证据。图标可用 `python3 scripts/generate-assets.py` 重建。开发包与源码归档使用 `python3 scripts/package-development.py`，不会重签已构建应用。
+GitHub Actions 会构建两端并运行几何、快捷录屏和悬浮球测试。通过云端 Windows 编译不代表实际桌面、声音或混合 DPI 验收通过。图标可用 `python3 scripts/generate-assets.py` 重建。开发包与源码归档使用 `python3 scripts/package-development.py`，不会重签已构建应用。
 
 交互回归会操作桌面和剪贴板，执行条件与命令见 [测试说明](docs/testing.md)。普通服务测试不测真实屏幕呈现延迟。
 

@@ -11,6 +11,7 @@
 #include "desktop-services.h"
 #include "recording-window.h"
 #include "recording-preferences.h"
+#include "orb-layout.h"
 #include "native-bridge.h"
 #include "snapliq_core.h"
 #include <algorithm>
@@ -22,9 +23,10 @@
 #include <sstream>
 #include <cmath>
 constexpr UINT TRAY=WM_APP+1,CAPTURED=WM_APP+2,OCR_DONE=WM_APP+3,HIT_DONE=WM_APP+4,RECORD_DONE=WM_APP+5;
-constexpr int REGION=100,SCREEN=101,RESTORE=102,SETTINGS=103,QUIT=104,TODAY=105,HIDE=106,COPY=107,SAVE=108,SAVEAS=109,APPLYKEY=110,FOLDER=111,STARTUP=112,WINDOW=113,OCR=114,SMART=115,CONTROLS=116,RECORD=117,PAUSE_RECORD=118,STOP_RECORD=119,CONNECT_CHROME=120,APPLY_RECORD_KEY=121,QUICK_RECORD=122;
+constexpr int REGION=100,SCREEN=101,RESTORE=102,SETTINGS=103,QUIT=104,TODAY=105,HIDE=106,COPY=107,SAVE=108,SAVEAS=109,APPLYKEY=110,FOLDER=111,STARTUP=112,WINDOW=113,OCR=114,SMART=115,CONTROLS=116,RECORD=117,PAUSE_RECORD=118,STOP_RECORD=119,CONNECT_CHROME=120,APPLY_RECORD_KEY=121,QUICK_RECORD=122,ORB_SNAP=123,ORB_LOCK=124,ORB_SIZE=125,ORB_SIZE_LABEL=126,ORB_TOGGLE_LOCK=127;
 const wchar_t* PREFS=L"Software\\Snapliq\\Development";
 DWORD readInt(const wchar_t* name,DWORD fallback){DWORD value=0,bytes=sizeof(value);return RegGetValue(HKEY_CURRENT_USER,PREFS,name,RRF_RT_REG_DWORD,nullptr,&value,&bytes)==ERROR_SUCCESS?value:fallback;}
+bool hasInt(const wchar_t* name){DWORD value=0,bytes=sizeof(value);return RegGetValue(HKEY_CURRENT_USER,PREFS,name,RRF_RT_REG_DWORD,nullptr,&value,&bytes)==ERROR_SUCCESS;}
 void writeInt(const wchar_t* name,DWORD value){HKEY key;if(RegCreateKeyEx(HKEY_CURRENT_USER,PREFS,0,nullptr,0,KEY_SET_VALUE,nullptr,&key,nullptr)==ERROR_SUCCESS){RegSetValueEx(key,name,0,REG_DWORD,reinterpret_cast<BYTE*>(&value),sizeof(value));RegCloseKey(key);}}
 std::wstring readString(const wchar_t* name){wchar_t value[32768]{};DWORD bytes=sizeof(value);if(RegGetValue(HKEY_CURRENT_USER,PREFS,name,RRF_RT_REG_SZ,nullptr,value,&bytes)!=ERROR_SUCCESS)return {};return value;}
 void writeString(const wchar_t* name,const std::wstring& value){HKEY key;if(RegCreateKeyEx(HKEY_CURRENT_USER,PREFS,0,nullptr,0,KEY_SET_VALUE,nullptr,&key,nullptr)==ERROR_SUCCESS){RegSetValueEx(key,name,0,REG_SZ,reinterpret_cast<const BYTE*>(value.c_str()),static_cast<DWORD>((value.size()+1)*sizeof(wchar_t)));RegCloseKey(key);}}
@@ -42,6 +44,8 @@ struct App {
  unsigned generation=0;NOTIFYICONDATA tray{};std::thread worker;bool busy=false,full=false,selected=false,dragging=false,moving=false,orbDragging=false;int handle=-1;
  DWORD vk=readInt(L"key",'X'),mods=readInt(L"modifiers",MOD_CONTROL|MOD_ALT);
  DWORD recordVK=readInt(L"recordKey",'R'),recordMods=readInt(L"recordModifiers",MOD_CONTROL|MOD_ALT);
+ bool orbSnapToEdge=readInt(L"orbSnapToEdge",1)!=0,orbPositionLocked=readInt(L"orbPositionLocked",0)!=0,orbLayoutInProgress=false,settingsDpiChanging=false;
+ int orbDiameter=orb_layout::diameter(int(readInt(L"orbSize",48))),settingsScrollOffset=0;
  std::unique_ptr<Desktop> desktop;Image dim;SLRect selection{},original{};POINT start{},orbStart{};RECT orbOrigin{};RECT bar{},modeBar{};
  std::wstring folder=readString(L"folder");
  void error(const std::wstring& text){if(overlay)ShowWindow(overlay,SW_HIDE);MessageBox(settings?settings:host,text.c_str(),PRODUCT_NAME,MB_OK|MB_ICONWARNING);if(overlay){ShowWindow(overlay,SW_SHOW);SetForegroundWindow(overlay);}}
@@ -65,23 +69,63 @@ struct App {
   currentVK=nextVK;currentMods=nextMods;writeInt(recording?L"recordKey":L"key",currentVK);writeInt(recording?L"recordModifiers":L"modifiers",currentMods);
  }
  void refreshOrb(){ShowWindow(orb,((!recorder.active()||SetWindowDisplayAffinity(orb,WDA_EXCLUDEFROMCAPTURE))&&!busy&&!overlay&&!readInt(L"orbHidden",0)&&readInt(L"orbDate",0)!=dateKey())?SW_SHOWNOACTIVATE:SW_HIDE);}
- void placeOrb(bool saved=true){
-  MONITORINFO info{sizeof(info)};POINT p{LONG(readInt(L"orbX",200)),LONG(readInt(L"orbY",200))};
-  GetMonitorInfo(MonitorFromPoint(p,MONITOR_DEFAULTTOPRIMARY),&info);auto r=info.rcWork;int size=MulDiv(48,int(monitorDpi(MonitorFromPoint(p,MONITOR_DEFAULTTOPRIMARY))),96);
-  int x=saved?std::clamp<int>(p.x,r.left+8,r.right-size-8):r.right-size-12;
-  int y=saved?std::clamp<int>(p.y,r.top+8,r.bottom-size-8):r.bottom-size-120;
-  SetWindowPos(orb,HWND_TOPMOST,x,y,size,size,SWP_NOACTIVATE);SetWindowRgn(orb,CreateEllipticRgn(0,0,size,size),TRUE);
+ void positionOrb(int x,int y,HMONITOR monitor,bool snap,bool persist,int dockedEdge=-1){
+  if(!orb||orbLayoutInProgress)return;
+  MONITORINFO info{sizeof(info)};if(!GetMonitorInfo(monitor,&info))return;
+  const auto& r=info.rcWork;const orb_layout::Rect work{int(r.left),int(r.top),int(r.right),int(r.bottom)};const auto dpi=monitorDpi(monitor);
+  auto p=orb_layout::place(x,y,orbDiameter,dpi,work,snap,dockedEdge);
+  orbLayoutInProgress=true;
+  // Do not use SWP_SHOWWINDOW: preferences also apply while the orb is disabled.
+  SetWindowPos(orb,HWND_TOPMOST,p.x,p.y,p.size,p.size,SWP_NOACTIVATE);
+  auto region=CreateEllipticRgn(0,0,p.size,p.size);if(region&&!SetWindowRgn(orb,region,TRUE))DeleteObject(region);InvalidateRect(orb,nullptr,FALSE);
+  orbLayoutInProgress=false;
+  if(persist){
+   writeInt(L"orbX",DWORD(p.x));writeInt(L"orbY",DWORD(p.y));
+   const int edge=orb_layout::edgeOf(p,orbDiameter,dpi,work);writeInt(L"orbWasDocked",edge>=0);writeInt(L"orbDockedEdge",DWORD(edge));
+  }
  }
- void dockOrb(){
-  MONITORINFO info{sizeof(info)};GetMonitorInfo(MonitorFromWindow(orb,MONITOR_DEFAULTTONEAREST),&info);RECT r;GetWindowRect(orb,&r);
-  const int size=r.right-r.left;
-  int x=(r.left+r.right)/2<(info.rcWork.left+info.rcWork.right)/2?info.rcWork.left+8:info.rcWork.right-size-8;
-  int y=std::clamp<int>(r.top,info.rcWork.top+8,info.rcWork.bottom-size-8);SetWindowPos(orb,HWND_TOPMOST,x,y,size,size,SWP_NOACTIVATE);
-  writeInt(L"orbX",DWORD(x));writeInt(L"orbY",DWORD(y));
+ void placeOrb(bool saved=true){
+  POINT p{LONG(readInt(L"orbX",200)),LONG(readInt(L"orbY",200))};
+  auto monitor=MonitorFromPoint(p,MONITOR_DEFAULTTONEAREST);MONITORINFO info{sizeof(info)};if(!GetMonitorInfo(monitor,&info))return;
+  if(!saved){const int size=orb_layout::pixels(orbDiameter,monitorDpi(monitor));p={info.rcWork.right-size-12,info.rcWork.bottom-size-120};}
+  // Restore free positions exactly. Re-anchor only a genuinely docked orb;
+  // enabling snap while locked must not move a free orb on the next restart.
+  const bool restoreDock=saved&&orbSnapToEdge&&!orbPositionLocked&&readInt(L"orbWasDocked",0)!=0;
+  positionOrb(p.x,p.y,monitor,restoreDock,true,int(readInt(L"orbDockedEdge",DWORD(-1))));
+ }
+ void adjustOrb(bool preserveCenter){
+  RECT r;if(!orb||!GetWindowRect(orb,&r))return;
+  POINT center{(r.left+r.right)/2,(r.top+r.bottom)/2};auto monitor=MonitorFromPoint(center,MONITOR_DEFAULTTONEAREST);
+  int size=orb_layout::pixels(orbDiameter,monitorDpi(monitor));
+  positionOrb(preserveCenter?center.x-size/2:r.left,preserveCenter?center.y-size/2:r.top,monitor,orbSnapToEdge&&!orbPositionLocked,true);
+ }
+ void setOrbSize(){
+  const int next=orb_layout::diameter(int(SendDlgItemMessage(settings,ORB_SIZE,TBM_GETPOS,0,0)));
+  auto label=std::to_wstring(next)+L" DIP";SetDlgItemText(settings,ORB_SIZE_LABEL,label.c_str());
+  if(next==orbDiameter)return;orbDiameter=next;writeInt(L"orbSize",DWORD(next));adjustOrb(true);
+ }
+ void updateSettingsScroll(){
+  if(!settings||settingsDpiChanging)return;RECT r;GetClientRect(settings,&r);
+  const int contentHeight=dip(settings,590),next=std::clamp(settingsScrollOffset,0,std::max(0,contentHeight-int(r.bottom)));
+  SCROLLINFO info{sizeof(info),SIF_RANGE|SIF_PAGE|SIF_POS};info.nMin=0;info.nMax=contentHeight-1;info.nPage=UINT(std::max(1L,r.bottom));info.nPos=next;
+  SetScrollInfo(settings,SB_VERT,&info,TRUE);
+  if(next!=settingsScrollOffset){ScrollWindowEx(settings,0,settingsScrollOffset-next,nullptr,nullptr,nullptr,nullptr,SW_SCROLLCHILDREN|SW_INVALIDATE|SW_ERASE);settingsScrollOffset=next;}
+ }
+ void scrollSettings(int requested){
+  RECT r;GetClientRect(settings,&r);const int next=std::clamp(requested,0,std::max(0,dip(settings,590)-int(r.bottom)));
+  if(next==settingsScrollOffset)return;
+  ScrollWindowEx(settings,0,settingsScrollOffset-next,nullptr,nullptr,nullptr,nullptr,SW_SCROLLCHILDREN|SW_INVALIDATE|SW_ERASE);settingsScrollOffset=next;
+  SetScrollPos(settings,SB_VERT,next,TRUE);UpdateWindow(settings);
+ }
+ void fitSettings(){
+  RECT r;GetWindowRect(settings,&r);MONITORINFO info{sizeof(info)};GetMonitorInfo(MonitorFromWindow(settings,MONITOR_DEFAULTTONEAREST),&info);
+  const int margin=dip(settings,8),height=std::min<int>(r.bottom-r.top,info.rcWork.bottom-info.rcWork.top-margin*2);
+  const int top=std::clamp<int>(r.top,info.rcWork.top+margin,std::max(info.rcWork.top+margin,info.rcWork.bottom-height-margin));
+  SetWindowPos(settings,nullptr,r.left,top,r.right-r.left,height,SWP_NOZORDER|SWP_NOACTIVATE);updateSettingsScroll();
  }
  void popup(bool orbMenu){
   HMENU menu=CreatePopupMenu();
-  if(orbMenu){AppendMenu(menu,MF_STRING,TODAY,L"仅今天停用");AppendMenu(menu,MF_STRING,HIDE,L"停用");}
+  if(orbMenu){AppendMenu(menu,MF_STRING,TODAY,L"仅今天停用");AppendMenu(menu,MF_STRING,HIDE,L"停用");AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING|(orbPositionLocked?MF_CHECKED:MF_UNCHECKED),ORB_TOGGLE_LOCK,L"锁定当前位置");}
   else{AppendMenu(menu,MF_STRING,REGION,L"区域截图");AppendMenu(menu,MF_STRING,SCREEN,L"当前屏幕截图");AppendMenu(menu,MF_STRING,WINDOW,L"窗口截图");AppendMenu(menu,MF_STRING,RESTORE,L"显示悬浮球");}
   if(!orbMenu){if(!recordingSessionPending)AppendMenu(menu,MF_STRING,QUICK_RECORD,L"快速录制当前屏幕");AppendMenu(menu,MF_STRING,RECORD,recorder.active()?L"显示录屏控制条":L"屏幕录制…");if(recorder.active()){AppendMenu(menu,MF_STRING,PAUSE_RECORD,recorder.paused()?L"继续录屏":L"暂停录屏");AppendMenu(menu,MF_STRING,STOP_RECORD,L"停止并保存录屏");}}
   AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING,SETTINGS,L"设置");
@@ -263,6 +307,9 @@ struct App {
    case CONNECT_CHROME:try{NativeBridge::registerHost();report(L"Chrome connection registered for this application.");}catch(const winrt::hresult_error& e){error(e.message().c_str());}catch(const std::exception& e){std::string t=e.what();error(std::wstring(t.begin(),t.end()));}break;
    case SMART:writeInt(L"smart",IsDlgButtonChecked(settings,SMART)==BST_CHECKED);break;
    case CONTROLS:writeInt(L"controls",IsDlgButtonChecked(settings,CONTROLS)==BST_CHECKED);break;
+   case ORB_SNAP:orbSnapToEdge=IsDlgButtonChecked(settings,ORB_SNAP)==BST_CHECKED;writeInt(L"orbSnapToEdge",orbSnapToEdge);if(orbSnapToEdge&&!orbPositionLocked)adjustOrb(false);break;
+   case ORB_LOCK:orbPositionLocked=IsDlgButtonChecked(settings,ORB_LOCK)==BST_CHECKED;writeInt(L"orbPositionLocked",orbPositionLocked);break;
+   case ORB_TOGGLE_LOCK:orbPositionLocked=!orbPositionLocked;writeInt(L"orbPositionLocked",orbPositionLocked);if(settings)CheckDlgButton(settings,ORB_LOCK,orbPositionLocked?BST_CHECKED:BST_UNCHECKED);break;
    case RECORD:ensureRecordingWindow();recordingWindow->present();break;
    case QUICK_RECORD:quickRecording();break;
    case PAUSE_RECORD:recorder.pause();if(recordingWindow)recordingWindow->update();break;
@@ -294,10 +341,10 @@ LRESULT CALLBACK HostProc(HWND w,UINT m,WPARAM a,LPARAM b){
  case HIT_DONE:{std::unique_ptr<HitResult> r(reinterpret_cast<HitResult*>(b));app.hitBusy=false;POINT p;GetCursorPos(&p);if(app.desktop&&app.overlay&&!app.selected&&!app.dragging&&r->generation==app.generation&&std::abs(p.x-r->point.x)+std::abs(p.y-r->point.y)<5&&r->rect.right>r->rect.left){app.candidate={double(r->rect.left-app.desktop->bounds.left),double(r->rect.top-app.desktop->bounds.top),double(r->rect.right-r->rect.left),double(r->rect.bottom-r->rect.top)};app.candidateValid=true;InvalidateRect(app.overlay,nullptr,FALSE);}return 0;}
  case RECORD_DONE:{app.recordingSessionPending=false;app.tray.uFlags=NIF_TIP;wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_MODIFY,&app.tray);std::unique_ptr<RecordingOutcome> r(reinterpret_cast<RecordingOutcome*>(b));KillTimer(w,2);if(app.recordingWindow)app.recordingWindow->update();app.refreshOrb();app.report(r->saved?L"已保存录屏\n"+r->path:L"录屏未完成");if(!r->message.empty()&&!app.quitAfterRecord)app.error(r->message);if(app.quitAfterRecord)DestroyWindow(w);return 0;}
  case WM_TIMER:if(a==2){if(app.recordingWindow)app.recordingWindow->update();app.tray.uFlags=NIF_TIP;wcsncpy_s(app.tray.szTip,app.recorder.stopping()?L"Snapliq - Finishing":!app.recorder.started()?L"Snapliq - Preparing":app.recorder.paused()?L"Snapliq - Paused":L"Snapliq - Recording",_TRUNCATE);Shell_NotifyIcon(NIM_MODIFY,&app.tray);}else app.refreshOrb();return 0;
- case WM_DISPLAYCHANGE:app.recorder.stop();app.closeCapture();app.placeOrb();return 0;
+ case WM_DISPLAYCHANGE:app.recorder.stop();app.closeCapture();app.placeOrb();if(app.settings)app.fitSettings();return 0;
  case WM_TIMECHANGE:app.refreshOrb();return 0;
- case WM_SETTINGCHANGE:app.refreshTrayIcon();return 0;
- case WM_POWERBROADCAST:if(a==PBT_APMSUSPEND){app.recorder.stop();app.closeCapture();}else if(a==PBT_APMRESUMEAUTOMATIC){app.placeOrb();app.refreshOrb();}return TRUE;
+ case WM_SETTINGCHANGE:app.refreshTrayIcon();if(a==SPI_SETWORKAREA){app.placeOrb();if(app.settings)app.fitSettings();}return 0;
+ case WM_POWERBROADCAST:if(a==PBT_APMSUSPEND){app.recorder.stop();app.closeCapture();}else if(a==PBT_APMRESUMEAUTOMATIC){app.placeOrb();app.refreshOrb();if(app.settings)app.fitSettings();}return TRUE;
  case WM_DESTROY:app.bridge.stop();UnregisterHotKey(w,1);UnregisterHotKey(w,2);Shell_NotifyIcon(NIM_DELETE,&app.tray);app.recorder.stop();app.recorder.join();if(app.recordingWindow)app.recordingWindow->close();if(app.worker.joinable())app.worker.join();if(app.ocrWorker.joinable())app.ocrWorker.join();if(app.hitWorker.joinable())app.hitWorker.join();PostQuitMessage(0);return 0;
  }return DefWindowProc(w,m,a,b);
 }
@@ -311,10 +358,27 @@ LRESULT CALLBACK OrbProc(HWND w,UINT m,WPARAM a,LPARAM b){
   auto oldBrush=SelectObject(dc,GetStockObject(WHITE_BRUSH));Ellipse(dc,22,22,27,27);SelectObject(dc,oldBrush);SelectObject(dc,old);DeleteObject(pen);EndPaint(w,&ps);return 0;
  }
  case WM_LBUTTONDOWN:app.orbDragging=false;GetCursorPos(&app.orbStart);GetWindowRect(w,&app.orbOrigin);SetCapture(w);return 0;
- case WM_MOUSEMOVE:if(GetCapture()==w){POINT p;GetCursorPos(&p);int dx=p.x-app.orbStart.x,dy=p.y-app.orbStart.y;if(std::abs(dx)+std::abs(dy)>4)app.orbDragging=true;if(app.orbDragging)SetWindowPos(w,HWND_TOPMOST,app.orbOrigin.left+dx,app.orbOrigin.top+dy,0,0,SWP_NOSIZE|SWP_NOACTIVATE);}return 0;
- case WM_LBUTTONUP:ReleaseCapture();if(app.orbDragging)app.dockOrb();else app.capture(false);return 0;
+ case WM_MOUSEMOVE:if(GetCapture()==w){
+  POINT p;GetCursorPos(&p);int dx=p.x-app.orbStart.x,dy=p.y-app.orbStart.y;
+  // A locked drag attempt is consumed, so releasing cannot take a screenshot.
+  if(std::abs(dx)+std::abs(dy)>dip(w,4))app.orbDragging=true;
+  if(app.orbDragging&&!app.orbPositionLocked)app.positionOrb(app.orbOrigin.left+dx,app.orbOrigin.top+dy,MonitorFromPoint(p,MONITOR_DEFAULTTONEAREST),false,false);
+ }return 0;
+ case WM_LBUTTONUP:{
+  if(GetCapture()!=w)return 0;POINT p;GetCursorPos(&p);
+  const bool dragged=app.orbDragging||std::abs(p.x-app.orbStart.x)+std::abs(p.y-app.orbStart.y)>dip(w,4);ReleaseCapture();
+  if(dragged){if(!app.orbPositionLocked)app.adjustOrb(false);}else app.capture(false);return 0;
+ }
+ case WM_CAPTURECHANGED:app.orbDragging=false;return 0;
  case WM_RBUTTONUP:app.popup(true);return 0;
- case WM_DPICHANGED:{auto r=reinterpret_cast<RECT*>(b);int size=MulDiv(48,HIWORD(a),96);SetWindowPos(w,HWND_TOPMOST,r->left,r->top,size,size,SWP_NOACTIVATE);SetWindowRgn(w,CreateEllipticRgn(0,0,size,size),TRUE);return 0;}
+ case WM_DPICHANGED:{
+  if(app.orbLayoutInProgress||!app.orb)return 0;auto r=reinterpret_cast<RECT*>(b);POINT center{(r->left+r->right)/2,(r->top+r->bottom)/2};
+  const bool persist=GetCapture()!=w;
+  const bool restoreDock=persist&&app.orbSnapToEdge&&!app.orbPositionLocked&&readInt(L"orbWasDocked",0)!=0;
+  // A DPI decrease shrinks the orb. Keep its saved edge instead of persisting
+  // the old top-left as a new free position, unless locked or actively dragged.
+  app.positionOrb(r->left,r->top,MonitorFromPoint(center,MONITOR_DEFAULTTONEAREST),restoreDock,persist,int(readInt(L"orbDockedEdge",DWORD(-1))));return 0;
+ }
  }return DefWindowProc(w,m,a,b);
 }
 LRESULT CALLBACK OverlayProc(HWND w,UINT m,WPARAM a,LPARAM b){
@@ -344,10 +408,26 @@ LRESULT CALLBACK OCRProc(HWND w,UINT m,WPARAM a,LPARAM b){
  if(m==WM_CLOSE){++app.ocrGeneration;DestroyWindow(w);app.ocrWindow=app.ocrEdit=nullptr;if(app.overlay){ShowWindow(app.overlay,SW_SHOW);SetForegroundWindow(app.overlay);}return 0;}
  return DefWindowProc(w,m,a,b);
 }
-LRESULT CALLBACK SettingsProc(HWND w,UINT m,WPARAM a,LPARAM b){if(m==WM_DPICHANGED){applyWindowDpi(w,HIWORD(a),reinterpret_cast<RECT*>(b));return 0;}if(m==WM_NCDESTROY)releaseDpiFont(w);if(m==WM_COMMAND){app.command(LOWORD(a));return 0;}if(m==WM_CLOSE){ShowWindow(w,SW_HIDE);return 0;}return DefWindowProc(w,m,a,b);}
+LRESULT CALLBACK SettingsProc(HWND w,UINT m,WPARAM a,LPARAM b){
+ if(m==WM_DPICHANGED){
+  auto old=UINT(reinterpret_cast<UINT_PTR>(GetProp(w,L"Snapliq.Dpi")));if(!old)old=96;
+  app.settingsDpiChanging=true;app.settingsScrollOffset=MulDiv(app.settingsScrollOffset,HIWORD(a),old);applyWindowDpi(w,HIWORD(a),reinterpret_cast<RECT*>(b));app.settingsDpiChanging=false;app.fitSettings();return 0;
+ }
+ if(m==WM_NCDESTROY)releaseDpiFont(w);
+ if(m==WM_SIZE){app.updateSettingsScroll();return 0;}
+ if(m==WM_HSCROLL&&reinterpret_cast<HWND>(b)==GetDlgItem(w,ORB_SIZE)){app.setOrbSize();return 0;}
+ if(m==WM_VSCROLL){
+  SCROLLINFO info{sizeof(info),SIF_ALL};GetScrollInfo(w,SB_VERT,&info);int next=app.settingsScrollOffset;
+  switch(LOWORD(a)){case SB_LINEUP:next-=dip(w,24);break;case SB_LINEDOWN:next+=dip(w,24);break;case SB_PAGEUP:next-=int(info.nPage);break;case SB_PAGEDOWN:next+=int(info.nPage);break;case SB_THUMBTRACK:case SB_THUMBPOSITION:next=info.nTrackPos;break;case SB_TOP:next=0;break;case SB_BOTTOM:next=info.nMax;break;}
+  app.scrollSettings(next);return 0;
+ }
+ if(m==WM_MOUSEWHEEL){app.scrollSettings(app.settingsScrollOffset-GET_WHEEL_DELTA_WPARAM(a)*dip(w,48)/WHEEL_DELTA);return 0;}
+ if(m==WM_COMMAND){app.command(LOWORD(a));return 0;}
+ if(m==WM_CLOSE){ShowWindow(w,SW_HIDE);return 0;}return DefWindowProc(w,m,a,b);
+}
 void App::showSettings(){
- if(settings){ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);return;}
- settings=CreateWindowEx(WS_EX_APPWINDOW,L"SnapliqSettings",L"Snapliq 设置",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,CW_USEDEFAULT,CW_USEDEFAULT,570,590,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
+ if(settings){fitSettings();ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);return;}
+ settings=CreateWindowEx(WS_EX_APPWINDOW,L"SnapliqSettings",L"Snapliq 设置",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_VSCROLL,CW_USEDEFAULT,CW_USEDEFAULT,590,630,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
  auto child=[&](const wchar_t* cls,const wchar_t* title,DWORD style,int x,int y,int width,int height,int id){return CreateWindowEx(0,cls,title,WS_CHILD|WS_VISIBLE|style,x,y,width,height,settings,reinterpret_cast<HMENU>(INT_PTR(id)),GetModuleHandle(nullptr),nullptr);};
  child(L"STATIC",PRODUCT_NAME,0,24,22,480,28,0);child(L"STATIC",L"Capture. Record. Share. · 独立桌面截图与录屏",0,24,54,500,25,0);
  child(L"STATIC",L"全局截图快捷键",0,24,104,145,25,0);
@@ -362,16 +442,22 @@ void App::showSettings(){
  child(L"BUTTON",L"默认保存位置…",BS_PUSHBUTTON|WS_TABSTOP,24,228,210,32,FOLDER);
  child(L"BUTTON",L"显示悬浮球",BS_PUSHBUTTON|WS_TABSTOP,255,228,210,32,RESTORE);
  child(L"STATIC",L"未设置录屏目录时使用：视频 / Snapliq",0,24,267,500,25,0);
- child(L"BUTTON",L"登录时启动 Snapliq",BS_AUTOCHECKBOX|WS_TABSTOP,24,302,400,28,STARTUP);
+ child(L"BUTTON",L"吸附屏幕边缘",BS_AUTOCHECKBOX|WS_TABSTOP,24,302,230,28,ORB_SNAP);CheckDlgButton(settings,ORB_SNAP,orbSnapToEdge?BST_CHECKED:BST_UNCHECKED);
+ child(L"BUTTON",L"锁定当前位置",BS_AUTOCHECKBOX|WS_TABSTOP,285,302,250,28,ORB_LOCK);CheckDlgButton(settings,ORB_LOCK,orbPositionLocked?BST_CHECKED:BST_UNCHECKED);
+ child(L"STATIC",L"悬浮球大小",0,24,345,120,26,0);
+ auto slider=child(TRACKBAR_CLASS,L"悬浮球大小",TBS_HORZ|TBS_NOTICKS|WS_TABSTOP,150,336,300,34,ORB_SIZE);
+ SendMessage(slider,TBM_SETRANGE,TRUE,MAKELPARAM(32,96));SendMessage(slider,TBM_SETLINESIZE,0,1);SendMessage(slider,TBM_SETPAGESIZE,0,8);SendMessage(slider,TBM_SETPOS,TRUE,orbDiameter);
+ auto sizeLabel=std::to_wstring(orbDiameter)+L" DIP";child(L"STATIC",sizeLabel.c_str(),0,470,345,80,26,ORB_SIZE_LABEL);
+ child(L"BUTTON",L"登录时启动 Snapliq",BS_AUTOCHECKBOX|WS_TABSTOP,24,382,400,28,STARTUP);
  DWORD bytes=0;bool enabled=RegGetValue(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",L"SnapliqDevelopment",RRF_RT_REG_SZ,nullptr,nullptr,&bytes)==ERROR_SUCCESS;CheckDlgButton(settings,STARTUP,enabled?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"开始截图",BS_DEFPUSHBUTTON|WS_TABSTOP,24,352,180,34,REGION);
- child(L"BUTTON",L"屏幕录制…",BS_PUSHBUTTON|WS_TABSTOP,230,352,190,34,RECORD);
- child(L"BUTTON",L"智能框选窗口",BS_AUTOCHECKBOX|WS_TABSTOP,24,402,220,28,SMART);CheckDlgButton(settings,SMART,readInt(L"smart",0)?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"识别窗口内控件",BS_AUTOCHECKBOX|WS_TABSTOP,255,402,250,28,CONTROLS);CheckDlgButton(settings,CONTROLS,readInt(L"controls",0)?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"Connect Snapliq for Chrome",BS_PUSHBUTTON|WS_TABSTOP,24,442,300,28,CONNECT_CHROME);
- child(L"STATIC",L"关闭设置后，系统托盘和两组快捷键继续运行。",0,24,486,500,24,0);
+ child(L"BUTTON",L"开始截图",BS_DEFPUSHBUTTON|WS_TABSTOP,24,424,180,34,REGION);
+ child(L"BUTTON",L"屏幕录制…",BS_PUSHBUTTON|WS_TABSTOP,230,424,190,34,RECORD);
+ child(L"BUTTON",L"智能框选窗口",BS_AUTOCHECKBOX|WS_TABSTOP,24,468,220,28,SMART);CheckDlgButton(settings,SMART,readInt(L"smart",0)?BST_CHECKED:BST_UNCHECKED);
+ child(L"BUTTON",L"识别窗口内控件",BS_AUTOCHECKBOX|WS_TABSTOP,255,468,250,28,CONTROLS);CheckDlgButton(settings,CONTROLS,readInt(L"controls",0)?BST_CHECKED:BST_UNCHECKED);
+ child(L"BUTTON",L"Connect Snapliq for Chrome",BS_PUSHBUTTON|WS_TABSTOP,24,508,300,28,CONNECT_CHROME);
+ child(L"STATIC",L"关闭设置后，系统托盘和两组快捷键继续运行。",0,24,550,520,24,0);
  SendMessage(settings,WM_SETICON,ICON_BIG,reinterpret_cast<LPARAM>(LoadIcon(GetModuleHandle(nullptr),MAKEINTRESOURCE(1))));
- applyWindowDpi(settings);ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);
+ applyWindowDpi(settings);fitSettings();ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);
 }
 int WINAPI wWinMain(HINSTANCE instance,HINSTANCE,PWSTR,int){
  int argc=0;auto argv=CommandLineToArgvW(GetCommandLine(),&argc);
@@ -384,7 +470,7 @@ int WINAPI wWinMain(HINSTANCE instance,HINSTANCE,PWSTR,int){
  }
  app.host=CreateWindowEx(WS_EX_TOOLWINDOW,L"SnapliqHost",PRODUCT_NAME,WS_POPUP,0,0,0,0,nullptr,nullptr,instance,nullptr);
  app.orb=CreateWindowEx(WS_EX_TOPMOST|WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE,L"SnapliqOrb",PRODUCT_NAME,WS_POPUP,0,0,48,48,app.host,nullptr,instance,nullptr);SetWindowDisplayAffinity(app.orb,WDA_EXCLUDEFROMCAPTURE);
- app.placeOrb(readInt(L"orbX",0)!=0);app.refreshOrb();
+ app.placeOrb(hasInt(L"orbX")&&hasInt(L"orbY"));app.refreshOrb();
  app.tray.cbSize=sizeof(app.tray);app.tray.hWnd=app.host;app.tray.uID=1;app.tray.uCallbackMessage=TRAY;app.tray.uFlags=NIF_MESSAGE|NIF_ICON|NIF_TIP;app.tray.hIcon=LoadIcon(instance,MAKEINTRESOURCE(2));wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_ADD,&app.tray);
  app.bridge.start([](int action){PostMessage(app.host,WM_COMMAND,action,0);});
  app.refreshTrayIcon();app.registerKey();app.registerRecordingKey();SetTimer(app.host,1,60000,nullptr);app.showSettings();
