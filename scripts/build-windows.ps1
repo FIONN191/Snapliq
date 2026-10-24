@@ -15,7 +15,7 @@ cmake -S . -B .build/windows -A x64
 if ($LASTEXITCODE -ne 0) { throw "CMake configuration failed ($LASTEXITCODE)." }
 cmake --build .build/windows --config Release
 if ($LASTEXITCODE -ne 0) { throw "Windows build failed ($LASTEXITCODE)." }
-ctest --test-dir .build/windows -C Release --output-on-failure
+ctest --test-dir .build/windows -C Release --verbose
 if ($LASTEXITCODE -ne 0) { throw "Windows tests failed ($LASTEXITCODE)." }
 
 $exe = Join-Path $outputDir "Snapliq.exe"

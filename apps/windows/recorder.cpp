@@ -28,6 +28,20 @@ using namespace winrt::Windows::Graphics::Capture;
 using namespace winrt::Windows::Graphics::DirectX;
 using namespace winrt::Windows::Graphics::DirectX::Direct3D11;
 namespace {
+constexpr int64_t mediaTicksPerSecond=10000000;
+constexpr int audioSampleRate=48000;
+// Divide first so long recordings do not overflow an intermediate product.
+constexpr int64_t audioFramesToTicks(int64_t frames){
+ return (frames/audioSampleRate)*mediaTicksPerSecond+(frames%audioSampleRate)*mediaTicksPerSecond/audioSampleRate;
+}
+constexpr int64_t mediaTicksToAudioFrames(int64_t ticks){
+ return (ticks/mediaTicksPerSecond)*audioSampleRate+(ticks%mediaTicksPerSecond)*audioSampleRate/mediaTicksPerSecond;
+}
+static_assert(audioFramesToTicks(480)==100000,"480 audio frames at 48 kHz must last exactly 10 ms");
+static_assert(mediaTicksToAudioFrames(100000)==480);
+static_assert(audioFramesToTicks(48000)==10000000);
+static_assert(audioFramesToTicks(48000LL*60*60*24*365)==10000000LL*60*60*24*365);
+static_assert(mediaTicksToAudioFrames(10000000LL*60*60*24*365)==48000LL*60*60*24*365);
 int64_t hostTime(){LARGE_INTEGER q,f;QueryPerformanceCounter(&q);QueryPerformanceFrequency(&f);return int64_t(double(q.QuadPart)*10000000.0/double(f.QuadPart));}
 struct Apartment {Apartment(){init_apartment(apartment_type::multi_threaded);}~Apartment(){uninit_apartment();}};
 struct Foundation {
@@ -75,7 +89,9 @@ struct AudioSource {
  }
 };
 struct Mixer {
- static constexpr int rate=48000,capacity=96000,block=480;
+ static constexpr int rate=audioSampleRate,capacity=96000,block=480;
+ static constexpr int64_t blockDuration=audioFramesToTicks(block);
+ static_assert(blockDuration==100000);
  std::vector<std::array<float,2>> ring=std::vector<std::array<float,2>>(capacity);
  int64_t next=0,dropped=0;
  void add(const BYTE* bytes,UINT32 count,DWORD flags,int64_t timestamp,const AudioSource& input,int64_t origin,int64_t offset,float gain){
@@ -98,7 +114,7 @@ struct Mixer {
    BYTE* data;check_hresult(buffer->Lock(&data,nullptr,nullptr));
    for(int i=0;i<block;i++){auto& slot=ring[size_t((next+i)%capacity)];for(int c=0;c<2;c++){auto sample=int16_t(std::clamp(slot[c],-1.f,1.f)*32767.f);std::memcpy(data+(i*2+c)*2,&sample,2);}slot={0,0};}
    buffer->Unlock();buffer->SetCurrentLength(block*4);
-   com_ptr<IMFSample> sample;check_hresult(MFCreateSample(sample.put()));sample->AddBuffer(buffer.get());sample->SetSampleTime(next*10000000/rate);sample->SetSampleDuration(block*10000000/rate);
+   com_ptr<IMFSample> sample;check_hresult(MFCreateSample(sample.put()));sample->AddBuffer(buffer.get());check_hresult(sample->SetSampleTime(audioFramesToTicks(next)));check_hresult(sample->SetSampleDuration(blockDuration));
    check_hresult(writer->WriteSample(stream,sample.get()));next+=block;
   }
  }
@@ -181,7 +197,7 @@ void DesktopRecorder::start(RecordingOptions options,std::function<void(Recordin
      for(auto source:{system.get(),mic.get()})if(source)source->drain([&](const BYTE* b,UINT32 n,DWORD flags,int64_t timestamp,const AudioSource& input){
       if(!paused&&!wasPaused&&origin)mixer.add(b,n,flags,timestamp,input,*origin,offset,system&&mic?0.7f:1.f);
      });
-     if((system||mic)&&origin&&!paused)mixer.writeUntil(writer.get(),audioStream,std::max<int64_t>(0,(elapsed_.load()-1000000)*48000/10000000));
+     if((system||mic)&&origin&&!paused)mixer.writeUntil(writer.get(),audioStream,mediaTicksToAudioFrames(std::max<int64_t>(0,elapsed_.load()-1000000)));
      Sleep(4);
     }
    }catch(const hresult_error& e){result.message=e.message().c_str();}catch(const std::exception& e){std::string text=e.what();result.message.assign(text.begin(),text.end());}
@@ -194,7 +210,7 @@ void DesktopRecorder::start(RecordingOptions options,std::function<void(Recordin
    if(result.frames==0)throw std::runtime_error("No video frames captured.");
    finishStep(result,L"写入视频结束帧失败",[&]{if(snapliq::recording::writeVideoTail(writer.get(),videoStream,lastBuffer.get(),elapsed_.load(),lastWritten))result.frames++;});lastBuffer=nullptr;
    // Preserve captured video even if an audio device/encoder fails at stop.
-   if(options.systemAudio||options.microphone)finishStep(result,L"写入剩余声音失败",[&]{mixer.writeUntil(writer.get(),audioStream,(lastWritten+snapliq::recording::videoFrameDuration)*48000/10000000);});
+   if(options.systemAudio||options.microphone)finishStep(result,L"写入剩余声音失败",[&]{mixer.writeUntil(writer.get(),audioStream,mediaTicksToAudioFrames(lastWritten+snapliq::recording::videoFrameDuration));});
    check_hresult(writer->Finalize());writer=nullptr;result.droppedAudio=mixer.dropped;
    if(!MoveFileEx(temp.c_str(),options.path.c_str(),MOVEFILE_WRITE_THROUGH))throw hresult_error(HRESULT_FROM_WIN32(GetLastError()));
    result.saved=true;result.path=options.path;

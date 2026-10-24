@@ -193,6 +193,8 @@ struct MediaFoundation {
 };
 
 constexpr int videoWidth = 160, videoHeight = 96;
+constexpr DWORD firstVideoStream = static_cast<DWORD>(MF_SOURCE_READER_FIRST_VIDEO_STREAM);
+constexpr DWORD mediaSource = static_cast<DWORD>(MF_SOURCE_READER_MEDIASOURCE);
 constexpr UINT sourcePitch = videoWidth * 4 + 32;
 using Color = std::array<BYTE, 4>;
 const std::array<Color, 4> videoColors{{
@@ -275,12 +277,12 @@ void checkVideoCodec() {
     winrt::com_ptr<IMFSourceReader> reader;
     winrt::check_hresult(MFCreateSourceReaderFromURL(path.c_str(), attributes.get(), reader.put()));
     winrt::com_ptr<IMFMediaType> nativeType;
-    winrt::check_hresult(reader->GetNativeMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, nativeType.put()));
+    winrt::check_hresult(reader->GetNativeMediaType(firstVideoStream, 0, nativeType.put()));
     GUID codec{};
     winrt::check_hresult(nativeType->GetGUID(MF_MT_SUBTYPE, &codec));
     expect(codec == MFVideoFormat_H264, "Recorded MP4 must contain H.264 video");
     PROPVARIANT duration{};
-    winrt::check_hresult(reader->GetPresentationAttribute(MF_SOURCE_READER_MEDIASOURCE, MF_PD_DURATION, &duration));
+    winrt::check_hresult(reader->GetPresentationAttribute(mediaSource, MF_PD_DURATION, &duration));
     const auto durationType = duration.vt;
     const auto durationTicks = duration.uhVal.QuadPart;
     PropVariantClear(&duration);
@@ -292,9 +294,9 @@ void checkVideoCodec() {
     winrt::check_hresult(MFCreateMediaType(output.put()));
     winrt::check_hresult(output->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video));
     winrt::check_hresult(output->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32));
-    winrt::check_hresult(reader->SetCurrentMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, nullptr, output.get()));
+    winrt::check_hresult(reader->SetCurrentMediaType(firstVideoStream, nullptr, output.get()));
     output = nullptr;
-    winrt::check_hresult(reader->GetCurrentMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, output.put()));
+    winrt::check_hresult(reader->GetCurrentMediaType(firstVideoStream, output.put()));
     UINT32 width = 0, height = 0, strideBits = 0;
     winrt::check_hresult(MFGetAttributeSize(output.get(), MF_MT_FRAME_SIZE, &width, &height));
     expect(width == videoWidth && height == videoHeight, "MP4 frame dimensions changed");
@@ -309,7 +311,7 @@ void checkVideoCodec() {
         DWORD flags = 0;
         LONGLONG timestamp = 0;
         winrt::com_ptr<IMFSample> sample;
-        winrt::check_hresult(reader->ReadSample(MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0,
+        winrt::check_hresult(reader->ReadSample(firstVideoStream, 0,
             nullptr, &flags, &timestamp, sample.put()));
         expect((flags & MF_SOURCE_READERF_ERROR) == 0, "MP4 decode failed");
         if (sample) {
