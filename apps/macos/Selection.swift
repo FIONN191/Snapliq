@@ -67,8 +67,8 @@ final class SelectionSession:NSObject {
     var candidate:CGRect?
     var onFinish:((String?)->Void)?
     var onRecord:((RecordingRegion?)->Void)?
+    var onExtractText:((CGImage)->Void)?
     private let recordingSelection:Bool
-    private var ocr:OCRPanel?
     private var transfer:AirDropTransfer?
     private var smart:SmartSelection?
     var onChooseFolder:(()->URL?)?
@@ -277,11 +277,11 @@ final class SelectionSession:NSObject {
         }catch{failure(error)}
     }
     @objc private func extractText(){
-        guard let r=selection,!exporting else{return}
+        guard let r=selection,!exporting,!suspended,let presentOCR=onExtractText else{return}
         do {
-            let image=try CaptureBackend.crop(r,from:snapshots);hideForDialog()
-            let panel=OCRPanel(image:image);ocr=panel
-            panel.onClose={ [weak self] in self?.ocr=nil;self?.restoreAfterDialog() }
+            let image=try CaptureBackend.crop(r,from:snapshots)
+            finish(nil)
+            presentOCR(image)
         }catch{failure(error)}
     }
     @objc private func airDrop(){
@@ -298,7 +298,7 @@ final class SelectionSession:NSObject {
     @objc func topologyChanged(){finish("显示器变化或系统即将休眠，截图已取消")}
     @objc func cancel(){finish(nil)}
     func finish(_ message:String?){
-        smart?.cancel();smart=nil;ocr?.onClose=nil;ocr?.close();ocr=nil;transfer=nil
+        smart?.cancel();smart=nil;onExtractText=nil;transfer=nil
         NotificationCenter.default.removeObserver(self);NSWorkspace.shared.notificationCenter.removeObserver(self)
         windows.forEach{$0.orderOut(nil);$0.close()};windows.removeAll()
         toolbar?.close();toolbar=nil;modebar?.close();modebar=nil

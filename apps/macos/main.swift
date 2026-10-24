@@ -7,6 +7,7 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
     let recordingHotkey=HotkeyService(kind:.recording)
     let orb=OrbController()
     let settings=SettingsController()
+    let ocr=OCRController()
     let recorder=RecordingController()
     lazy var recordingUI:RecordingUI = {
         let ui=RecordingUI(controller:recorder)
@@ -132,6 +133,7 @@ final class AppDelegate:NSObject,NSApplicationDelegate {
                 let next=SelectionSession(snapshots:images,started:start,mode:mode,candidates:candidates,recordingSelection:recordingSelection)
                 next.onRecord={ [weak self] region in self?.recordingUI.present(region:region) }
                 next.onChooseFolder={ [weak self] in self?.settings.chooseFolder() }
+                next.onExtractText={ [weak self] image in self?.ocr.present(image) }
                 next.onFinish={ [weak self] message in
                     guard let self=self else{return}
                     self.session=nil;self.busy=false;self.orb.temporarilyHidden=false;self.orb.refresh();self.statusItem.button?.title=""

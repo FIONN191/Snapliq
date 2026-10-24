@@ -35,12 +35,13 @@ DWORD dateKey(){SYSTEMTIME t;GetLocalTime(&t);return DWORD(t.wYear)*10000+t.wMon
 RECT asRect(SLRect r){return {LONG(std::floor(r.x)),LONG(std::floor(r.y)),LONG(std::ceil(r.x+r.width)),LONG(std::ceil(r.y+r.height))};}
 struct HitResult{RECT rect;POINT point;unsigned generation;};
 struct OCRResult{unsigned generation=0;std::wstring text,error;};
+struct OCRRequest{unsigned generation=0;Image image;};
 struct Result{unsigned generation=0;std::unique_ptr<Desktop> desktop;std::wstring error;};
 struct App {
  HWND host=nullptr,orb=nullptr,overlay=nullptr,settings=nullptr,hotkeyControl=nullptr,recordHotkeyControl=nullptr;
  std::vector<WindowTarget> targets;SLRect candidate{};bool candidateValid=false,windowMode=false,hitBusy=false,quitAfterRecord=false;
  ULONGLONG lastHit=0;std::thread hitWorker,ocrWorker;HWND ocrWindow=nullptr,ocrEdit=nullptr;
- NativeBridge bridge;unsigned ocrGeneration=0;
+ NativeBridge bridge;unsigned ocrGeneration=0;bool ocrBusy=false;std::unique_ptr<OCRRequest> pendingOCR;
  DesktopRecorder recorder;std::unique_ptr<RecordingWindow> recordingWindow;bool recordingSessionPending=false;
  unsigned generation=0;NOTIFYICONDATA tray{};std::thread worker;bool busy=false,full=false,selected=false,dragging=false,moving=false,orbDragging=false;int handle=-1;
  DWORD vk=readInt(L"key",'X'),mods=readInt(L"modifiers",MOD_CONTROL|MOD_ALT);
@@ -267,16 +268,45 @@ struct App {
   hitBusy=true;lastHit=GetTickCount64();if(hitWorker.joinable())hitWorker.join();auto window=target->window;auto token=generation;
   hitWorker=std::thread([this,window,point,token]{winrt::init_apartment(winrt::apartment_type::multi_threaded);auto result=new HitResult{{},point,token};try{result->rect=controlCandidate(window,point);}catch(...){}if(!PostMessage(host,HIT_DONE,0,reinterpret_cast<LPARAM>(result)))delete result;winrt::uninit_apartment();});
  }
- void extract(){
-  if(!selected||ocrWindow)return;
-  auto image=current();ShowWindow(overlay,SW_HIDE);
-  ocrWindow=CreateWindowEx(WS_EX_TOOLWINDOW,L"SnapliqOCR",L"提取文字 · Snapliq",WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,620,430,host,nullptr,GetModuleHandle(nullptr),nullptr);
-  ocrEdit=CreateWindowEx(WS_EX_CLIENTEDGE,L"EDIT",L"正在本地识别中文和英文…",WS_CHILD|WS_VISIBLE|WS_VSCROLL|ES_MULTILINE|ES_AUTOVSCROLL,15,15,570,300,ocrWindow,nullptr,GetModuleHandle(nullptr),nullptr);
-  CreateWindow(L"BUTTON",L"Copy text",WS_CHILD|WS_VISIBLE|WS_TABSTOP,15,330,160,30,ocrWindow,reinterpret_cast<HMENU>(1),GetModuleHandle(nullptr),nullptr);
-  const auto token=++ocrGeneration;
-  SendMessage(ocrEdit,EM_SETLIMITTEXT,1000000,0);applyWindowDpi(ocrWindow);ShowWindow(ocrWindow,SW_SHOW);SetForegroundWindow(ocrWindow);
+ void runOCR(OCRRequest request){
+  // A newer selection replaces the queued request without blocking the UI or
+  // starting an unbounded set of recognizers. The active request owns its pixels.
+  if(ocrBusy){pendingOCR=std::make_unique<OCRRequest>(std::move(request));return;}
   if(ocrWorker.joinable())ocrWorker.join();
-  ocrWorker=std::thread([this,token,image=std::move(image)]{winrt::init_apartment(winrt::apartment_type::multi_threaded);auto result=new OCRResult;result->generation=token;try{result->text=recognizeText(image);}catch(const winrt::hresult_error& e){result->error=e.message().c_str();}catch(const std::exception& e){std::string t=e.what();result->error.assign(t.begin(),t.end());}if(!PostMessage(host,OCR_DONE,0,reinterpret_cast<LPARAM>(result)))delete result;winrt::uninit_apartment();});
+  ocrBusy=true;
+  try{ocrWorker=std::thread([this,request=std::move(request)]{
+   auto result=new OCRResult;result->generation=request.generation;bool initialized=false;
+   try{winrt::init_apartment(winrt::apartment_type::multi_threaded);initialized=true;result->text=recognizeText(request.image);}
+   catch(const winrt::hresult_error& e){result->error=e.message().c_str();}
+   catch(const std::exception& e){std::string t=e.what();result->error.assign(t.begin(),t.end());}
+   if(initialized)winrt::uninit_apartment();
+   if(!PostMessage(host,OCR_DONE,0,reinterpret_cast<LPARAM>(result)))delete result;
+  });}catch(const std::exception&){ocrBusy=false;SetWindowText(ocrEdit,L"无法启动文字识别，请重新截图后重试。");}
+ }
+ void completeOCR(std::unique_ptr<OCRResult> result){
+  ocrBusy=false;
+  if(ocrEdit&&result->generation==ocrGeneration)SetWindowText(ocrEdit,result->error.empty()?result->text.c_str():result->error.c_str());
+  if(pendingOCR){auto next=std::move(pendingOCR);if(ocrEdit&&next->generation==ocrGeneration)runOCR(std::move(*next));}
+ }
+ void extract(){
+  if(!selected)return;
+  try{
+   auto image=current();
+   if(!ocrWindow){
+    ocrWindow=CreateWindowEx(WS_EX_TOOLWINDOW,L"SnapliqOCR",L"提取文字 · Snapliq",WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,620,430,host,nullptr,GetModuleHandle(nullptr),nullptr);
+    if(!ocrWindow)winrt::throw_last_error();
+    ocrEdit=CreateWindowEx(WS_EX_CLIENTEDGE,L"EDIT",L"",WS_CHILD|WS_VISIBLE|WS_VSCROLL|ES_MULTILINE|ES_AUTOVSCROLL,15,15,570,300,ocrWindow,nullptr,GetModuleHandle(nullptr),nullptr);
+    if(!ocrEdit){auto code=GetLastError();DestroyWindow(ocrWindow);ocrWindow=nullptr;winrt::throw_hresult(HRESULT_FROM_WIN32(code));}
+    CreateWindow(L"BUTTON",L"Copy text",WS_CHILD|WS_VISIBLE|WS_TABSTOP,15,330,160,30,ocrWindow,reinterpret_cast<HMENU>(1),GetModuleHandle(nullptr),nullptr);
+    SendMessage(ocrEdit,EM_SETLIMITTEXT,1000000,0);applyWindowDpi(ocrWindow);
+   }
+   const auto token=++ocrGeneration;
+   SetWindowText(ocrEdit,L"正在本地识别中文和英文…");
+   // OCR keeps the cropped image; the capture session must be gone, not hidden.
+   closeCapture();ShowWindow(ocrWindow,IsIconic(ocrWindow)?SW_RESTORE:SW_SHOW);SetForegroundWindow(ocrWindow);
+   runOCR({token,std::move(image)});
+  }catch(const winrt::hresult_error& e){error(e.message().c_str());}
+  catch(const std::exception& e){std::string t=e.what();error(std::wstring(t.begin(),t.end()));}
  }
  void startRecording(RecordingOptions options){
   if(recordingSessionPending||recorder.active())return;
@@ -338,7 +368,7 @@ LRESULT CALLBACK HostProc(HWND w,UINT m,WPARAM a,LPARAM b){
  case WM_COMMAND:app.command(LOWORD(a));return 0;
  case TRAY:if(b==WM_LBUTTONUP)app.capture(false);else if(b==WM_RBUTTONUP)app.popup(false);return 0;
  case CAPTURED:app.showCapture(reinterpret_cast<Result*>(b));return 0;
- case OCR_DONE:{std::unique_ptr<OCRResult> r(reinterpret_cast<OCRResult*>(b));if(app.ocrEdit&&r->generation==app.ocrGeneration)SetWindowText(app.ocrEdit,r->error.empty()?r->text.c_str():r->error.c_str());return 0;}
+ case OCR_DONE:app.completeOCR(std::unique_ptr<OCRResult>(reinterpret_cast<OCRResult*>(b)));return 0;
  case HIT_DONE:{std::unique_ptr<HitResult> r(reinterpret_cast<HitResult*>(b));app.hitBusy=false;POINT p;GetCursorPos(&p);if(app.desktop&&app.overlay&&!app.selected&&!app.dragging&&r->generation==app.generation&&std::abs(p.x-r->point.x)+std::abs(p.y-r->point.y)<5&&r->rect.right>r->rect.left){app.candidate={double(r->rect.left-app.desktop->bounds.left),double(r->rect.top-app.desktop->bounds.top),double(r->rect.right-r->rect.left),double(r->rect.bottom-r->rect.top)};app.candidateValid=true;InvalidateRect(app.overlay,nullptr,FALSE);}return 0;}
  case RECORD_DONE:{app.recordingSessionPending=false;app.tray.uFlags=NIF_TIP;wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_MODIFY,&app.tray);std::unique_ptr<RecordingOutcome> r(reinterpret_cast<RecordingOutcome*>(b));KillTimer(w,2);if(app.recordingWindow)app.recordingWindow->update();app.refreshOrb();app.report(r->saved?L"已保存录屏\n"+r->path:L"录屏未完成");if(!r->message.empty()&&!app.quitAfterRecord)app.error(r->message);if(app.quitAfterRecord)DestroyWindow(w);return 0;}
  case WM_TIMER:if(a==2){if(app.recordingWindow)app.recordingWindow->update();app.tray.uFlags=NIF_TIP;wcsncpy_s(app.tray.szTip,app.recorder.stopping()?L"Snapliq - Finishing":!app.recorder.started()?L"Snapliq - Preparing":app.recorder.paused()?L"Snapliq - Paused":L"Snapliq - Recording",_TRUNCATE);Shell_NotifyIcon(NIM_MODIFY,&app.tray);}else app.refreshOrb();return 0;
@@ -406,7 +436,7 @@ LRESULT CALLBACK OCRProc(HWND w,UINT m,WPARAM a,LPARAM b){
  if(m==WM_NCDESTROY)releaseDpiFont(w);
  if(m==WM_COMMAND&&LOWORD(a)==1&&app.ocrEdit){SendMessage(app.ocrEdit,EM_SETSEL,0,-1);SendMessage(app.ocrEdit,WM_COPY,0,0);return 0;}
  if(m==WM_SIZE&&app.ocrEdit){MoveWindow(app.ocrEdit,dip(w,15),dip(w,15),std::max(1,int(LOWORD(b))-dip(w,30)),std::max(1,int(HIWORD(b))-dip(w,75)),TRUE);MoveWindow(GetDlgItem(w,1),dip(w,15),std::max(dip(w,15),int(HIWORD(b))-dip(w,45)),dip(w,160),dip(w,30),TRUE);return 0;}
- if(m==WM_CLOSE){++app.ocrGeneration;DestroyWindow(w);app.ocrWindow=app.ocrEdit=nullptr;if(app.overlay){ShowWindow(app.overlay,SW_SHOW);SetForegroundWindow(app.overlay);}return 0;}
+ if(m==WM_CLOSE){++app.ocrGeneration;app.pendingOCR.reset();DestroyWindow(w);app.ocrWindow=app.ocrEdit=nullptr;return 0;}
  return DefWindowProc(w,m,a,b);
 }
 LRESULT CALLBACK SettingsProc(HWND w,UINT m,WPARAM a,LPARAM b){

@@ -12,6 +12,15 @@ enum LocalOCR {
         return (request.results ?? []).compactMap{$0.topCandidates(1).first?.string}.joined(separator:"\n")
     }
 }
+// OCR results outlive the capture session and do not restore its overlay on close.
+final class OCRController {
+    private var panels=[UUID:OCRPanel]()
+    func present(_ image:CGImage){
+        let id=UUID(),panel=OCRPanel(image:image)
+        panels[id]=panel
+        panel.onClose={ [weak self] in self?.panels.removeValue(forKey:id) }
+    }
+}
 final class OCRPanel:NSWindowController,NSWindowDelegate {
     private let textView=NSTextView()
     private let status=NSTextField(labelWithString:"正在本机识别中文和英文…")

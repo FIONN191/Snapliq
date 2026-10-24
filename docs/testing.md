@@ -15,7 +15,7 @@ python3 scripts/benchmark-interactive-macos.py --run-interactive --samples 100 \
 
 TimedKey 在 CGEvent key-down 提交前记录 systemUptime，与应用日志的同一单调时钟比较。四项为触发→反馈提交、触发→干净底图、触发→选区可用事件、Enter 提交→PNG 写入完成。包括 OS 分发与主线程调度。此方法不测物理键盘扫描、显示合成器真正呈现或光子延迟；后两者需要额外呈现探针或高速摄影。保留首样本，P50/P95 用线性插值。
 
-tests/macos/SelectionUITests.swift 使用生成底图执行真实 AppKit OCR 编辑/复制与选区恢复；AirDropSmoke.swift 只用于系统分享取消清理检查，测试中不能选择实际接收设备。LiveRecordingTests.swift 使用真实系统捕获，录下的桌面/系统声音可能涉及用户内容，应仅保留本地，不纳入源码包。测试程序不是最终应用权限身份的替代品。
+tests/macos/SelectionUITests.swift 使用生成底图执行真实 AppKit OCR：提取后立即结束截图，释放选区会话与底图，保留可编辑文字结果；结果窗口打开时可再次截图并复制图片，关闭结果不恢复旧遮罩，提前关闭也不会被异步完成重新打开。运行 `zsh scripts/test-selection-ui-macos.sh --run-interactive`，检查结束后恢复原剪贴板。AirDropSmoke.swift 只用于系统分享取消清理检查，测试中不能选择实际接收设备。LiveRecordingTests.swift 使用真实系统捕获，录下的桌面/系统声音可能涉及用户内容，应仅保留本地，不纳入源码包。测试程序不是最终应用权限身份的替代品。
 
 Windows：CMake 与 PowerShell 构建/核心测试已接入 GitHub Actions，历史构建已有通过记录。尚无 Windows 实机，云端编译不提供媒体解码、方向、混合 DPI、音频设备、控制条排除或 UIA 的实际桌面运行结论。首次 Windows 验证应先编译、截图真实 PNG/剪贴板，再做短屏幕/窗口 MP4 解码、暂停与声音，最后做多屏及异常停止。
 
