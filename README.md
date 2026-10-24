@@ -3,13 +3,15 @@ Capture. Record. Share. — 截图与录屏工具
 
 Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureKit，Windows 使用 Win32/C++/WinRT + Windows.Graphics.Capture，两端共享 C++20 几何和布局核心。Snapliq for Chrome 仅提供配套入口；退出 Chrome、断开 Native Messaging 或关闭设置不结束桌面应用。
 
-当前桌面开发版本 **0.2.4**：新增悬浮球边缘吸附开关、32–96 大小调节和位置锁定，设置立即生效并记住。独立快捷录屏继续使用 macOS **⌥⌘ R** / Windows **Ctrl+Alt+R**，可在桌面设置修改；录制鼠标所在屏幕，再按一次结束并自动保存。验收范围见 [0.2.4 验收报告](outputs/Snapliq-0.2.4-validation.md)。Windows 实际桌面、音频与混合 DPI 仍待实机验收。Chrome 开发与商店提交暂缓。
+当前桌面开发版本 **0.2.5**：面向 Windows 10 2004（build 19041）及以上、Windows 11 的 x64 桌面安装器和免安装 ZIP。Windows 使用 **Ctrl+Alt+R** 直接录制鼠标所在显示器，再按一次停止并自动保存。整个屏幕包含桌面、浏览器和其他普通应用；切换应用或退出 Chrome 不会停止录制。系统保护或禁止捕获的内容除外。Windows 实际桌面、音频与混合 DPI 仍待实机验收，构建和安装检查单独记录。Chrome 开发与商店提交暂缓。
 
 ## 启动与使用
 
 此前已发布的 0.2.2 开发版下载：[macOS 安装包（DMG）](https://github.com/FIONN191/Snapliq/releases/download/v0.2.2/Snapliq-0.2.2-macOS-arm64-development.dmg) · [0.2.2 预发布说明](https://github.com/FIONN191/Snapliq/releases/tag/v0.2.2)。本仓库跟踪源码、品牌资产和验收证据；本机 App、DMG、视频和剪贴板备份不进入 Git 历史。
 
-新构建应用位于 `outputs/builds/0.2.4/Snapliq.app`；安装文件为 `outputs/Snapliq-0.2.4-macOS-arm64-development.dmg`。历史签名的权限与测试结论不自动沿用到新构建。当前 macOS 构建要求 macOS 14+、Apple Silicon；麦克风需要 macOS 15+。不要同时启动两份开发应用。
+Windows 构建产物在 `outputs/windows/`：`Snapliq-0.2.5-windows-x64-development-setup.exe` 和 `Snapliq-0.2.5-windows-x64-development-portable.zip`。安装版运行安装器，免安装版解压整个文件夹再运行 `Snapliq.exe`；无需 Chrome 或额外的 VC++ 运行库。完整操作说明见 [Windows 使用指南](packaging/windows/README.zh-CN.txt)。本轮不更新本机 macOS 安装。
+
+macOS 新构建应用位于 `outputs/builds/0.2.5/Snapliq.app`；安装文件为 `outputs/Snapliq-0.2.5-macOS-arm64-development.dmg`。历史签名的权限与测试结论不自动沿用到新构建。当前 macOS 构建要求 macOS 14+、Apple Silicon；麦克风需要 macOS 15+。不要同时启动两份开发应用。
 
 首次截图需要系统屏幕录制权限。Command + X 是默认候选，只有用户接受普通剪切冲突后才启用；注册成功不代表它与剪切兼容。设置中可以直接修改快捷键。菜单栏、独立悬浮球与 Chrome 配套入口都可唤醒截图。关闭设置后继续常驻；选择「退出 Snapliq」才结束后台运行。
 
@@ -47,19 +49,19 @@ zsh scripts/test-macos.sh
 zsh scripts/test-services-macos.sh
 zsh scripts/test-quick-recording-macos.sh
 zsh scripts/test-orb-macos.sh
-open outputs/builds/0.2.4/Snapliq.app
+open outputs/builds/0.2.5/Snapliq.app
 ```
 
 默认构建输出 outputs/builds/<版本>/Snapliq.app，避免覆盖此前已授权版本。可用 SNAPLIQ_APP_PATH 指定另一输出位置。默认临时签名；重新构建可能使系统要求重新授权。SNAPLIQ_SIGNING_IDENTITY 可以指定已有签名证书，但脚本并未完成正式 hardened runtime、公证和发行流程。
 
-Windows 需要 Visual Studio 2022 Desktop C++、Windows 11 SDK、CMake：
+仅从源码构建 Windows 时需要 Visual Studio 2022 Desktop C++、Windows 10/11 SDK、CMake（SDK 版本不等于最低运行系统版本）：
 ```powershell
 ./scripts/build-windows.ps1
 # 安装 Inno Setup 6.3+ 后可生成开发安装器：
 ./scripts/build-windows.ps1 -Installer
 ```
 
-GitHub Actions 会构建两端并运行几何、快捷录屏和悬浮球测试。通过云端 Windows 编译不代表实际桌面、声音或混合 DPI 验收通过。图标可用 `python3 scripts/generate-assets.py` 重建。开发包与源码归档使用 `python3 scripts/package-development.py`，不会重签已构建应用。
+GitHub Actions 会构建两端并运行几何、快捷录屏、悬浮球与 Windows 原生图片/编码测试。Windows 流程还生成安装器和免安装 ZIP，验证版本和载荷哈希，在临时目录静默安装并卸载。通过云端 Windows 编译不代表实际桌面、声音或混合 DPI 验收通过。图标可用 `python3 scripts/generate-assets.py` 重建。开发包与源码归档使用 `python3 scripts/package-development.py`，不会重签已构建应用。
 
 交互回归会操作桌面和剪贴板，执行条件与命令见 [测试说明](docs/testing.md)。普通服务测试不测真实屏幕呈现延迟。
 

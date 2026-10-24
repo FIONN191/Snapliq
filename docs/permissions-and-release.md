@@ -21,10 +21,18 @@
 
 目标开发基线 Windows 10 2004+，建议 Windows 11 实测。Win32 宿主用 WGC；当前用户启动，manifest 为 asInvoker、PerMonitorV2。麦克风/桌面应用隐私开关及设备实际格式需检查；系统声音用 WASAPI loopback。受保护内容和安全桌面不能绕过。
 
-自身捕获排除优先 WDA_EXCLUDEFROMCAPTURE；失败时控制条隐藏，托盘仍保留停止入口。UI Automation 不能保证访问提权或所有自绘应用，失败回退窗口边界。Windows 未编译和实测，版本和运行能力必须在目标机器确认。
+自身捕获排除优先 WDA_EXCLUDEFROMCAPTURE；失败时控制条隐藏，托盘仍保留停止入口。UI Automation 不能保证访问提权或所有自绘应用，失败回退窗口边界。Windows 已有云端编译和逻辑测试；0.2.5 加入原生图片/编码与安装器验证。实际屏幕和音频运行能力仍必须在目标机器确认。
 
 ## 发行状态
 
-当前只交付开发包和源码。macOS Apple Silicon app 使用原有开发 bundle identifier 和数据目录；无 Developer ID、公证、hardened runtime 完整发布配置。Windows 安装器是 Inno Setup 源码，尚无已构建或签名安装包。
+当前只交付开发包和源码。macOS Apple Silicon app 使用原有开发 bundle identifier 和数据目录；无 Developer ID、公证、hardened runtime 完整发布配置。Windows 0.2.5 的构建流程生成 Inno Setup 安装器及免安装 ZIP，静态链接 VC++ 运行库，保留原 AppId 和每用户数据路径；产物仍未做 Windows 代码签名。
 
 正式发布前：使用用户指定稳定身份，配置并检查签名/entitlement、公证与安装升级/卸载；在可用 Xcode/SDK 下构建 NSGlassEffectView 与 Icon Composer 资源；运行真实 macOS/Windows、多显示器和录制中断矩阵。不得因名称配置变化修改用户既有发布 ID、签名或数据位置。
+
+## Windows 10/11 的实际支持边界
+
+最低运行系统是 Windows 10 2004（内部版本 19041），也支持 Windows 11；包架构为 x64。`CreateForMonitor` 从 1903 起可用，但光标控制和 `WDA_EXCLUDEFROMCAPTURE` 要求 2004，因此安装器和程序入口采用相同基线。普通桌面会话中选择「整个屏幕」可跨应用录制；安全桌面、DRM、主动排除捕获的窗口、锁屏及某些独占全屏内容不保证可捕获。Windows N/KN 需要先安装系统 Media Feature Pack；不包含该组件的系统未完成验收。
+
+- [微软：CreateForMonitor 最低版本](https://learn.microsoft.com/en-us/windows/win32/api/windows.graphics.capture.interop/nf-windows-graphics-capture-interop-igraphicscaptureiteminterop-createformonitor)
+- [微软：光标捕获的版本要求](https://learn.microsoft.com/en-us/uwp/api/windows.graphics.capture.graphicscapturesession.iscursorcaptureenabled)
+- [微软：窗口捕获排除的版本要求](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowdisplayaffinity)

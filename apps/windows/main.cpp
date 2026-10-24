@@ -13,6 +13,7 @@
 #include "recording-preferences.h"
 #include "orb-layout.h"
 #include "native-bridge.h"
+#include "windows-version.h"
 #include "snapliq_core.h"
 #include <algorithm>
 #include <thread>
@@ -460,6 +461,10 @@ void App::showSettings(){
  applyWindowDpi(settings);fitSettings();ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);
 }
 int WINAPI wWinMain(HINSTANCE instance,HINSTANCE,PWSTR,int){
+ if(!supportedWindowsHost()){
+  MessageBoxW(nullptr,L"Snapliq 需要 Windows 10 2004（版本号 19041）或更新版本，也支持 Windows 11。\n请更新 Windows 后再启动。",L"Snapliq · 系统版本不支持",MB_OK|MB_ICONWARNING);
+  return 1;
+ }
  int argc=0;auto argv=CommandLineToArgvW(GetCommandLine(),&argc);
  if(argv&&argc>1&&std::wstring(argv[1]).starts_with(L"chrome-extension://")){auto origin=std::wstring(argv[1]);LocalFree(argv);return NativeBridge::runHost(origin.c_str());}
  if(argv)LocalFree(argv);
@@ -474,6 +479,10 @@ int WINAPI wWinMain(HINSTANCE instance,HINSTANCE,PWSTR,int){
  app.tray.cbSize=sizeof(app.tray);app.tray.hWnd=app.host;app.tray.uID=1;app.tray.uCallbackMessage=TRAY;app.tray.uFlags=NIF_MESSAGE|NIF_ICON|NIF_TIP;app.tray.hIcon=LoadIcon(instance,MAKEINTRESOURCE(2));wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_ADD,&app.tray);
  app.bridge.start([](int action){PostMessage(app.host,WM_COMMAND,action,0);});
  app.refreshTrayIcon();app.registerKey();app.registerRecordingKey();SetTimer(app.host,1,60000,nullptr);app.showSettings();
- MSG message;while(GetMessage(&message,nullptr,0,0)>0){if(app.settings&&IsWindowVisible(app.settings)&&IsDialogMessage(app.settings,&message))continue;TranslateMessage(&message);DispatchMessage(&message);}
+ MSG message;while(GetMessage(&message,nullptr,0,0)>0){
+  if(app.settings&&IsWindowVisible(app.settings)&&IsDialogMessage(app.settings,&message))continue;
+  if(app.recordingWindow&&app.recordingWindow->handleDialogMessage(&message))continue;
+  TranslateMessage(&message);DispatchMessage(&message);
+ }
  if(single)CloseHandle(single);return 0;
 }

@@ -17,5 +17,9 @@ public:
  void present();
  void hidePicker(){if(picker_)ShowWindow(picker_,SW_HIDE);}
  void update();
+ bool handleDialogMessage(MSG* message){
+  for(auto window:{picker_,controls_})if(window&&IsWindowVisible(window)&&IsDialogMessage(window,message))return true;
+  return false;
+ }
  void close();
 };

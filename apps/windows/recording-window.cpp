@@ -26,18 +26,19 @@ void RecordingWindow::registerClass(){
  WNDCLASS c{};c.hInstance=GetModuleHandle(nullptr);c.lpszClassName=L"SnapliqRecording";c.lpfnWndProc=proc;c.hCursor=LoadCursor(nullptr,IDC_ARROW);c.hbrBackground=reinterpret_cast<HBRUSH>(COLOR_WINDOW+1);RegisterClass(&c);
 }
 void RecordingWindow::present(){
- if(recorder_.active()){if(controls_)ShowWindow(controls_,SW_SHOWNOACTIVATE);return;}
+ if(recorder_.active()){update();return;}
  if(!picker_){
   registerClass();auto instance=GetModuleHandle(nullptr);
-  picker_=CreateWindowEx(WS_EX_TOOLWINDOW,L"SnapliqRecording",L"Snapliq 屏幕录制",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU,CW_USEDEFAULT,CW_USEDEFAULT,550,325,owner_,nullptr,instance,this);
+  picker_=CreateWindowEx(WS_EX_TOOLWINDOW,L"SnapliqRecording",L"Snapliq 屏幕录制",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU,CW_USEDEFAULT,CW_USEDEFAULT,550,370,owner_,nullptr,instance,this);
   auto child=[&](const wchar_t* cls,const wchar_t* title,DWORD style,int x,int y,int width,int height,int id){return CreateWindowEx(0,cls,title,WS_CHILD|WS_VISIBLE|style,x,y,width,height,picker_,reinterpret_cast<HMENU>(INT_PTR(id)),instance,nullptr);};
-  child(L"STATIC",L"选择屏幕或窗口 · MP4 · 30 fps",0,20,20,490,24,0);
-  source_=child(L"COMBOBOX",L"",CBS_DROPDOWNLIST|WS_VSCROLL,20,60,490,300,0);
-  system_=child(L"BUTTON",L"录制系统声音",BS_AUTOCHECKBOX,20,110,220,28,4);
-  microphone_=child(L"BUTTON",L"录制麦克风",BS_AUTOCHECKBOX,260,110,220,28,5);
-  child(L"BUTTON",L"开始录制",BS_DEFPUSHBUTTON,20,155,300,34,1);
+  child(L"STATIC",L"录制整个屏幕或单个窗口 · MP4 · 30 fps",0,20,20,490,24,0);
+  source_=child(L"COMBOBOX",L"",CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,20,60,490,300,0);
+  system_=child(L"BUTTON",L"录制系统声音",BS_AUTOCHECKBOX|WS_TABSTOP,20,110,220,28,4);
+  microphone_=child(L"BUTTON",L"录制麦克风",BS_AUTOCHECKBOX|WS_TABSTOP,260,110,220,28,5);
+  child(L"BUTTON",L"开始录制",BS_DEFPUSHBUTTON|WS_TABSTOP,20,155,300,34,1);
   child(L"STATIC",L"停止后自动保存到默认文件夹；未设置时使用视频 / Snapliq。",0,20,205,490,38,0);
-  child(L"STATIC",L"关闭设置不会停止录制；区域视频裁剪尚未提供。",0,20,250,490,28,0);
+  child(L"STATIC",L"整个屏幕包含桌面、浏览器和其他应用，切换软件不中断。",0,20,250,490,28,0);
+  child(L"STATIC",L"系统禁止捕获的内容除外；关闭设置不会停止录制。",0,20,285,490,28,0);
  }
  SendMessage(system_,BM_SETCHECK,recording_preferences::enabled(recording_preferences::systemAudioKey)?BST_CHECKED:BST_UNCHECKED,0);
  SendMessage(microphone_,BM_SETCHECK,recording_preferences::enabled(recording_preferences::microphoneKey)?BST_CHECKED:BST_UNCHECKED,0);
@@ -45,11 +46,13 @@ void RecordingWindow::present(){
  choices_.clear();SendMessage(source_,CB_RESETCONTENT,0,0);
  EnumDisplayMonitors(nullptr,nullptr,[](HMONITOR monitor,HDC,LPRECT bounds,LPARAM data)->BOOL{
   auto self=reinterpret_cast<RecordingWindow*>(data);RecordingOptions o;o.monitor=monitor;self->choices_.push_back(o);
-  auto title=L"屏幕 "+std::to_wstring(self->choices_.size())+L" · "+std::to_wstring(bounds->right-bounds->left)+L" × "+std::to_wstring(bounds->bottom-bounds->top);
+  auto title=L"整个屏幕 "+std::to_wstring(self->choices_.size())+L" · "+std::to_wstring(bounds->right-bounds->left)+L" × "+std::to_wstring(bounds->bottom-bounds->top);
   SendMessage(self->source_,CB_ADDSTRING,0,reinterpret_cast<LPARAM>(title.c_str()));return TRUE;
  },reinterpret_cast<LPARAM>(this));
- for(auto const& target:desktopWindows()){RecordingOptions o;o.window=target.window;choices_.push_back(o);SendMessage(source_,CB_ADDSTRING,0,reinterpret_cast<LPARAM>(target.label.c_str()));}
- SendMessage(source_,CB_SETCURSEL,0,0);ShowWindow(picker_,SW_SHOW);SetForegroundWindow(picker_);
+ POINT point;GetCursorPos(&point);const auto current=MonitorFromPoint(point,MONITOR_DEFAULTTOPRIMARY);size_t selected=0;
+ for(size_t i=0;i<choices_.size();++i)if(choices_[i].monitor==current){selected=i;break;}
+ for(auto const& target:desktopWindows()){RecordingOptions o;o.window=target.window;choices_.push_back(o);auto title=L"窗口 · "+target.label;SendMessage(source_,CB_ADDSTRING,0,reinterpret_cast<LPARAM>(title.c_str()));}
+ SendMessage(source_,CB_SETCURSEL,selected,0);ShowWindow(picker_,SW_SHOW);SetForegroundWindow(picker_);
 }
 void RecordingWindow::begin(){
  if(recorder_.active())return;
@@ -65,8 +68,8 @@ void RecordingWindow::update(){
   registerClass();
   controls_=CreateWindowEx(WS_EX_TOPMOST|WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE,L"SnapliqRecording",L"Snapliq Recording",WS_POPUP|WS_BORDER,50,50,410,56,owner_,nullptr,GetModuleHandle(nullptr),this);
   label_=CreateWindow(L"STATIC",L"准备录制…",WS_CHILD|WS_VISIBLE,12,18,190,25,controls_,nullptr,GetModuleHandle(nullptr),nullptr);
-  pause_=CreateWindow(L"BUTTON",L"暂停",WS_CHILD|WS_VISIBLE,205,12,85,30,controls_,reinterpret_cast<HMENU>(2),GetModuleHandle(nullptr),nullptr);
-  CreateWindow(L"BUTTON",L"停止",WS_CHILD|WS_VISIBLE,305,12,85,30,controls_,reinterpret_cast<HMENU>(3),GetModuleHandle(nullptr),nullptr);
+  pause_=CreateWindow(L"BUTTON",L"暂停",WS_CHILD|WS_VISIBLE|WS_TABSTOP,205,12,85,30,controls_,reinterpret_cast<HMENU>(2),GetModuleHandle(nullptr),nullptr);
+  CreateWindow(L"BUTTON",L"停止",WS_CHILD|WS_VISIBLE|WS_TABSTOP,305,12,85,30,controls_,reinterpret_cast<HMENU>(3),GetModuleHandle(nullptr),nullptr);
  }
  applyWindowDpi(controls_);
  auto seconds=int(recorder_.seconds());wchar_t text[80];swprintf_s(text,L"%s %02d:%02d",recorder_.stopping()?L"正在保存":!recorder_.started()?L"准备中":recorder_.paused()?L"Ⅱ 已暂停":L"● 录制中",seconds/60,seconds%60);SetWindowText(label_,text);SetWindowText(pause_,recorder_.paused()?L"继续":L"暂停");

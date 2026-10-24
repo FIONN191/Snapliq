@@ -36,3 +36,11 @@ Desktop-only delivery: `zsh scripts/build-macos.sh`, then `zsh scripts/package-m
 `zsh scripts/test-orb-macos.sh` 在隔离偏好域和隐藏 AppKit 窗口中验证四边吸附、自由位置、32–96 大小、锁定拖动及误点击、恢复位置、旧位置迁移和材质缩放。不会注册全局快捷键、捕获屏幕或改写实际应用偏好。Windows 的 `orb_layout_tests` 纳入 CMake/CTest，也可在 macOS 用 `clang++ -std=c++20 -Wall -Wextra -Werror apps/windows/orb-layout-tests.cpp -o .build/orb-layout-tests` 编译后运行。
 
 最终 App 的指针拖动、跨屏、混合 DPI 和全屏/Spaces 仍需要桌面实测。原生隐藏窗口和纯几何测试不能代替真实鼠标操作；详见当前版本验收报告。
+
+## 0.2.5 Windows 原生与分发测试
+
+Windows `ctest` 新增 `windows_native_smoke`，调用生产 `capture.cpp` 的裁剪、PNG 编码和文件保存，再用 WIC 解码比较非对称像素。测试覆盖负坐标裁剪、奇数宽高、通道/方向、中文路径、拒绝覆盖、显式覆盖和失败后的临时文件清理。
+
+同一测试调用生产 `recorder-video.h`：生成带行填充的非对称 BGRA 图案，经 Media Foundation 实际 H.264/MP4 编码和解码，检查四角颜色/方向、时间戳和两秒静止画面的结束帧。该测试不访问屏幕、麦克风或剪贴板，也不证明真实 WGC 或 WASAPI 设备通过。
+
+`scripts/build-windows.ps1 -Installer` 生成 EXE、安装器、免安装 ZIP、中文说明和 SHA256SUMS。附加 `-VerifyInstaller` 仅可在干净的 GitHub Actions runner 运行，安装到随机临时目录，核验已安装文件的版本与哈希，正常卸载并检查程序文件已移除。通过 CI 不等于 Windows 10/11 实机验收；首次真实使用仍需短片回放检查画面和两类声音。

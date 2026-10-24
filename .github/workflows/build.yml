@@ -5,15 +5,39 @@ permissions:
 jobs:
   windows:
     runs-on: windows-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      - name: Build Windows and shared contract tests
+      - name: Locate Inno Setup compiler
         shell: pwsh
-        run: ./scripts/build-windows.ps1
+        run: |
+          $ErrorActionPreference = "Stop"
+          $iscc = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          $installed = (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe") -or (Test-Path "$env:ProgramFiles\Inno Setup 6\ISCC.exe")
+          if (-not $iscc -and -not $installed) {
+            choco install innosetup --yes --no-progress --limit-output
+            if ($LASTEXITCODE -ne 0) { throw "Inno Setup installation failed ($LASTEXITCODE)." }
+          }
+      - name: Build, test, package and verify Windows installer
+        shell: pwsh
+        run: ./scripts/build-windows.ps1 -Installer -VerifyInstaller
       - uses: actions/upload-artifact@v4
         with:
-          name: Snapliq-windows-development-unverified
-          path: outputs/windows/
+          name: Snapliq-windows-x64-development
+          if-no-files-found: error
+          path: |
+            outputs/windows/Snapliq.exe
+            outputs/windows/Snapliq-*-windows-x64-development-setup.exe
+            outputs/windows/Snapliq-*-windows-x64-development-portable.zip
+            outputs/windows/README.zh-CN.txt
+            outputs/windows/SHA256SUMS.txt
+      - name: Upload Windows validation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Snapliq-windows-package-validation
+          if-no-files-found: ignore
+          path: outputs/windows/diagnostics/
   macos:
     runs-on: macos-15
     steps:

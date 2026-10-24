@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
+# Self-contained desktop executables; no separate Visual C++ runtime download.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(Snapliq LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 add_library(snapliq_core core/src/geometry.cpp)
