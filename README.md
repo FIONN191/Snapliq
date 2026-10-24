@@ -15,7 +15,7 @@ Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureK
 
 ## 启动与使用
 
-使用标题下方的按钮下载当前版本，其他版本见 [发布历史](https://github.com/FIONN191/Snapliq/releases)。安装包作为 Release 附件发布；本仓库跟踪源码、品牌资产和验收证据，个人视频与剪贴板备份不进入 Git 历史。验证范围见 [Windows 构建与安装验收](outputs/Snapliq-0.2.5-validation.md) 和 [macOS 悬浮球验收](outputs/Snapliq-0.2.4-validation.md)。
+使用标题下方的按钮下载当前版本，其他版本见 [发布历史](https://github.com/FIONN191/Snapliq/releases)。安装包作为 Release 附件发布；本仓库跟踪源码、品牌资产和验收证据，个人视频与剪贴板备份不进入 Git 历史。本次修复与验证见 [OCR 后退出截图验收](outputs/Snapliq-0.2.6-validation.md)。其他验证范围见 [Windows 构建与安装验收](outputs/Snapliq-0.2.5-validation.md) 和 [macOS 悬浮球验收](outputs/Snapliq-0.2.4-validation.md)。
 
 Windows 安装版运行下载的安装器；免安装版解压整个文件夹再运行 `Snapliq.exe`，无需 Chrome 或额外的 VC++ 运行库。完整操作说明见 [Windows 使用指南](packaging/windows/README.zh-CN.txt)。从源码构建的版本化安装器和 ZIP 位于 `outputs/windows/`。
 
