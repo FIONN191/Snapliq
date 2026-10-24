@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="224" height="58" viewBox="0 0 224 58" role="img" aria-labelledby="title desc">
+  <title id="title">下载 Snapliq macOS 版</title>
+  <desc id="desc">最新版本，Apple Silicon · DMG</desc>
+  <rect x="0.5" y="0.5" width="223" height="57" rx="12" fill="#242629" stroke="#747B84"/>
+  <g transform="translate(17 16) scale(0.42)" fill="none" stroke="#F5F6F7" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M14 34V14H34M30 50H50V30"/>
+    <circle cx="32" cy="32" r="3.6" fill="#F5F6F7" stroke="none"/>
+  </g>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,PingFang SC,Microsoft YaHei,sans-serif">
+    <text x="58" y="26" fill="#F5F6F7" font-size="15" font-weight="600">下载 macOS</text>
+    <text x="58" y="43" fill="#C8CDD3" font-size="11">Apple Silicon · DMG</text>
+  </g>
+  <path d="M201 20v14m-4-4 4 4 4-4m-10 8h12" fill="none" stroke="#F5F6F7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"/>
+</svg>

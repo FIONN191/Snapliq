@@ -1,4 +1,12 @@
 # Snapliq
+
+[![下载 Snapliq macOS 版，Apple Silicon，DMG 安装包](assets/download-macos.svg)](https://github.com/FIONN191/Snapliq/releases/latest/download/Snapliq-macOS.dmg)
+[![下载 Snapliq Windows 版，x64，EXE 安装包](assets/download-windows.svg)](https://github.com/FIONN191/Snapliq/releases/latest/download/Snapliq-Windows-Setup.exe)
+
+[macOS ZIP](https://github.com/FIONN191/Snapliq/releases/latest/download/Snapliq-macOS.zip) · [Windows 免安装 ZIP](https://github.com/FIONN191/Snapliq/releases/latest/download/Snapliq-Windows-Portable.zip) · [版本说明与校验文件](https://github.com/FIONN191/Snapliq/releases/latest)
+
+macOS：Apple Silicon，macOS 14+；Windows：x64，Windows 10 2004／19041+ 或 Windows 11。当前为开发版：macOS 使用临时签名、尚未公证，Windows 尚未代码签名；实机验收范围见下文。下载按钮始终指向最新发布版本。
+
 Capture. Record. Share. — 截图与录屏工具
 
 Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureKit，Windows 使用 Win32/C++/WinRT + Windows.Graphics.Capture，两端共享 C++20 几何和布局核心。Snapliq for Chrome 仅提供配套入口；退出 Chrome、断开 Native Messaging 或关闭设置不结束桌面应用。
@@ -7,13 +15,11 @@ Snapliq 是独立原生桌面应用。macOS 使用 Swift/AppKit + ScreenCaptureK
 
 ## 启动与使用
 
-[下载 Windows 0.2.5 安装器与免安装包（GitHub 登录后可下载）](https://github.com/FIONN191/Snapliq/actions/runs/40073913026/artifacts/12552198293) · [Windows 构建与安装验收](outputs/Snapliq-0.2.5-validation.md)
+使用标题下方的按钮下载当前版本，其他版本见 [发布历史](https://github.com/FIONN191/Snapliq/releases)。安装包作为 Release 附件发布；本仓库跟踪源码、品牌资产和验收证据，个人视频与剪贴板备份不进入 Git 历史。验证范围见 [Windows 构建与安装验收](outputs/Snapliq-0.2.5-validation.md) 和 [macOS 悬浮球验收](outputs/Snapliq-0.2.4-validation.md)。
 
-此前已发布的 0.2.2 开发版下载：[macOS 安装包（DMG）](https://github.com/FIONN191/Snapliq/releases/download/v0.2.2/Snapliq-0.2.2-macOS-arm64-development.dmg) · [0.2.2 预发布说明](https://github.com/FIONN191/Snapliq/releases/tag/v0.2.2)。本仓库跟踪源码、品牌资产和验收证据；本机 App、DMG、视频和剪贴板备份不进入 Git 历史。
+Windows 安装版运行下载的安装器；免安装版解压整个文件夹再运行 `Snapliq.exe`，无需 Chrome 或额外的 VC++ 运行库。完整操作说明见 [Windows 使用指南](packaging/windows/README.zh-CN.txt)。从源码构建的版本化安装器和 ZIP 位于 `outputs/windows/`。
 
-Windows 构建产物在 `outputs/windows/`：`Snapliq-0.2.5-windows-x64-development-setup.exe` 和 `Snapliq-0.2.5-windows-x64-development-portable.zip`。安装版运行安装器，免安装版解压整个文件夹再运行 `Snapliq.exe`；无需 Chrome 或额外的 VC++ 运行库。完整操作说明见 [Windows 使用指南](packaging/windows/README.zh-CN.txt)。本轮不更新本机 macOS 安装。
-
-macOS 新构建应用位于 `outputs/builds/0.2.5/Snapliq.app`；安装文件为 `outputs/Snapliq-0.2.5-macOS-arm64-development.dmg`。历史签名的权限与测试结论不自动沿用到新构建。当前 macOS 构建要求 macOS 14+、Apple Silicon；麦克风需要 macOS 15+。不要同时启动两份开发应用。
+macOS 下载 DMG 后，将 Snapliq.app 拖入“应用程序”。当前构建要求 macOS 14+、Apple Silicon；麦克风需要 macOS 15+。历史签名的权限与测试结论不自动沿用到新构建，升级后可能需要重新授权。不要同时启动两份开发应用。从源码构建的应用位于 `outputs/builds/0.2.5/Snapliq.app`。
 
 首次截图需要系统屏幕录制权限。Command + X 是默认候选，只有用户接受普通剪切冲突后才启用；注册成功不代表它与剪切兼容。设置中可以直接修改快捷键。菜单栏、独立悬浮球与 Chrome 配套入口都可唤醒截图。关闭设置后继续常驻；选择「退出 Snapliq」才结束后台运行。
 

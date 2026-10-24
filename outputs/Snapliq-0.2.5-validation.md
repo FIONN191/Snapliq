@@ -26,12 +26,22 @@ Windows 原生测试调用生产代码而非模拟实现：
 
 GitHub Actions [40073913026](https://github.com/FIONN191/Snapliq/actions/runs/40073913026) 验证提交 `af67b8edacceb7e2be1d5dfee5e62a357920bab0`，macOS 和 Windows 均成功。Windows 三个 CTest 目标全部通过：核心几何、2,422 个悬浮球布局检查、3,760 个原生图片/编码断言。实际 MP4 解码取得 60 帧，非对称画面与两秒静止结束时长通过；最终编译日志没有 C4307 溢出告警。
 
-安装器的安装、版本/哈希验证与卸载已通过。取回的最终 EXE 确认为 x64 PE，没有外部 VCRUNTIME/MSVCP DLL 依赖；ZIP CRC 和所有 SHA-256 已独立核对。GitHub 下载需要登录：[Windows 安装器与免安装包](https://github.com/FIONN191/Snapliq/actions/runs/40073913026/artifacts/12552198293)。本地交付在 `outputs/windows/0.2.5/`。
+安装器的安装、版本/哈希验证与卸载已通过。取回的最终 EXE 确认为 x64 PE，没有外部 VCRUNTIME/MSVCP DLL 依赖；ZIP CRC 和所有 SHA-256 已独立核对。公开下载见 [v0.2.5 Release](https://github.com/FIONN191/Snapliq/releases/tag/v0.2.5)，无需登录 GitHub；[原始 CI 产物](https://github.com/FIONN191/Snapliq/actions/runs/40073913026/artifacts/12552198293) 另行保留。本地交付在 `outputs/windows/0.2.5/`。
 
 - `Snapliq.exe`：`89384497234c81a7763609f6a772395438762544a26276a034dcdc4f3899dac3`
 - `README.zh-CN.txt`：`951cc8b6530f90422d6055f79bf6fdd3f2336ecfdfdfe56fff3be31cfe8ba83e`
 - `Snapliq-0.2.5-windows-x64-development-portable.zip`：`6800438f6efebf4d13b5af3b1f7a5c70791c856704b03d2fa6ecb35613b2f543`
 - `Snapliq-0.2.5-windows-x64-development-setup.exe`：`c44cbf759b23ad909a3e80f851afcc28cf944b08e217251fa385cc61d6b23245`
+
+## 两端公开发布检查
+
+2026-10-24 将同一成功 CI 运行中的 macOS 和 Windows 包发布为 v0.2.5，标签指向已测试提交 `af67b8edacceb7e2be1d5dfee5e62a357920bab0`。固定下载文件名仅为复制后的重命名，二进制内容保持一致。macOS 应用版本为 0.2.5、arm64、最低 macOS 14；`codesign --verify --deep --strict`、DMG 完整性和 ZIP CRC 通过。该检查仅验证临时签名的完整性，不代表 Developer ID 签名或公证。
+
+- `Snapliq-macOS.dmg`：`3c8a6e98cf7453947f7074903661e1ac9023de0e9d44b494f2d3f6c903ce8719`
+- `Snapliq-macOS.zip`：`35bf1630b0cc05aa25a602ed032b2642fed7d66c48db68ce2889ce179067b32b`
+- `Snapliq-Windows-Setup.exe`、`Snapliq-Windows-Portable.zip` 与上方版本化 Windows 原文件哈希相同。
+
+发布后，不带 GitHub 账号、授权头或 Cookie，实际取回 `releases/latest/download/` 下的四个安装包／ZIP、Windows 使用说明和 SHA256SUMS.txt。六个地址均返回 HTTP 200，下载后的 SHA-256 全部与本地及 GitHub 附件一致。仓库首页提供两端下载按钮和 ZIP 入口；维护步骤见 [GitHub 下载与发布](../docs/github-releases.md)。
 
 ## 尚未通过实机验收的部分
 
