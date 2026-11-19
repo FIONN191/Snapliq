@@ -25,7 +25,7 @@ if [[ "${1:-}" == --run-ui ]]; then
   echo 'UI checks briefly show generated-image selection, OCR and recording-control windows; no desktop capture, microphone, clipboard or global input is used.'
   clang++ -mmacosx-version-min=14.0 -std=c++20 -O2 -I core/include -c core/src/geometry.cpp -o "$TEST_DIR/geometry.o"
   FLAGS+=(-D LOCALIZATION_UI)
-  SOURCES+=(apps/macos/CaptureBackend.swift apps/macos/RecordingRegion.swift apps/macos/SmartSelection.swift apps/macos/TextAndSharing.swift apps/macos/Orb.swift apps/macos/Selection.swift apps/macos/Settings.swift apps/macos/RecordingUI.swift apps/macos/RecordingDestination.swift apps/macos/RecordingController.swift apps/macos/RecordingEncoder.swift)
+  SOURCES+=(apps/macos/CaptureBackend.swift apps/macos/RecordingRegion.swift apps/macos/SmartSelection.swift apps/macos/TextAndSharing.swift apps/macos/Orb.swift apps/macos/Selection.swift apps/macos/Settings.swift apps/macos/DesktopBridge.swift apps/macos/RecordingUI.swift apps/macos/RecordingDestination.swift apps/macos/RecordingController.swift apps/macos/RecordingEncoder.swift)
   LINK+=("$TEST_DIR/geometry.o" -lc++ -framework ImageIO -framework Vision -framework AVFoundation -framework CoreMedia -framework CoreAudio)
 fi
 swiftc "${FLAGS[@]}" "${SOURCES[@]}" tests/macos/LocalizationTests.swift "${LINK[@]}" -o "$APP/Contents/MacOS/LocalizationTests"

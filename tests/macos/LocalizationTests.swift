@@ -85,14 +85,23 @@ import AppKit
     }
     @MainActor static func renderSettings(_ window:NSWindow,language:AppLanguage)throws {
         guard let root=window.contentView else{return}
+        window.appearance=NSAppearance(named:.aqua)
         root.layoutSubtreeIfNeeded()
         let document=views(window).compactMap{$0 as? NSScrollView}.first?.documentView ?? root
         document.layoutSubtreeIfNeeded()
         guard let bitmap=document.bitmapImageRepForCachingDisplay(in:document.bounds) else{throw NSError(domain:"LocalizationTests",code:7)}
         document.cacheDisplay(in:document.bounds,to:bitmap)
+        // A scroll document has no opaque background of its own. Supply a test-only
+        // backing so exported snapshots remain legible in dark image viewers.
+        let rendered=NSBitmapImageRep(bitmapDataPlanes:nil,pixelsWide:bitmap.pixelsWide,pixelsHigh:bitmap.pixelsHigh,bitsPerSample:8,samplesPerPixel:4,hasAlpha:true,isPlanar:false,colorSpaceName:.deviceRGB,bytesPerRow:0,bitsPerPixel:0)!
+        let canvas=NSRect(x:0,y:0,width:rendered.pixelsWide,height:rendered.pixelsHigh)
+        NSGraphicsContext.saveGraphicsState();NSGraphicsContext.current=NSGraphicsContext(bitmapImageRep:rendered)
+        NSColor.white.setFill();canvas.fill()
+        NSImage(cgImage:bitmap.cgImage!,size:canvas.size).draw(in:canvas,from:.zero,operation:.sourceOver,fraction:1)
+        NSGraphicsContext.restoreGraphicsState()
         let directory=URL(fileURLWithPath:FileManager.default.currentDirectoryPath).appendingPathComponent("work/localization-tests",isDirectory:true)
         try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true)
-        guard let png=bitmap.representation(using:.png,properties:[:]) else{throw NSError(domain:"LocalizationTests",code:8)}
+        guard let png=rendered.representation(using:.png,properties:[:]) else{throw NSError(domain:"LocalizationTests",code:8)}
         try png.write(to:directory.appendingPathComponent("settings-\(language.rawValue).png"))
     }
     @MainActor static func uiTests()async throws {
@@ -139,7 +148,7 @@ import AppKit
         let bitmap=NSBitmapImageRep(bitmapDataPlanes:nil,pixelsWide:Int(size.width*scale),pixelsHigh:Int(size.height*scale),bitsPerSample:8,samplesPerPixel:4,hasAlpha:true,isPlanar:false,colorSpaceName:.deviceRGB,bytesPerRow:0,bitsPerPixel:0)!
         NSGraphicsContext.saveGraphicsState();NSGraphicsContext.current=NSGraphicsContext(bitmapImageRep:bitmap)
         NSColor.white.setFill();NSRect(x:0,y:0,width:size.width*scale,height:size.height*scale).fill()
-        ("Snapliq Text 123" as NSString).draw(at:.init(x:100,y:200),withAttributes:[.font:NSFont.systemFont(ofSize:64),.foregroundColor:NSColor.black])
+        ("Capture 123" as NSString).draw(at:.init(x:100,y:200),withAttributes:[.font:NSFont.systemFont(ofSize:64),.foregroundColor:NSColor.black])
         NSGraphicsContext.restoreGraphicsState()
         let snapshot=DisplaySnapshot(id:1,frame:frame,image:bitmap.cgImage!,capturedAt:now())
         let session=SelectionSession(snapshots:[snapshot],started:now(),mode:.screen,candidates:[])
@@ -162,11 +171,12 @@ import AppKit
         guard let ocrWindow=ocr.window else{throw NSError(domain:"LocalizationTests",code:5)}
         defer{ocrWindow.close()}
         let text=try control(ocrWindow,"snapliq.ocr.text",as:NSTextView.self)
-        for _ in 0..<100 {
-            if text.string.contains("Snapliq"){break}
+        let ocrStatus=try control(ocrWindow,"snapliq.ocr.status",as:NSTextField.self)
+        for _ in 0..<150 {
+            if ocrStatus.stringValue != "Recognizing Chinese and English on this Mac…"{break}
             try await Task.sleep(nanoseconds:100_000_000)
         }
-        try require(text.string.contains("Snapliq"),"Generated-image OCR did not finish")
+        try require(ocrStatus.stringValue=="Ready to edit and copy." && text.string.contains("123"),"Generated-image OCR did not finish: \(ocrStatus.stringValue); text=\(text.string)")
         let edit="My edited OCR result\n用户编辑的文字";text.string=edit;text.setSelectedRange(NSRange(location:3,length:5))
         Localization.shared.language = .chinese
         Localization.shared.language = .english
