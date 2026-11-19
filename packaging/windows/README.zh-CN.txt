@@ -14,6 +14,12 @@ Windows ARM64 模拟运行尚未完成验收。Windows N/KN 版需先从系统�
 当前为未签名开发版本。仅从自己的构建或项目提供的文件使用，可对照 SHA256SUMS.txt 校验文件。
 源码与问题反馈：https://github.com/FIONN191/Snapliq
 
+界面语言 / Interface language
+从系统托盘打开「设置」，在顶部「语言 / Language」选择「简体中文」或「English」。
+切换立即生效并记住选择，不清除正在编辑的 OCR 文字，也不停止录屏。
+Open Settings from the tray, then choose English or 简体中文 under Language.
+The choice applies immediately and is remembered after restart.
+
 快速录制整个屏幕
 1. 打开 Snapliq，确认系统托盘出现 Snapliq 图标。
 2. 将鼠标移到要录制的显示器，按 Ctrl + Alt + R 开始录制该屏幕。

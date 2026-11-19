@@ -1,4 +1,5 @@
 #include "native-bridge.h"
+#include "localization.h"
 #include "product.h"
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -94,6 +95,6 @@ void NativeBridge::registerHost(){
  wchar_t exe[32768];GetModuleFileName(nullptr,exe,32768);
  JsonObject manifest;manifest.SetNamedValue(L"name",JsonValue::CreateStringValue(L"com.snapliq.desktop.development"));manifest.SetNamedValue(L"description",JsonValue::CreateStringValue(L"Snapliq desktop request adapter"));manifest.SetNamedValue(L"path",JsonValue::CreateStringValue(exe));manifest.SetNamedValue(L"type",JsonValue::CreateStringValue(L"stdio"));
  JsonArray origins;origins.Append(JsonValue::CreateStringValue(L"chrome-extension://"+std::wstring(CHROME_EXTENSION_ID)+L"/"));manifest.SetNamedValue(L"allowed_origins",origins);
- auto path=folder/L"com.snapliq.desktop.development.json";std::ofstream stream(path,std::ios::binary|std::ios::trunc);stream<<to_string(manifest.Stringify());stream.close();if(!stream)throw std::runtime_error("Could not write Chrome bridge manifest.");
+ auto path=folder/L"com.snapliq.desktop.development.json";std::ofstream stream(path,std::ios::binary|std::ios::trunc);stream<<to_string(manifest.Stringify());stream.close();if(!stream)throw winrt::hresult_error(E_FAIL,tr(L"无法写入 Chrome 连接配置。",L"Could not write Chrome bridge manifest."));
  HKEY key;auto created=RegCreateKeyEx(HKEY_CURRENT_USER,L"Software\\Google\\Chrome\\NativeMessagingHosts\\com.snapliq.desktop.development",0,nullptr,0,KEY_SET_VALUE,nullptr,&key,nullptr);if(created!=ERROR_SUCCESS)throw hresult_error(HRESULT_FROM_WIN32(created));auto value=path.wstring();auto result=RegSetValueEx(key,nullptr,0,REG_SZ,reinterpret_cast<const BYTE*>(value.c_str()),DWORD((value.size()+1)*2));RegCloseKey(key);if(result!=ERROR_SUCCESS)throw hresult_error(HRESULT_FROM_WIN32(result));
 }

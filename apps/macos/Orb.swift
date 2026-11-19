@@ -111,17 +111,12 @@ final class OrbController:NSObject {
         view.addSubview(symbol)
         view.decorations.autoresizingMask=[.width,.height];view.addSubview(view.decorations)
         panel.contentView=view;panel.setAccessibilityIdentifier("snapliq.orb.window")
-        view.setAccessibilityElement(true);view.setAccessibilityRole(.button);view.setAccessibilityLabel("Snapliq 截图，右键打开设置菜单")
+        view.setAccessibilityElement(true);view.setAccessibilityRole(.button)
         view.setAccessibilityIdentifier("snapliq.orb")
         view.onClick={ [weak self] in self?.onCapture?() }
         view.onMoved={ [weak self] in self?.dockAndSave() }
-        let menu=NSMenu()
-        for (title,sel) in [("仅今天停用",#selector(today)),("停用",#selector(disable))] {
-            let item=NSMenuItem(title:title,action:sel,keyEquivalent:"");item.target=self;menu.addItem(item)
-        }
-        menu.addItem(.separator())
-        lockItem=NSMenuItem(title:"锁定当前位置",action:#selector(toggleLock),keyEquivalent:"");lockItem.target=self;menu.addItem(lockItem)
-        let settings=NSMenuItem(title:"设置",action:#selector(settings),keyEquivalent:"");settings.target=self;menu.addItem(settings);view.context=menu
+        rebuildMenu()
+        NotificationCenter.default.addObserver(self,selector:#selector(languageChanged),name:.snapliqLanguageChanged,object:Localization.shared)
         NotificationCenter.default.addObserver(self,selector:#selector(revalidate),name:NSApplication.didChangeScreenParametersNotification,object:nil)
         NotificationCenter.default.addObserver(self,selector:#selector(revalidate),name:NSNotification.Name.NSSystemTimeZoneDidChange,object:nil)
         NotificationCenter.default.addObserver(self,selector:#selector(revalidate),name:.NSCalendarDayChanged,object:nil)
@@ -130,6 +125,24 @@ final class OrbController:NSObject {
         lastSnap=preferences.orbSnapToEdge;restorePosition()
     }
     deinit{timer?.invalidate();NotificationCenter.default.removeObserver(self);NSWorkspace.shared.notificationCenter.removeObserver(self)}
+    private func rebuildMenu(){
+        let menu=NSMenu()
+        for (title,sel) in [(L("仅今天停用","Disable for today"),#selector(today)),(L("停用","Disable"),#selector(disable))] {
+            let item=NSMenuItem(title:title,action:sel,keyEquivalent:"");item.target=self;menu.addItem(item)
+        }
+        menu.addItem(.separator())
+        lockItem=NSMenuItem(title:L("锁定当前位置","Lock position"),action:#selector(toggleLock),keyEquivalent:"");lockItem.target=self;menu.addItem(lockItem)
+        let settings=NSMenuItem(title:L("设置","Settings"),action:#selector(settings),keyEquivalent:"");settings.target=self;menu.addItem(settings);view.context=menu
+        refreshAccessibility()
+    }
+    private func refreshAccessibility(){
+        lockItem.state=preferences.orbPositionLocked ? .on:.off
+        view.setAccessibilityLabel(L("Snapliq 截图，右键打开设置菜单","Snapliq capture; right-click for settings"))
+        view.setAccessibilityHelp(preferences.orbPositionLocked
+            ? L("位置已锁定。点击截图；右键可解锁或打开设置。","Position locked. Click to capture; right-click to unlock or open settings.")
+            : L("点击截图；拖动调整位置；右键打开菜单。","Click to capture; drag to move; right-click for the menu."))
+    }
+    @objc private func languageChanged(){rebuildMenu()}
     private func screenID(_ s:NSScreen)->String{String((s.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0)}
     private func currentScreen()->NSScreen? {
         if let screen=NSScreen.screens.max(by:{$0.frame.intersection(panel.frame).area < $1.frame.intersection(panel.frame).area}),screen.frame.intersection(panel.frame).area>0{return screen}
@@ -146,8 +159,7 @@ final class OrbController:NSObject {
         symbol.frame=view.bounds.insetBy(dx:frame.width/6,dy:frame.height/6)
         view.decorations.frame=view.bounds;view.decorations.needsDisplay=true
         view.positionLocked=preferences.orbPositionLocked
-        lockItem.state=preferences.orbPositionLocked ? .on:.off
-        view.setAccessibilityHelp(preferences.orbPositionLocked ? "位置已锁定。点击截图；右键可解锁或打开设置。":"点击截图；拖动调整位置；右键打开菜单。")
+        refreshAccessibility()
     }
     func restorePosition(){
         let d=preferences.defaults

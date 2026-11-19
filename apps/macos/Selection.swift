@@ -115,6 +115,7 @@ final class SelectionSession:NSObject {
             Metrics.shared.write("selectable",["session":self.sessionID,"ms":(now()-self.started)*1000,"measurement":"runloop_after_window_submission; physical presentation not measured"])
         }
         NotificationCenter.default.addObserver(self,selector:#selector(topologyChanged),name:NSApplication.didChangeScreenParametersNotification,object:nil)
+        NotificationCenter.default.addObserver(self,selector:#selector(languageChanged),name:.snapliqLanguageChanged,object:Localization.shared)
         NSWorkspace.shared.notificationCenter.addObserver(self,selector:#selector(topologyChanged),name:NSWorkspace.willSleepNotification,object:nil)
     }
     func pixelSize(_ rect:CGRect)->(Int,Int){
@@ -134,13 +135,14 @@ final class SelectionSession:NSObject {
         let material=materialView(radius:13);material.frame = .init(origin:.zero,size:size);p.contentView=material
         return p
     }
-    private func button(_ title:String,_ selector:Selector)->NSButton{
+    private func button(_ title:String,_ selector:Selector,identifier:String?=nil)->NSButton{
         let b=NSButton(title:title,target:self,action:selector);b.bezelStyle = .recessed;b.font = .systemFont(ofSize:13,weight:.medium)
+        b.setAccessibilityIdentifier("snapliq.selection."+(identifier ?? NSStringFromSelector(selector)))
         b.setAccessibilityLabel(title);return b
     }
     private func buildBars(){
         toolbar=bar(toolbarSize)
-        let buttons=recordingSelection ? [button("取消",#selector(cancel)),button("使用此区域 ↵",#selector(recordMode))] : [button("提取文字",#selector(extractText)),button("复制",#selector(copyImage)),button("AirDrop",#selector(airDrop)),button("下载 ▾",#selector(downloadMenu(_:))),button("取消",#selector(cancel)),button("完成 ↵",#selector(copyImage))]
+        let buttons=recordingSelection ? [button(L("取消","Cancel"),#selector(cancel)),button(L("使用此区域 ↵","Use Area ↵"),#selector(recordMode))] : [button(L("提取文字","Extract Text"),#selector(extractText)),button(L("复制","Copy"),#selector(copyImage)),button("AirDrop",#selector(airDrop)),button(L("下载 ▾","Save ▾"),#selector(downloadMenu(_:))),button(L("取消","Cancel"),#selector(cancel)),button(L("完成 ↵","Done ↵"),#selector(copyImage),identifier:"done")]
         let separator=NSBox();separator.boxType = .separator;separator.widthAnchor.constraint(equalToConstant:1).isActive=true;separator.heightAnchor.constraint(equalToConstant:20).isActive=true
         let views:[NSView]=recordingSelection ? buttons : Array(buttons.prefix(4))+[separator]+Array(buttons.suffix(2))
         let stack=NSStackView(views:views);stack.spacing=10;stack.orientation = .horizontal;stack.alignment = .centerY
@@ -148,12 +150,21 @@ final class SelectionSession:NSObject {
         NSLayoutConstraint.activate([stack.centerXAnchor.constraint(equalTo:toolbar!.contentView!.centerXAnchor),stack.centerYAnchor.constraint(equalTo:toolbar!.contentView!.centerYAnchor)])
         toolbarSize.width=ceil(stack.fittingSize.width)+32
         toolbar?.setContentSize(toolbarSize)
-        modebar=bar(.init(width:260,height:42))
-        let modes=NSStackView(views:recordingSelection ? [NSTextField(labelWithString:"框选录制区域 · 单个显示器")] : [button("截图",#selector(screenshotMode)),button("屏幕录制",#selector(recordMode))])
-        modes.spacing=18;modes.frame = .init(x:18,y:7,width:224,height:28);modebar!.contentView!.addSubview(modes)
+        let modes=NSStackView(views:recordingSelection ? [NSTextField(labelWithString:L("框选录制区域 · 单个显示器","Select recording area · One display"))] : [button(L("截图","Screenshot"),#selector(screenshotMode)),button(L("屏幕录制","Screen Recording"),#selector(recordMode))])
+        modes.spacing=18
+        let modeWidth=max(260,ceil(modes.fittingSize.width)+36)
+        modebar=bar(.init(width:modeWidth,height:42))
+        modes.frame = .init(x:18,y:7,width:modeWidth-36,height:28);modebar!.contentView!.addSubview(modes)
         let screen=NSScreen.screens.first(where:{$0.frame.contains(NSEvent.mouseLocation)}) ?? NSScreen.main
-        if let screen=screen{modebar!.setFrameOrigin(.init(x:screen.visibleFrame.midX-130,y:screen.visibleFrame.maxY-56))}
+        if let screen=screen{modebar!.setFrameOrigin(.init(x:screen.visibleFrame.midX-modeWidth/2,y:screen.visibleFrame.maxY-56))}
         modebar?.orderFrontRegardless()
+    }
+    @objc private func languageChanged(){
+        guard !windows.isEmpty else{return}
+        let toolbarVisible=toolbar?.isVisible ?? false,modeVisible=modebar?.isVisible ?? false
+        toolbar?.close();modebar?.close();buildBars();refresh()
+        if suspended || !toolbarVisible{toolbar?.orderOut(nil)}
+        if suspended || !modeVisible{modebar?.orderOut(nil)}
     }
     func refresh(){
         for w in windows{w.contentView?.needsDisplay=true}
@@ -234,12 +245,12 @@ final class SelectionSession:NSObject {
             let image=try CaptureBackend.crop(r,from:snapshots)
             try CaptureBackend.copy(image)
             Metrics.shared.write("clipboard_complete",["session":sessionID,"ms":(now()-t)*1000,"width":image.width,"height":image.height])
-            finish("已复制图片")
+            finish(L("已复制图片","Image copied"))
         }catch{exporting=false;failure(error)}
     }
     @objc func downloadMenu(_ sender:NSButton){
         let m=NSMenu()
-        for (title,action) in [("保存",#selector(save)),("另存为…",#selector(saveAs)),("默认保存位置设置…",#selector(chooseFolder))]{
+        for (title,action) in [(L("保存","Save"),#selector(save)),(L("另存为…","Save As…"),#selector(saveAs)),(L("默认保存位置设置…","Default Save Folder…"),#selector(chooseFolder))]{
             let item=NSMenuItem(title:title,action:action,keyEquivalent:"");item.target=self;m.addItem(item)
         }
         m.popUp(positioning:nil,at:.init(x:0,y:sender.bounds.maxY+6),in:sender)
@@ -253,18 +264,18 @@ final class SelectionSession:NSObject {
         if folder==nil{hideForDialog();folder=onChooseFolder?();restoreAfterDialog()}
         guard let folder=folder else{return}
         exporting=true
-        do{let image=try CaptureBackend.crop(r,from:snapshots);_ = try CaptureBackend.save(image,to:folder);finish("已保存图片")}
-        catch{exporting=false;failure(CaptureFailure.message("保存失败：\(error.localizedDescription)\n请检查文件夹权限、磁盘空间，或使用另存为。"))}
+        do{let image=try CaptureBackend.crop(r,from:snapshots);_ = try CaptureBackend.save(image,to:folder);finish(L("已保存图片","Image saved"))}
+        catch{exporting=false;failure(CaptureFailure.message(L("保存失败：\(error.localizedDescription)\n请检查文件夹权限、磁盘空间，或使用另存为。","Unable to save: \(error.localizedDescription)\nCheck folder permissions and disk space, or use Save As.")))}
     }
     @objc func saveAs(){
         guard let r=selection,!exporting else{return}
         hideForDialog()
-        let panel=NSSavePanel();panel.title="保存截图";panel.nameFieldStringValue="Snapliq.png";panel.allowedContentTypes=[.png];panel.canCreateDirectories=true
+        let panel=NSSavePanel();panel.title=L("保存截图","Save Screenshot");panel.nameFieldStringValue="Snapliq.png";panel.allowedContentTypes=[.png];panel.canCreateDirectories=true
         panel.directoryURL=Preferences.shared.folderURL
         let response=panel.runModal()
         guard response == .OK,let url=panel.url else{restoreAfterDialog();return}
         exporting=true
-        do{let image=try CaptureBackend.crop(r,from:snapshots);try CaptureBackend.png(image).write(to:url,options:.atomic);finish("已保存图片")}
+        do{let image=try CaptureBackend.crop(r,from:snapshots);try CaptureBackend.png(image).write(to:url,options:.atomic);finish(L("已保存图片","Image saved"))}
         catch{exporting=false;showError(error.localizedDescription);restoreAfterDialog()}
     }
     @objc private func screenshotMode(){}
@@ -295,7 +306,7 @@ final class SelectionSession:NSObject {
             }
         }catch{failure(error)}
     }
-    @objc func topologyChanged(){finish("显示器变化或系统即将休眠，截图已取消")}
+    @objc func topologyChanged(){finish(L("显示器变化或系统即将休眠，截图已取消","Capture cancelled because a display changed or the Mac is going to sleep."))}
     @objc func cancel(){finish(nil)}
     func finish(_ message:String?){
         smart?.cancel();smart=nil;onExtractText=nil;transfer=nil

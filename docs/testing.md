@@ -23,6 +23,12 @@ WindowClosureTests.swift 使用真实 SCK 独立窗口来源，关闭自身创�
 
 正式验收仍需：多物理屏幕/混合 DPI、全屏和 Spaces、真实 AX/UIA 控件命中、麦克风输入、更多窗口类型/休眠/设备变化/权限撤销、小时级录制资源走势、macOS 26/27 材质、跨设备 AirDrop、签名公证及升级安装。已有单屏通过项不能推断这些通过。
 
+## 0.2.7 中英切换
+
+`zsh scripts/test-localization-macos.sh` 使用独立测试应用偏好域，验证默认中文、英文持久化、无效值回退和主线程语言通知，不修改已安装 Snapliq 的语言。追加 `--run-ui` 在 AppKit 中操作真实设置语言下拉框，并验证截图选区、OCR 编辑内容和录屏控制状态在切换后保留。界面测试只使用生成图片，不捕获桌面、不启动系统录制、不注入全局按键；录屏控制状态检查不等于真实录制中的切换验收。
+
+Windows 的语言选择存储在应用自己的注册表偏好中。语言辅助函数的映射、回退和并发读写纳入 CTest；原生界面与打包由 Windows CI 编译验证，真实 Windows 10/11 界面布局仍需要实机检查。系统文件选择器、系统分享和底层系统错误遵循操作系统语言。
+
 ## 0.2.1 native interaction checks
 Noninteractive latest-pointer/caching tests are included in scripts/test-services-macos.sh. Opt in to actual native controls with `zsh scripts/test-native-interactive-macos.sh --run-interactive smart` or `--run-interactive recording`. The smart test briefly moves and restores the pointer and verifies a native button behind its own overlay. The recording test operates a generated window and saves a local MP4; it uses AXPress on stable control identifiers. These helpers do not inherit or prove the final app bundle TCC authorization. The recording harness runs the real NSApplication event loop, which is necessary for reliable external AX delivery.
 

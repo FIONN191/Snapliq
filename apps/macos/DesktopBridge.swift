@@ -64,9 +64,9 @@ final class DesktopBridge {
         frame.withUnsafeBytes{buffer in var sent=0;while sent<buffer.count{let n=Darwin.write(fd,buffer.baseAddress!.advanced(by:sent),buffer.count-sent);if n<=0{break};sent+=n}}
     }
     static func registerChromeHost()throws->URL {
-        guard let id=Product.info["SnapliqChromeExtensionID"] as? String,!id.isEmpty else{throw CaptureFailure.message("扩展标识未配置。")}
+        guard let id=Product.info["SnapliqChromeExtensionID"] as? String,!id.isEmpty else{throw CaptureFailure.message(L("扩展标识未配置。","The extension ID has not been configured."))}
         let host=Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/SnapliqBridge")
-        guard FileManager.default.isExecutableFile(atPath:host.path) else{throw CaptureFailure.message("应用内浏览器通信模块缺失。")}
+        guard FileManager.default.isExecutableFile(atPath:host.path) else{throw CaptureFailure.message(L("应用内浏览器通信模块缺失。","The browser connection component is missing from the app."))}
         let folder=FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Google/Chrome/NativeMessagingHosts")
         try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true)
         let path=folder.appendingPathComponent("com.snapliq.desktop.development.json")

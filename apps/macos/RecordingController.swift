@@ -38,9 +38,9 @@ final class RecordingController:NSObject,SCStreamDelegate,@unchecked Sendable {
     var elapsed:Double {accumulated+(state == .recording ? now()-activeStarted:0)}
     var active:Bool{state != .idle}
     @MainActor func start(filter:SCContentFilter,windowID:CGWindowID?,width:Int,height:Int,url:URL,systemAudio:Bool,microphone:Bool,region:RecordingRegion?=nil,overwriteExisting:Bool=true) async throws {
-        guard state == .idle else{throw CaptureFailure.message("已有录屏任务。")}
+        guard state == .idle else{throw CaptureFailure.message(L("已有录屏任务。","A recording is already in progress."))}
         if let region=region {
-            guard windowID==nil else{throw CaptureFailure.message("区域录屏必须使用显示器来源。")}
+            guard windowID==nil else{throw CaptureFailure.message(L("区域录屏必须使用显示器来源。","Region recording requires a display source."))}
             try region.validateCurrentDisplay(pointPixelScale:CGFloat(filter.pointPixelScale))
         }
         self.overwriteExisting=overwriteExisting
@@ -49,8 +49,8 @@ final class RecordingController:NSObject,SCStreamDelegate,@unchecked Sendable {
         temporary=temp;hasBothAudio=systemAudio && microphone
         do {
             if microphone {
-                guard #available(macOS 15.0,*) else{throw CaptureFailure.message("此版本的麦克风录制需要 macOS 15 或更新版本。")}
-                guard await AVCaptureDevice.requestAccess(for:.audio) else{throw CaptureFailure.message("麦克风权限未开启。")}
+                guard #available(macOS 15.0,*) else{throw CaptureFailure.message(L("此版本的麦克风录制需要 macOS 15 或更新版本。","Microphone recording requires macOS 15 or later."))}
+                guard await AVCaptureDevice.requestAccess(for:.audio) else{throw CaptureFailure.message(L("麦克风权限未开启。","Microphone permission has not been granted."))}
             }
             let config=SCStreamConfiguration();config.width=width/2*2;config.height=height/2*2
             if let region=region {
@@ -92,17 +92,17 @@ final class RecordingController:NSObject,SCStreamDelegate,@unchecked Sendable {
         else if state == .paused{encoder?.setPaused(false);activeStarted=now();state = .recording}
         Metrics.shared.write("recording_state",["state":state.rawValue,"elapsed":elapsed])
     }
-    @objc private func interrupted(){stop(reason:"显示器变化或系统即将休眠，录屏已停止并尝试保存。")}
+    @objc private func interrupted(){stop(reason:L("显示器变化或系统即将休眠，录屏已停止并尝试保存。","A display changed or the Mac is going to sleep. Recording stopped and Snapliq is trying to save it."))}
     private func checkSource(){
-        if !CGPreflightScreenCaptureAccess(){stop(reason:"屏幕权限已撤销。");return}
+        if !CGPreflightScreenCaptureAccess(){stop(reason:L("屏幕权限已撤销。","Screen recording permission was revoked."));return}
         guard let id=sourceID else{return}
         if (CGWindowListCopyWindowInfo([.optionIncludingWindow],id) as? [[String:Any]])?.isEmpty != false {
-            stop(reason:"来源窗口已关闭，录屏已停止。")
+            stop(reason:L("来源窗口已关闭，录屏已停止。","The source window closed, so recording stopped."))
         }
     }
     private func installAudioListener(){
         var address=AudioObjectPropertyAddress(mSelector:kAudioHardwarePropertyDefaultInputDevice,mScope:kAudioObjectPropertyScopeGlobal,mElement:kAudioObjectPropertyElementMain)
-        let listener:AudioObjectPropertyListenerBlock={ [weak self] _,_ in self?.stop(reason:"音频设备发生变化，录屏已停止并尝试保存。") }
+        let listener:AudioObjectPropertyListenerBlock={ [weak self] _,_ in self?.stop(reason:L("音频设备发生变化，录屏已停止并尝试保存。","An audio device changed. Recording stopped and Snapliq is trying to save it.")) }
         audioListener=listener
         AudioObjectAddPropertyListenerBlock(AudioObjectID(kAudioObjectSystemObject),&address,DispatchQueue.main,listener)
         address.mSelector=kAudioHardwarePropertyDefaultOutputDevice
@@ -127,7 +127,7 @@ final class RecordingController:NSObject,SCStreamDelegate,@unchecked Sendable {
             if let stream=stream{try? await stream.stopCapture()}
             var final:URL?,failure=reason
             do {
-                guard let encoder=encoder,let temp=temp,let target=target else{throw CaptureFailure.message("录屏会话已失效。")}
+                guard let encoder=encoder,let temp=temp,let target=target else{throw CaptureFailure.message(L("录屏会话已失效。","The recording session is no longer available."))}
                 try await encoder.finish(duration:self.accumulated)
                 let ready:URL
                 if both {
@@ -138,7 +138,7 @@ final class RecordingController:NSObject,SCStreamDelegate,@unchecked Sendable {
                 do {
                     if self.overwriteExisting && FileManager.default.fileExists(atPath:target.path){_ = try FileManager.default.replaceItemAt(target,withItemAt:ready)}
                     else{try FileManager.default.moveItem(at:ready,to:target)}
-                }catch{throw CaptureFailure.message("录屏已封装，但保存失败。可恢复文件：\(ready.path)\n\(error.localizedDescription)")}
+                }catch{throw CaptureFailure.message(L("录屏已封装，但保存失败。可恢复文件：\(ready.path)\n\(error.localizedDescription)","The recording was finalized but could not be saved. Recoverable file: \(ready.path)\n\(error.localizedDescription)"))}
                 final=target
                 Metrics.shared.write("recording_finished",["seconds":self.accumulated,"frames":encoder.frameCount,"dropped":encoder.dropped])
             }catch {

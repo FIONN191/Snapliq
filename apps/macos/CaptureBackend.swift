@@ -30,7 +30,7 @@ final class CaptureBackend {
         let apps=c.applications.filter{$0.processID==ProcessInfo.processInfo.processIdentifier}
         let jobs=topology.map { id,frame in
             Task<DisplaySnapshot,Error> {
-                guard let display=c.displays.first(where:{$0.displayID==id}) else{throw CaptureFailure.message("显示器配置已变化，请重新截图。")}
+                guard let display=c.displays.first(where:{$0.displayID==id}) else{throw CaptureFailure.message(L("显示器配置已变化，请重新截图。","The display configuration changed. Capture again."))}
                 let filter=SCContentFilter(display:display,excludingApplications:apps,exceptingWindows:[])
                 if #available(macOS 14.2,*){filter.includeMenuBar=true}
                 let config=SCStreamConfiguration()
@@ -49,24 +49,24 @@ final class CaptureBackend {
             for task in jobs{images.append(try await task.value)}
             let current=NSScreen.screens
             guard current.count==topology.count,zip(current,topology).allSatisfy({$0.0.frame==$0.1.1}) else {
-                throw CaptureFailure.message("截图期间显示器配置发生变化，请重试。")
+                throw CaptureFailure.message(L("截图期间显示器配置发生变化，请重试。","The display configuration changed during capture. Try again."))
             }
             return images
         } catch {for task in jobs{task.cancel()};throw error}
     }
     static func crop(_ selection:CGRect,from snapshots:[DisplaySnapshot])throws->CGImage{
         let parts=snapshots.filter{$0.frame.intersects(selection)}
-        guard !parts.isEmpty,selection.width>=1,selection.height>=1 else{throw CaptureFailure.message("请先选择截图区域。")}
+        guard !parts.isEmpty,selection.width>=1,selection.height>=1 else{throw CaptureFailure.message(L("请先选择截图区域。","Select an area first."))}
         if parts.count==1 {
             let s=parts[0],r=CGRect(sl_pixels(selection.sl,s.frame.sl,Double(s.image.width),Double(s.image.height)))
-            guard let image=s.image.cropping(to:r) else{throw CaptureFailure.message("无法裁剪选区。")}
+            guard let image=s.image.cropping(to:r) else{throw CaptureFailure.message(L("无法裁剪选区。","Unable to crop the selected area."))}
             return image
         }
         // Different displays may have different source densities. Preserve layout at max density.
         let scale=parts.map(\.scale).max() ?? 1
         let width=Int(ceil(selection.width*scale)),height=Int(ceil(selection.height*scale))
-        guard width>0,height>0,width<=32768,height<=32768,Double(width)*Double(height)<=160_000_000 else{throw CaptureFailure.message("跨屏选区过大，请缩小范围。")}
-        guard let ctx=CGContext(data:nil,width:width,height:height,bitsPerComponent:8,bytesPerRow:0,space:CGColorSpace(name:CGColorSpace.sRGB)!,bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue) else{throw CaptureFailure.message("图像内存不足。")}
+        guard width>0,height>0,width<=32768,height<=32768,Double(width)*Double(height)<=160_000_000 else{throw CaptureFailure.message(L("跨屏选区过大，请缩小范围。","The selection across displays is too large. Select a smaller area."))}
+        guard let ctx=CGContext(data:nil,width:width,height:height,bitsPerComponent:8,bytesPerRow:0,space:CGColorSpace(name:CGColorSpace.sRGB)!,bitmapInfo:CGImageAlphaInfo.premultipliedLast.rawValue) else{throw CaptureFailure.message(L("图像内存不足。","Not enough memory for this image."))}
         ctx.interpolationQuality = .high
         for s in parts {
             let overlap=selection.intersection(s.frame)
@@ -79,13 +79,13 @@ final class CaptureBackend {
             ctx.draw(part,in:CGRect(x:(sourceRect.minX-selection.minX)*scale,y:(sourceRect.minY-selection.minY)*scale,width:sourceRect.width*scale,height:sourceRect.height*scale))
             ctx.restoreGState()
         }
-        guard let image=ctx.makeImage() else{throw CaptureFailure.message("无法生成截图。")};return image
+        guard let image=ctx.makeImage() else{throw CaptureFailure.message(L("无法生成截图。","Unable to create the screenshot."))};return image
     }
     static func png(_ image:CGImage)throws->Data{
         let data=NSMutableData()
-        guard let dest=CGImageDestinationCreateWithData(data,"public.png" as CFString,1,nil) else{throw CaptureFailure.message("PNG 编码器不可用。")}
+        guard let dest=CGImageDestinationCreateWithData(data,"public.png" as CFString,1,nil) else{throw CaptureFailure.message(L("PNG 编码器不可用。","The PNG encoder is unavailable."))}
         CGImageDestinationAddImage(dest,image,nil)
-        guard CGImageDestinationFinalize(dest) else{throw CaptureFailure.message("PNG 编码失败。")}
+        guard CGImageDestinationFinalize(dest) else{throw CaptureFailure.message(L("PNG 编码失败。","PNG encoding failed."))}
         return data as Data
     }
     static func copy(_ image:CGImage)throws{
@@ -94,7 +94,7 @@ final class CaptureBackend {
         let item=NSPasteboardItem();item.setData(data,forType:.png)
         if let tiff=rep.tiffRepresentation{item.setData(tiff,forType:.tiff)}
         let board=NSPasteboard.general;board.clearContents()
-        guard board.writeObjects([item]) else{throw CaptureFailure.message("系统剪贴板暂时不可用，请重试。")}
+        guard board.writeObjects([item]) else{throw CaptureFailure.message(L("系统剪贴板暂时不可用，请重试。","The system clipboard is temporarily unavailable. Try again."))}
     }
     static func save(_ image:CGImage,to directory:URL)throws->URL {
         let data=try png(image),fm=FileManager.default
@@ -111,6 +111,6 @@ final class CaptureBackend {
                 throw error
             }
         }
-        throw CaptureFailure.message("同名文件过多，请使用另存为。")
+        throw CaptureFailure.message(L("同名文件过多，请使用另存为。","Too many files share this name. Use Save As."))
     }
 }

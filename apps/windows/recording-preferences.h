@@ -1,4 +1,5 @@
 #pragma once
+#include "localization.h"
 #include <windows.h>
 #include <shlobj.h>
 #include <winrt/base.h>
@@ -31,7 +32,7 @@ inline std::wstring automaticPath(const std::wstring& configuredFolder){
   std::filesystem::create_directories(folder);
  }else{
   folder=configuredFolder;
-  if(!std::filesystem::is_directory(folder))throw winrt::hresult_error(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND),L"默认保存文件夹不可用，请在 Snapliq 设置中重新选择。");
+  if(!std::filesystem::is_directory(folder))throw winrt::hresult_error(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND),tr(L"默认保存文件夹不可用，请在 Snapliq 设置中重新选择。",L"The default save folder is unavailable. Choose another folder in Snapliq Settings."));
  }
  SYSTEMTIME now;GetLocalTime(&now);wchar_t timestamp[32];
  swprintf_s(timestamp,L"%04u-%02u-%02u_%02u-%02u-%02u",now.wYear,now.wMonth,now.wDay,now.wHour,now.wMinute,now.wSecond);

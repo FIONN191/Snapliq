@@ -3,6 +3,28 @@ import Carbon
 import ScreenCaptureKit
 import ServiceManagement
 
+enum AppLanguage:String,CaseIterable {case chinese="zh-Hans",english="en"}
+extension Notification.Name {
+    static let snapliqLanguageChanged=Notification.Name("Snapliq.interfaceLanguageChanged")
+}
+final class LocalizationStore {
+    private let defaults:UserDefaults
+    init(defaults:UserDefaults = .standard){self.defaults=defaults}
+    var language:AppLanguage {
+        get{AppLanguage(rawValue:defaults.string(forKey:"interfaceLanguage") ?? "") ?? .chinese}
+        set{
+            let previous=language
+            defaults.set(newValue.rawValue,forKey:"interfaceLanguage")
+            guard previous != newValue else{return}
+            if Thread.isMainThread{NotificationCenter.default.post(name:.snapliqLanguageChanged,object:self)}
+            else{DispatchQueue.main.async{NotificationCenter.default.post(name:.snapliqLanguageChanged,object:self)}}
+        }
+    }
+    func text(_ chinese:String,_ english:String)->String{language == .english ? english:chinese}
+}
+enum Localization {static let shared=LocalizationStore()}
+func L(_ chinese:String,_ english:String)->String{Localization.shared.text(chinese,english)}
+
 enum Product {
     static let info = Bundle.main.infoDictionary ?? [:]
     static let name = info["CFBundleDisplayName"] as? String ?? "Snapliq"
@@ -19,7 +41,7 @@ func now() -> Double { ProcessInfo.processInfo.systemUptime }
 func showError(_ message: String) {
     NSApp.activate(ignoringOtherApps:true)
     let a=NSAlert(); a.messageText=Product.name; a.informativeText=message
-    a.alertStyle = .warning; a.addButton(withTitle:"好"); a.runModal()
+    a.alertStyle = .warning; a.addButton(withTitle:L("好","OK")); a.runModal()
 }
 final class Preferences {
     static let shared=Preferences()

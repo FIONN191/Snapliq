@@ -2,10 +2,15 @@
 #include <windows.h>
 #include "recorder.h"
 #include "desktop-services.h"
+#include "localized-controls.h"
 #include <vector>
 class RecordingWindow {
  HWND picker_=nullptr,source_=nullptr,system_=nullptr,microphone_=nullptr,controls_=nullptr,label_=nullptr,pause_=nullptr;
+ LocalizedControls labels_;
  std::vector<RecordingOptions> choices_;
+ // Preserve the source identity and title while translating the selector.
+ std::vector<std::wstring> sourceNames_;
+ void refreshSourceLabels();
  DesktopRecorder& recorder_;
  HWND owner_;
  std::function<void(RecordingOptions)> start_;
@@ -17,6 +22,7 @@ public:
  void present();
  void hidePicker(){if(picker_)ShowWindow(picker_,SW_HIDE);}
  void update();
+ void refreshLanguage();
  bool handleDialogMessage(MSG* message){
   for(auto window:{picker_,controls_})if(window&&IsWindowVisible(window)&&IsDialogMessage(window,message))return true;
   return false;

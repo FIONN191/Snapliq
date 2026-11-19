@@ -29,16 +29,16 @@ final class RecordingEncoder: @unchecked Sendable {
             AVVideoColorPropertiesKey:[AVVideoColorPrimariesKey:AVVideoColorPrimaries_ITU_R_709_2,AVVideoTransferFunctionKey:AVVideoTransferFunction_ITU_R_709_2,AVVideoYCbCrMatrixKey:AVVideoYCbCrMatrix_ITU_R_709_2],
             AVVideoCompressionPropertiesKey:[AVVideoAverageBitRateKey:min(24_000_000,max(4_000_000,width*height*5)),AVVideoMaxKeyFrameIntervalKey:60]])
         video.expectsMediaDataInRealTime=true
-        guard writer.canAdd(video) else{throw CaptureFailure.message("视频编码器不可用。")};writer.add(video)
+        guard writer.canAdd(video) else{throw CaptureFailure.message(L("视频编码器不可用。","The video encoder is unavailable."))};writer.add(video)
         func audioInput()->AVAssetWriterInput {
             let i=AVAssetWriterInput(mediaType:.audio,outputSettings:[AVFormatIDKey:kAudioFormatMPEG4AAC,AVSampleRateKey:48000,AVNumberOfChannelsKey:2,AVEncoderBitRateKey:160000])
             i.expectsMediaDataInRealTime=true;return i
         }
         audio=systemAudio ? audioInput():nil;mic=microphone ? audioInput():nil
         for input in [audio,mic].compactMap({$0}) {
-            guard writer.canAdd(input) else{throw CaptureFailure.message("音频编码器不可用。")};writer.add(input)
+            guard writer.canAdd(input) else{throw CaptureFailure.message(L("音频编码器不可用。","The audio encoder is unavailable."))};writer.add(input)
         }
-        guard writer.startWriting() else{throw writer.error ?? CaptureFailure.message("无法开始写入录屏文件。")}
+        guard writer.startWriting() else{throw writer.error ?? CaptureFailure.message(L("无法开始写入录屏文件。","Could not start writing the recording file."))}
     }
     func setPaused(_ value:Bool,at timestamp:CMTime?=nil){
         let time=timestamp ?? CMClockGetTime(CMClockGetHostTimeClock())
@@ -68,7 +68,7 @@ final class RecordingEncoder: @unchecked Sendable {
         guard input.isReadyForMoreMediaData else{dropped+=1;return}
         do {
             let adjusted=try Self.retime(sample,subtract:shift)
-            guard input.append(adjusted) else{throw writer.error ?? CaptureFailure.message("录屏编码失败。")}
+            guard input.append(adjusted) else{throw writer.error ?? CaptureFailure.message(L("录屏编码失败。","Recording encoding failed."))}
             lastTrack[type]=pts;lastOutput=CMTimeMaximum(lastOutput,pts)
             if type==0{frameCount+=1;lastVideo=adjusted}
         } catch {
@@ -77,24 +77,24 @@ final class RecordingEncoder: @unchecked Sendable {
     }
     static func retime(_ sample:CMSampleBuffer,subtract shift:CMTime)throws->CMSampleBuffer{
         var count=0
-        guard CMSampleBufferGetSampleTimingInfoArray(sample,entryCount:0,arrayToFill:nil,entriesNeededOut:&count)==noErr else{throw CaptureFailure.message("无法读取音视频时间戳。")}
+        guard CMSampleBufferGetSampleTimingInfoArray(sample,entryCount:0,arrayToFill:nil,entriesNeededOut:&count)==noErr else{throw CaptureFailure.message(L("无法读取音视频时间戳。","Could not read the audio and video timestamps."))}
         var timing=[CMSampleTimingInfo](repeating:CMSampleTimingInfo(duration:.invalid,presentationTimeStamp:.invalid,decodeTimeStamp:.invalid),count:count)
         let status=timing.withUnsafeMutableBufferPointer{CMSampleBufferGetSampleTimingInfoArray(sample,entryCount:count,arrayToFill:$0.baseAddress,entriesNeededOut:&count)}
-        guard status==noErr else{throw CaptureFailure.message("无法读取时间戳。")}
+        guard status==noErr else{throw CaptureFailure.message(L("无法读取时间戳。","Could not read the timestamps."))}
         for i in timing.indices {
             if timing[i].presentationTimeStamp.isValid{timing[i].presentationTimeStamp=CMTimeSubtract(timing[i].presentationTimeStamp,shift)}
             if timing[i].decodeTimeStamp.isValid{timing[i].decodeTimeStamp=CMTimeSubtract(timing[i].decodeTimeStamp,shift)}
         }
         var result:CMSampleBuffer?
         let code=timing.withUnsafeBufferPointer{CMSampleBufferCreateCopyWithNewTiming(allocator:kCFAllocatorDefault,sampleBuffer:sample,sampleTimingEntryCount:count,sampleTimingArray:$0.baseAddress!,sampleBufferOut:&result)}
-        guard code==noErr,let result=result else{throw CaptureFailure.message("音视频时间戳转换失败。")};return result
+        guard code==noErr,let result=result else{throw CaptureFailure.message(L("音视频时间戳转换失败。","Could not convert the audio and video timestamps."))};return result
     }
     func finish(duration:Double?=nil) async throws {
         try await withCheckedThrowingContinuation { (continuation:CheckedContinuation<Void,Error>) in
             queue.async {
                 self.finished=true
                 if let error=self.lastError{self.writer.cancelWriting();continuation.resume(throwing:error);return}
-                guard self.origin != nil,self.frameCount>0 else{self.writer.cancelWriting();continuation.resume(throwing:CaptureFailure.message("没有取得有效视频帧，未生成录屏。"));return}
+                guard self.origin != nil,self.frameCount>0 else{self.writer.cancelWriting();continuation.resume(throwing:CaptureFailure.message(L("没有取得有效视频帧，未生成录屏。","No valid video frames were captured. No recording was created.")));return}
                 var end=CMTimeAdd(self.lastOutput,CMTime(value:1,timescale:30))
                 if let duration=duration,duration.isFinite,duration>0 {
                     let requested=CMTime(seconds:duration,preferredTimescale:60000)
@@ -105,7 +105,7 @@ final class RecordingEncoder: @unchecked Sendable {
                             let pts=CMTimeSubtract(requested,CMTime(value:1,timescale:30))
                             let shift=CMTimeSubtract(CMSampleBufferGetPresentationTimeStamp(last),pts)
                             let tail=try Self.retime(last,subtract:shift)
-                            guard self.video.isReadyForMoreMediaData,self.video.append(tail) else{throw self.writer.error ?? CaptureFailure.message("无法完成录屏的最后一帧。")}
+                            guard self.video.isReadyForMoreMediaData,self.video.append(tail) else{throw self.writer.error ?? CaptureFailure.message(L("无法完成录屏的最后一帧。","Could not finalize the last recording frame."))}
                             self.frameCount+=1;end=CMTimeMaximum(end,requested)
                         }catch{self.writer.cancelWriting();self.lastVideo=nil;continuation.resume(throwing:error);return}
                     }
@@ -114,7 +114,7 @@ final class RecordingEncoder: @unchecked Sendable {
                 self.video.markAsFinished();self.audio?.markAsFinished();self.mic?.markAsFinished()
                 self.writer.finishWriting {
                     if self.writer.status == .completed{continuation.resume()}
-                    else{continuation.resume(throwing:self.writer.error ?? CaptureFailure.message("文件封装失败。"))}
+                    else{continuation.resume(throwing:self.writer.error ?? CaptureFailure.message(L("文件封装失败。","Could not finalize the recording file.")))}
                 }
             }
         }
@@ -123,11 +123,11 @@ final class RecordingEncoder: @unchecked Sendable {
     static func mixAudio(from source:URL,to destination:URL) async throws {
         let asset=AVURLAsset(url:source)
         let tracks=try await asset.loadTracks(withMediaType:.audio)
-        guard let export=AVAssetExportSession(asset:asset,presetName:AVAssetExportPresetHighestQuality) else{throw CaptureFailure.message("无法准备混音。")}
+        guard let export=AVAssetExportSession(asset:asset,presetName:AVAssetExportPresetHighestQuality) else{throw CaptureFailure.message(L("无法准备混音。","Could not prepare audio mixing."))}
         let mix=AVMutableAudioMix()
         mix.inputParameters=tracks.map{track in let p=AVMutableAudioMixInputParameters(track:track);p.setVolume(tracks.count>1 ? 0.7:1,at:.zero);return p}
         export.audioMix=mix;export.outputURL=destination;export.outputFileType = .mp4
         await export.export()
-        guard export.status == .completed else{throw export.error ?? CaptureFailure.message("录屏音频混合失败。")}
+        guard export.status == .completed else{throw export.error ?? CaptureFailure.message(L("录屏音频混合失败。","Could not mix the recording audio."))}
     }
 }

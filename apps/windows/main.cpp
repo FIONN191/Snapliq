@@ -6,6 +6,7 @@
 #include <dwmapi.h>
 #include <winrt/base.h>
 #include "product.h"
+#include "localized-controls.h"
 #include "dpi.h"
 #include "capture.h"
 #include "desktop-services.h"
@@ -24,7 +25,7 @@
 #include <sstream>
 #include <cmath>
 constexpr UINT TRAY=WM_APP+1,CAPTURED=WM_APP+2,OCR_DONE=WM_APP+3,HIT_DONE=WM_APP+4,RECORD_DONE=WM_APP+5;
-constexpr int REGION=100,SCREEN=101,RESTORE=102,SETTINGS=103,QUIT=104,TODAY=105,HIDE=106,COPY=107,SAVE=108,SAVEAS=109,APPLYKEY=110,FOLDER=111,STARTUP=112,WINDOW=113,OCR=114,SMART=115,CONTROLS=116,RECORD=117,PAUSE_RECORD=118,STOP_RECORD=119,CONNECT_CHROME=120,APPLY_RECORD_KEY=121,QUICK_RECORD=122,ORB_SNAP=123,ORB_LOCK=124,ORB_SIZE=125,ORB_SIZE_LABEL=126,ORB_TOGGLE_LOCK=127;
+constexpr int REGION=100,SCREEN=101,RESTORE=102,SETTINGS=103,QUIT=104,TODAY=105,HIDE=106,COPY=107,SAVE=108,SAVEAS=109,APPLYKEY=110,FOLDER=111,STARTUP=112,WINDOW=113,OCR=114,SMART=115,CONTROLS=116,RECORD=117,PAUSE_RECORD=118,STOP_RECORD=119,CONNECT_CHROME=120,APPLY_RECORD_KEY=121,QUICK_RECORD=122,ORB_SNAP=123,ORB_LOCK=124,ORB_SIZE=125,ORB_SIZE_LABEL=126,ORB_TOGGLE_LOCK=127,LANGUAGE=128;
 const wchar_t* PREFS=L"Software\\Snapliq\\Development";
 DWORD readInt(const wchar_t* name,DWORD fallback){DWORD value=0,bytes=sizeof(value);return RegGetValue(HKEY_CURRENT_USER,PREFS,name,RRF_RT_REG_DWORD,nullptr,&value,&bytes)==ERROR_SUCCESS?value:fallback;}
 bool hasInt(const wchar_t* name){DWORD value=0,bytes=sizeof(value);return RegGetValue(HKEY_CURRENT_USER,PREFS,name,RRF_RT_REG_DWORD,nullptr,&value,&bytes)==ERROR_SUCCESS;}
@@ -39,6 +40,9 @@ struct OCRRequest{unsigned generation=0;Image image;};
 struct Result{unsigned generation=0;std::unique_ptr<Desktop> desktop;std::wstring error;};
 struct App {
  HWND host=nullptr,orb=nullptr,overlay=nullptr,settings=nullptr,hotkeyControl=nullptr,recordHotkeyControl=nullptr;
+ LocalizedControls settingsLabels;
+ enum class OCRPlaceholder { none,loading,startFailed };
+ OCRPlaceholder ocrPlaceholder=OCRPlaceholder::none;bool updatingOCRText=false;
  std::vector<WindowTarget> targets;SLRect candidate{};bool candidateValid=false,windowMode=false,hitBusy=false,quitAfterRecord=false;
  ULONGLONG lastHit=0;std::thread hitWorker,ocrWorker;HWND ocrWindow=nullptr,ocrEdit=nullptr;
  NativeBridge bridge;unsigned ocrGeneration=0;bool ocrBusy=false;std::unique_ptr<OCRRequest> pendingOCR;
@@ -53,20 +57,20 @@ struct App {
  void error(const std::wstring& text){if(overlay)ShowWindow(overlay,SW_HIDE);MessageBox(settings?settings:host,text.c_str(),PRODUCT_NAME,MB_OK|MB_ICONWARNING);if(overlay){ShowWindow(overlay,SW_SHOW);SetForegroundWindow(overlay);}}
  void report(const std::wstring& message){tray.uFlags=NIF_INFO;wcscpy_s(tray.szInfoTitle,PRODUCT_NAME);wcsncpy_s(tray.szInfo,message.c_str(),_TRUNCATE);tray.dwInfoFlags=NIIF_INFO;Shell_NotifyIcon(NIM_MODIFY,&tray);}
  void refreshTrayIcon(){DWORD light=0,bytes=sizeof(light);RegGetValue(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",L"SystemUsesLightTheme",RRF_RT_REG_DWORD,nullptr,&light,&bytes);tray.hIcon=LoadIcon(GetModuleHandle(nullptr),MAKEINTRESOURCE(light?2:3));tray.uFlags=NIF_ICON;Shell_NotifyIcon(NIM_MODIFY,&tray);}
- void registerKey(){UnregisterHotKey(host,1);if(!RegisterHotKey(host,1,mods|MOD_NOREPEAT,vk))error(L"Global shortcut registration failed. Choose another combination in Settings.");}
- void registerRecordingKey(){UnregisterHotKey(host,2);if(!RegisterHotKey(host,2,recordMods|MOD_NOREPEAT,recordVK))error(L"录屏快捷键被占用，请在 Snapliq 设置中修改独立的录屏快捷键。");}
+ void registerKey(){UnregisterHotKey(host,1);if(!RegisterHotKey(host,1,mods|MOD_NOREPEAT,vk))error(tr(L"全局截图快捷键注册失败，请在设置中选择其他组合。",L"Global screenshot shortcut registration failed. Choose another combination in Settings."));}
+ void registerRecordingKey(){UnregisterHotKey(host,2);if(!RegisterHotKey(host,2,recordMods|MOD_NOREPEAT,recordVK))error(tr(L"录屏快捷键被占用，请在 Snapliq 设置中修改独立的录屏快捷键。",L"The recording shortcut is already in use. Choose another recording shortcut in Snapliq Settings."));}
  void applyShortcut(bool recording){
   HWND control=recording?recordHotkeyControl:hotkeyControl;WORD key=WORD(SendMessage(control,HKM_GETHOTKEY,0,0));BYTE flags=HIBYTE(key);
-  if(!LOBYTE(key)||!(flags&(HOTKEYF_CONTROL|HOTKEYF_ALT))){error(L"快捷键必须包含 Control 或 Alt 和一个按键。");return;}
+  if(!LOBYTE(key)||!(flags&(HOTKEYF_CONTROL|HOTKEYF_ALT))){error(tr(L"快捷键必须包含 Control 或 Alt 和一个按键。",L"A shortcut must include Control or Alt and another key."));return;}
   DWORD nextVK=LOBYTE(key),nextMods=((flags&HOTKEYF_CONTROL)?MOD_CONTROL:0)|((flags&HOTKEYF_ALT)?MOD_ALT:0)|((flags&HOTKEYF_SHIFT)?MOD_SHIFT:0);
-  if(nextVK==(recording?vk:recordVK)&&nextMods==(recording?mods:recordMods)){error(L"截图和录屏必须使用不同的快捷键。");return;}
+  if(nextVK==(recording?vk:recordVK)&&nextMods==(recording?mods:recordMods)){error(tr(L"截图和录屏必须使用不同的快捷键。",L"Screenshot and recording shortcuts must be different."));return;}
   DWORD& currentVK=recording?recordVK:vk;DWORD& currentMods=recording?recordMods:mods;int id=recording?2:1;
   UnregisterHotKey(host,id);
   if(!RegisterHotKey(host,id,nextMods|MOD_NOREPEAT,nextVK)){
    bool restored=RegisterHotKey(host,id,currentMods|MOD_NOREPEAT,currentVK)!=FALSE;
    BYTE restoredFlags=((currentMods&MOD_CONTROL)?HOTKEYF_CONTROL:0)|((currentMods&MOD_ALT)?HOTKEYF_ALT:0)|((currentMods&MOD_SHIFT)?HOTKEYF_SHIFT:0);
    SendMessage(control,HKM_SETHOTKEY,MAKEWORD(currentVK,restoredFlags),0);
-   error(restored?L"快捷键不可用，已恢复原快捷键。":L"快捷键注册失败，原快捷键也被占用。请重新选择。");return;
+   error(restored?tr(L"快捷键不可用，已恢复原快捷键。",L"This shortcut is unavailable. The previous shortcut has been restored."):tr(L"快捷键注册失败，原快捷键也被占用。请重新选择。",L"The new and previous shortcuts are both unavailable. Choose another combination."));return;
   }
   currentVK=nextVK;currentMods=nextMods;writeInt(recording?L"recordKey":L"key",currentVK);writeInt(recording?L"recordModifiers":L"modifiers",currentMods);
  }
@@ -108,13 +112,13 @@ struct App {
  }
  void updateSettingsScroll(){
   if(!settings||settingsDpiChanging)return;RECT r;GetClientRect(settings,&r);
-  const int contentHeight=dip(settings,590),next=std::clamp(settingsScrollOffset,0,std::max(0,contentHeight-int(r.bottom)));
+  const int contentHeight=dip(settings,650),next=std::clamp(settingsScrollOffset,0,std::max(0,contentHeight-int(r.bottom)));
   SCROLLINFO info{sizeof(info),SIF_RANGE|SIF_PAGE|SIF_POS};info.nMin=0;info.nMax=contentHeight-1;info.nPage=UINT(std::max(1L,r.bottom));info.nPos=next;
   SetScrollInfo(settings,SB_VERT,&info,TRUE);
   if(next!=settingsScrollOffset){ScrollWindowEx(settings,0,settingsScrollOffset-next,nullptr,nullptr,nullptr,nullptr,SW_SCROLLCHILDREN|SW_INVALIDATE|SW_ERASE);settingsScrollOffset=next;}
  }
  void scrollSettings(int requested){
-  RECT r;GetClientRect(settings,&r);const int next=std::clamp(requested,0,std::max(0,dip(settings,590)-int(r.bottom)));
+  RECT r;GetClientRect(settings,&r);const int next=std::clamp(requested,0,std::max(0,dip(settings,650)-int(r.bottom)));
   if(next==settingsScrollOffset)return;
   ScrollWindowEx(settings,0,settingsScrollOffset-next,nullptr,nullptr,nullptr,nullptr,SW_SCROLLCHILDREN|SW_INVALIDATE|SW_ERASE);settingsScrollOffset=next;
   SetScrollPos(settings,SB_VERT,next,TRUE);UpdateWindow(settings);
@@ -127,11 +131,11 @@ struct App {
  }
  void popup(bool orbMenu){
   HMENU menu=CreatePopupMenu();
-  if(orbMenu){AppendMenu(menu,MF_STRING,TODAY,L"仅今天停用");AppendMenu(menu,MF_STRING,HIDE,L"停用");AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING|(orbPositionLocked?MF_CHECKED:MF_UNCHECKED),ORB_TOGGLE_LOCK,L"锁定当前位置");}
-  else{AppendMenu(menu,MF_STRING,REGION,L"区域截图");AppendMenu(menu,MF_STRING,SCREEN,L"当前屏幕截图");AppendMenu(menu,MF_STRING,WINDOW,L"窗口截图");AppendMenu(menu,MF_STRING,RESTORE,L"显示悬浮球");}
-  if(!orbMenu){if(!recordingSessionPending)AppendMenu(menu,MF_STRING,QUICK_RECORD,L"快速录制当前屏幕");AppendMenu(menu,MF_STRING,RECORD,recorder.active()?L"显示录屏控制条":L"屏幕录制…");if(recorder.active()){AppendMenu(menu,MF_STRING,PAUSE_RECORD,recorder.paused()?L"继续录屏":L"暂停录屏");AppendMenu(menu,MF_STRING,STOP_RECORD,L"停止并保存录屏");}}
-  AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING,SETTINGS,L"设置");
-  if(!orbMenu){AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING,QUIT,L"退出 Snapliq");}
+  if(orbMenu){AppendMenu(menu,MF_STRING,TODAY,tr(L"仅今天停用",L"Disable for today"));AppendMenu(menu,MF_STRING,HIDE,tr(L"停用",L"Disable"));AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING|(orbPositionLocked?MF_CHECKED:MF_UNCHECKED),ORB_TOGGLE_LOCK,tr(L"锁定当前位置",L"Lock current position"));}
+  else{AppendMenu(menu,MF_STRING,REGION,tr(L"区域截图",L"Capture region"));AppendMenu(menu,MF_STRING,SCREEN,tr(L"当前屏幕截图",L"Capture current screen"));AppendMenu(menu,MF_STRING,WINDOW,tr(L"窗口截图",L"Capture window"));AppendMenu(menu,MF_STRING,RESTORE,tr(L"显示悬浮球",L"Show floating orb"));}
+  if(!orbMenu){if(!recordingSessionPending)AppendMenu(menu,MF_STRING,QUICK_RECORD,tr(L"快速录制当前屏幕",L"Quick record current screen"));AppendMenu(menu,MF_STRING,RECORD,recorder.active()?tr(L"显示录屏控制条",L"Show recording controls"):tr(L"屏幕录制…",L"Screen recording…"));if(recorder.active()){AppendMenu(menu,MF_STRING,PAUSE_RECORD,recorder.paused()?tr(L"继续录屏",L"Resume recording"):tr(L"暂停录屏",L"Pause recording"));AppendMenu(menu,MF_STRING,STOP_RECORD,tr(L"停止并保存录屏",L"Stop and save recording"));}}
+  AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING,SETTINGS,tr(L"设置",L"Settings"));
+  if(!orbMenu){AppendMenu(menu,MF_SEPARATOR,0,nullptr);AppendMenu(menu,MF_STRING,QUIT,tr(L"退出 Snapliq",L"Quit Snapliq"));}
   POINT point;GetCursorPos(&point);SetForegroundWindow(host);int action=TrackPopupMenu(menu,TPM_RETURNCMD|TPM_RIGHTBUTTON,point.x,point.y,0,host,nullptr);
   DestroyMenu(menu);PostMessage(host,WM_NULL,0,0);if(action)command(action);
  }
@@ -165,7 +169,7 @@ struct App {
   ++generation;
   if(overlay){auto w=overlay;overlay=nullptr;DestroyWindow(w);}desktop.reset();dim={};selected=false;refreshOrb();
  }
- Image current(){if(!selected||!desktop)throw std::runtime_error("Select a region first.");return cropImage(desktop->image,asRect(selection));}
+ Image current(){if(!selected||!desktop)throw winrt::hresult_error(E_FAIL,tr(L"请先选择截图区域。",L"Select a region first."));return cropImage(desktop->image,asRect(selection));}
  std::wstring choosePath(bool directory){
   if(overlay)ShowWindow(overlay,SW_HIDE);
   std::wstring result;
@@ -174,7 +178,7 @@ struct App {
     auto dialog=winrt::create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);DWORD flags;dialog->GetOptions(&flags);dialog->SetOptions(flags|FOS_PICKFOLDERS|FOS_FORCEFILESYSTEM);
     if(SUCCEEDED(dialog->Show(settings?settings:host))){winrt::com_ptr<IShellItem> item;dialog->GetResult(item.put());PWSTR path;item->GetDisplayName(SIGDN_FILESYSPATH,&path);result=path;CoTaskMemFree(path);}
    }else{
-    auto dialog=winrt::create_instance<IFileSaveDialog>(CLSID_FileSaveDialog);COMDLG_FILTERSPEC filter{L"PNG image",L"*.png"};dialog->SetFileTypes(1,&filter);dialog->SetDefaultExtension(L"png");dialog->SetFileName(L"Snapliq.png");
+    auto dialog=winrt::create_instance<IFileSaveDialog>(CLSID_FileSaveDialog);COMDLG_FILTERSPEC filter{tr(L"PNG 图片",L"PNG image"),L"*.png"};dialog->SetFileTypes(1,&filter);dialog->SetDefaultExtension(L"png");dialog->SetFileName(L"Snapliq.png");
     if(!folder.empty()){winrt::com_ptr<IShellItem> dir;if(SUCCEEDED(SHCreateItemFromParsingName(folder.c_str(),nullptr,IID_PPV_ARGS(dir.put()))))dialog->SetFolder(dir.get());}
     if(SUCCEEDED(dialog->Show(host))){winrt::com_ptr<IShellItem> item;dialog->GetResult(item.put());PWSTR path;item->GetDisplayName(SIGDN_FILESYSPATH,&path);result=path;CoTaskMemFree(path);}
    }
@@ -193,14 +197,14 @@ struct App {
      auto path=(std::filesystem::path(folder)/(std::wstring(stem)+(i?L"_"+std::to_wstring(i):L"")+L".png")).wstring();
      try{saveImage(image,path,false);saved=true;break;}catch(const winrt::hresult_error& e){if(e.code()!=HRESULT_FROM_WIN32(ERROR_FILE_EXISTS)&&e.code()!=HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS))throw;}
     }
-    if(!saved)throw std::runtime_error("Too many files with the same name.");
+    if(!saved)throw winrt::hresult_error(E_FAIL,tr(L"同名文件过多，请选择其他保存位置。",L"Too many files with the same name. Choose another folder."));
    }
-   closeCapture();report(L"已保存图片");
+   closeCapture();report(tr(L"已保存图片",L"Image saved"));
   }catch(const winrt::hresult_error& e){error(e.message().c_str());}catch(const std::exception& e){std::string m=e.what();error(std::wstring(m.begin(),m.end()));}
  }
  void copied(){
   if(!selected)return;
-  try{copyImage(host,current());closeCapture();report(L"已复制图片");}
+  try{copyImage(host,current());closeCapture();report(tr(L"已复制图片",L"Image copied"));}
   catch(const winrt::hresult_error& e){error(e.message().c_str());}catch(const std::exception& e){std::string m=e.what();error(std::wstring(m.begin(),m.end()));}
  }
  void drawImage(HDC dc,const Image& image){
@@ -221,9 +225,9 @@ struct App {
    SelectObject(dc,brush);SelectObject(dc,old);DeleteObject(pen);
    POINT mid{desktop->bounds.left+(r.left+r.right)/2,desktop->bounds.top+(r.top+r.bottom)/2};MONITORINFO info{sizeof(info)};GetMonitorInfo(MonitorFromPoint(mid,MONITOR_DEFAULTTONEAREST),&info);
    SLRect screen{double(info.rcWork.left-desktop->bounds.left+8),double(desktop->image.height-(info.rcWork.bottom-desktop->bounds.top)+8),double(info.rcWork.right-info.rcWork.left-16),double(info.rcWork.bottom-info.rcWork.top-16)};
-   auto placed=sl_toolbar({selection.x,desktop->image.height-selection.y-selection.height,selection.width,selection.height},screen,d(540),d(42),d(12));
+   auto placed=sl_toolbar({selection.x,desktop->image.height-selection.y-selection.height,selection.width,selection.height},screen,d(650),d(42),d(12));
    bar=asRect({placed.x,desktop->image.height-placed.y-placed.height,placed.width,placed.height});FillRect(dc,&bar,static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
-   const wchar_t* labels[]={L"提取文字",L"复制",L"下载 ▾",L"取消",L"完成 ↵"};
+   const wchar_t* labels[]={tr(L"提取文字",L"Extract text"),tr(L"复制",L"Copy"),tr(L"下载 ▾",L"Save ▾"),tr(L"取消",L"Cancel"),tr(L"完成 ↵",L"Done ↵")};
    for(int i=0;i<5;i++){RECT box{bar.left+i*(bar.right-bar.left)/5,bar.top,bar.left+(i+1)*(bar.right-bar.left)/5,bar.bottom};DrawText(dc,labels[i],-1,&box,DT_CENTER|DT_VCENTER|DT_SINGLELINE);}
    auto text=std::to_wstring(r.right-r.left)+L" × "+std::to_wstring(r.bottom-r.top)+L" px";
    RECT label{r.left,std::max(0L,r.top-28),r.left+190,std::max(0L,r.top-28)+26};FillRect(dc,&label,static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));DrawText(dc,text.c_str(),-1,&label,DT_CENTER|DT_VCENTER|DT_SINGLELINE);
@@ -232,7 +236,7 @@ struct App {
   int center=(info.rcWork.left+info.rcWork.right)/2-desktop->bounds.left;
   modeBar={center-d(160),info.rcWork.top-desktop->bounds.top+d(12),center+d(160),info.rcWork.top-desktop->bounds.top+d(52)};
   FillRect(dc,&modeBar,static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));RECT left=modeBar,right=modeBar;left.right=(modeBar.left+modeBar.right)/2;right.left=left.right;
-  DrawText(dc,L"截图",-1,&left,DT_CENTER|DT_VCENTER|DT_SINGLELINE);DrawText(dc,L"屏幕录制",-1,&right,DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+  DrawText(dc,tr(L"截图",L"Screenshot"),-1,&left,DT_CENTER|DT_VCENTER|DT_SINGLELINE);DrawText(dc,tr(L"屏幕录制",L"Screen recording"),-1,&right,DT_CENTER|DT_VCENTER|DT_SINGLELINE);
   SelectObject(dc,previousFont);DeleteObject(font);
  }
  void down(POINT p){
@@ -240,7 +244,7 @@ struct App {
   if(selected&&PtInRect(&bar,p)){
    int action=(p.x-bar.left)*5/std::max(1L,bar.right-bar.left);
    if(action==0)extract();else if(action==1||action==4)copied();else if(action==3)closeCapture();else{
-    HMENU m=CreatePopupMenu();AppendMenu(m,MF_STRING,SAVE,L"保存");AppendMenu(m,MF_STRING,SAVEAS,L"另存为");AppendMenu(m,MF_STRING,FOLDER,L"默认保存位置设置");
+    HMENU m=CreatePopupMenu();AppendMenu(m,MF_STRING,SAVE,tr(L"保存",L"Save"));AppendMenu(m,MF_STRING,SAVEAS,tr(L"另存为",L"Save as…"));AppendMenu(m,MF_STRING,FOLDER,tr(L"默认保存位置设置",L"Default save folder…"));
     POINT global=p;ClientToScreen(overlay,&global);int cmd=TrackPopupMenu(m,TPM_RETURNCMD,global.x,global.y,0,overlay,nullptr);DestroyMenu(m);if(cmd)command(cmd);
    };return;
   }
@@ -268,6 +272,27 @@ struct App {
   hitBusy=true;lastHit=GetTickCount64();if(hitWorker.joinable())hitWorker.join();auto window=target->window;auto token=generation;
   hitWorker=std::thread([this,window,point,token]{winrt::init_apartment(winrt::apartment_type::multi_threaded);auto result=new HitResult{{},point,token};try{result->rect=controlCandidate(window,point);}catch(...){}if(!PostMessage(host,HIT_DONE,0,reinterpret_cast<LPARAM>(result)))delete result;winrt::uninit_apartment();});
  }
+ void setOCRPlaceholder(OCRPlaceholder value){
+  ocrPlaceholder=value;if(!ocrEdit||value==OCRPlaceholder::none)return;
+  updatingOCRText=true;
+  SetWindowText(ocrEdit,value==OCRPlaceholder::loading?tr(L"正在本地识别中文和英文…",L"Recognizing Chinese and English locally…"):tr(L"无法启动文字识别，请重新截图后重试。",L"Could not start text recognition. Capture a new region and try again."));
+  updatingOCRText=false;
+ }
+ void changeLanguage(){
+  const auto index=SendDlgItemMessage(settings,LANGUAGE,CB_GETCURSEL,0,0);if(index==CB_ERR)return;
+  const auto next=index==1?localization::Language::english:localization::Language::simplifiedChinese;
+  if(next==localization::language())return;
+  const std::wstring value=localization::preference(next);HKEY key=nullptr;
+  auto status=RegCreateKeyEx(HKEY_CURRENT_USER,PREFS,0,nullptr,0,KEY_SET_VALUE,nullptr,&key,nullptr);
+  if(status==ERROR_SUCCESS){status=RegSetValueEx(key,L"interfaceLanguage",0,REG_SZ,reinterpret_cast<const BYTE*>(value.c_str()),DWORD((value.size()+1)*sizeof(wchar_t)));RegCloseKey(key);}
+  if(status!=ERROR_SUCCESS){SendDlgItemMessage(settings,LANGUAGE,CB_SETCURSEL,localization::language()==localization::Language::english?1:0,0);error(tr(L"无法保存界面语言设置，请重试。",L"Could not save the interface language. Please try again."));return;}
+  localization::setLanguage(next);settingsLabels.refresh();
+  SetWindowText(settings,tr(L"Snapliq 设置",L"Snapliq Settings"));
+  if(ocrWindow){SetWindowText(ocrWindow,tr(L"提取文字 · Snapliq",L"Extract text · Snapliq"));SetDlgItemText(ocrWindow,1,tr(L"复制文本",L"Copy text"));setOCRPlaceholder(ocrPlaceholder);}
+  if(recordingWindow)recordingWindow->refreshLanguage();
+  if(overlay)InvalidateRect(overlay,nullptr,FALSE);
+  if(recordingSessionPending)SendMessage(host,WM_TIMER,2,0);
+ }
  void runOCR(OCRRequest request){
   // A newer selection replaces the queued request without blocking the UI or
   // starting an unbounded set of recognizers. The active request owns its pixels.
@@ -281,11 +306,11 @@ struct App {
    catch(const std::exception& e){std::string t=e.what();result->error.assign(t.begin(),t.end());}
    if(initialized)winrt::uninit_apartment();
    if(!PostMessage(host,OCR_DONE,0,reinterpret_cast<LPARAM>(result)))delete result;
-  });}catch(const std::exception&){ocrBusy=false;SetWindowText(ocrEdit,L"无法启动文字识别，请重新截图后重试。");}
+  });}catch(const std::exception&){ocrBusy=false;setOCRPlaceholder(OCRPlaceholder::startFailed);}
  }
  void completeOCR(std::unique_ptr<OCRResult> result){
   ocrBusy=false;
-  if(ocrEdit&&result->generation==ocrGeneration)SetWindowText(ocrEdit,result->error.empty()?result->text.c_str():result->error.c_str());
+  if(ocrEdit&&result->generation==ocrGeneration){ocrPlaceholder=OCRPlaceholder::none;SetWindowText(ocrEdit,result->error.empty()?result->text.c_str():result->error.c_str());}
   if(pendingOCR){auto next=std::move(pendingOCR);if(ocrEdit&&next->generation==ocrGeneration)runOCR(std::move(*next));}
  }
  void extract(){
@@ -293,15 +318,15 @@ struct App {
   try{
    auto image=current();
    if(!ocrWindow){
-    ocrWindow=CreateWindowEx(WS_EX_TOOLWINDOW,L"SnapliqOCR",L"提取文字 · Snapliq",WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,620,430,host,nullptr,GetModuleHandle(nullptr),nullptr);
+    ocrWindow=CreateWindowEx(WS_EX_TOOLWINDOW,L"SnapliqOCR",tr(L"提取文字 · Snapliq",L"Extract text · Snapliq"),WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,620,430,host,nullptr,GetModuleHandle(nullptr),nullptr);
     if(!ocrWindow)winrt::throw_last_error();
     ocrEdit=CreateWindowEx(WS_EX_CLIENTEDGE,L"EDIT",L"",WS_CHILD|WS_VISIBLE|WS_VSCROLL|ES_MULTILINE|ES_AUTOVSCROLL,15,15,570,300,ocrWindow,nullptr,GetModuleHandle(nullptr),nullptr);
     if(!ocrEdit){auto code=GetLastError();DestroyWindow(ocrWindow);ocrWindow=nullptr;winrt::throw_hresult(HRESULT_FROM_WIN32(code));}
-    CreateWindow(L"BUTTON",L"Copy text",WS_CHILD|WS_VISIBLE|WS_TABSTOP,15,330,160,30,ocrWindow,reinterpret_cast<HMENU>(1),GetModuleHandle(nullptr),nullptr);
+    CreateWindow(L"BUTTON",tr(L"复制文本",L"Copy text"),WS_CHILD|WS_VISIBLE|WS_TABSTOP,15,330,160,30,ocrWindow,reinterpret_cast<HMENU>(1),GetModuleHandle(nullptr),nullptr);
     SendMessage(ocrEdit,EM_SETLIMITTEXT,1000000,0);applyWindowDpi(ocrWindow);
    }
    const auto token=++ocrGeneration;
-   SetWindowText(ocrEdit,L"正在本地识别中文和英文…");
+   setOCRPlaceholder(OCRPlaceholder::loading);
    // OCR keeps the cropped image; the capture session must be gone, not hidden.
    closeCapture();ShowWindow(ocrWindow,IsIconic(ocrWindow)?SW_RESTORE:SW_SHOW);SetForegroundWindow(ocrWindow);
    runOCR({token,std::move(image)});
@@ -335,7 +360,7 @@ struct App {
   switch(action){
    case REGION:capture(false);break;case SCREEN:capture(true);break;case WINDOW:capture(false,true);break;
    case OCR:extract();break;
-   case CONNECT_CHROME:try{NativeBridge::registerHost();report(L"Chrome connection registered for this application.");}catch(const winrt::hresult_error& e){error(e.message().c_str());}catch(const std::exception& e){std::string t=e.what();error(std::wstring(t.begin(),t.end()));}break;
+   case CONNECT_CHROME:try{NativeBridge::registerHost();report(tr(L"已为此应用注册 Chrome 连接。",L"Chrome connection registered for this application."));}catch(const winrt::hresult_error& e){error(e.message().c_str());}catch(const std::exception& e){std::string t=e.what();error(std::wstring(t.begin(),t.end()));}break;
    case SMART:writeInt(L"smart",IsDlgButtonChecked(settings,SMART)==BST_CHECKED);break;
    case CONTROLS:writeInt(L"controls",IsDlgButtonChecked(settings,CONTROLS)==BST_CHECKED);break;
    case ORB_SNAP:orbSnapToEdge=IsDlgButtonChecked(settings,ORB_SNAP)==BST_CHECKED;writeInt(L"orbSnapToEdge",orbSnapToEdge);if(orbSnapToEdge&&!orbPositionLocked)adjustOrb(false);break;
@@ -347,7 +372,7 @@ struct App {
    case STOP_RECORD:recorder.stop();break;
    case RESTORE:writeInt(L"orbHidden",0);writeInt(L"orbDate",0);refreshOrb();break;
    case TODAY:writeInt(L"orbDate",dateKey());refreshOrb();break;case HIDE:writeInt(L"orbHidden",1);refreshOrb();break;
-   case SETTINGS:showSettings();break;case QUIT:closeCapture();if(recorder.active()){quitAfterRecord=true;recorder.stop();report(L"正在停止并保存录屏…");}else DestroyWindow(host);break;
+   case SETTINGS:showSettings();break;case QUIT:closeCapture();if(recorder.active()){quitAfterRecord=true;recorder.stop();report(tr(L"正在停止并保存录屏…",L"Stopping and saving the recording…"));}else DestroyWindow(host);break;
    case COPY:copied();break;case SAVE:save(false);break;case SAVEAS:save(true);break;
    case FOLDER:{auto path=choosePath(true);if(!path.empty()){folder=path;writeString(L"folder",folder);}break;}
    case APPLYKEY:applyShortcut(false);break;
@@ -356,7 +381,7 @@ struct App {
     HKEY key;auto enabled=IsDlgButtonChecked(settings,STARTUP)==BST_CHECKED;
     if(RegCreateKeyEx(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",0,nullptr,0,KEY_SET_VALUE,nullptr,&key,nullptr)==ERROR_SUCCESS){
      LSTATUS result;if(enabled){wchar_t path[32768];GetModuleFileName(nullptr,path,32768);auto quoted=L"\""+std::wstring(path)+L"\"";result=RegSetValueEx(key,L"SnapliqDevelopment",0,REG_SZ,reinterpret_cast<const BYTE*>(quoted.c_str()),DWORD((quoted.size()+1)*2));}
-     else result=RegDeleteValue(key,L"SnapliqDevelopment");RegCloseKey(key);if(result!=ERROR_SUCCESS&&result!=ERROR_FILE_NOT_FOUND)error(L"Could not update startup setting.");
+     else result=RegDeleteValue(key,L"SnapliqDevelopment");RegCloseKey(key);if(result!=ERROR_SUCCESS&&result!=ERROR_FILE_NOT_FOUND)error(tr(L"无法更新开机启动设置。",L"Could not update startup setting."));
     }break;
    }
   }
@@ -370,8 +395,8 @@ LRESULT CALLBACK HostProc(HWND w,UINT m,WPARAM a,LPARAM b){
  case CAPTURED:app.showCapture(reinterpret_cast<Result*>(b));return 0;
  case OCR_DONE:app.completeOCR(std::unique_ptr<OCRResult>(reinterpret_cast<OCRResult*>(b)));return 0;
  case HIT_DONE:{std::unique_ptr<HitResult> r(reinterpret_cast<HitResult*>(b));app.hitBusy=false;POINT p;GetCursorPos(&p);if(app.desktop&&app.overlay&&!app.selected&&!app.dragging&&r->generation==app.generation&&std::abs(p.x-r->point.x)+std::abs(p.y-r->point.y)<5&&r->rect.right>r->rect.left){app.candidate={double(r->rect.left-app.desktop->bounds.left),double(r->rect.top-app.desktop->bounds.top),double(r->rect.right-r->rect.left),double(r->rect.bottom-r->rect.top)};app.candidateValid=true;InvalidateRect(app.overlay,nullptr,FALSE);}return 0;}
- case RECORD_DONE:{app.recordingSessionPending=false;app.tray.uFlags=NIF_TIP;wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_MODIFY,&app.tray);std::unique_ptr<RecordingOutcome> r(reinterpret_cast<RecordingOutcome*>(b));KillTimer(w,2);if(app.recordingWindow)app.recordingWindow->update();app.refreshOrb();app.report(r->saved?L"已保存录屏\n"+r->path:L"录屏未完成");if(!r->message.empty()&&!app.quitAfterRecord)app.error(r->message);if(app.quitAfterRecord)DestroyWindow(w);return 0;}
- case WM_TIMER:if(a==2){if(app.recordingWindow)app.recordingWindow->update();app.tray.uFlags=NIF_TIP;wcsncpy_s(app.tray.szTip,app.recorder.stopping()?L"Snapliq - Finishing":!app.recorder.started()?L"Snapliq - Preparing":app.recorder.paused()?L"Snapliq - Paused":L"Snapliq - Recording",_TRUNCATE);Shell_NotifyIcon(NIM_MODIFY,&app.tray);}else app.refreshOrb();return 0;
+ case RECORD_DONE:{app.recordingSessionPending=false;app.tray.uFlags=NIF_TIP;wcscpy_s(app.tray.szTip,PRODUCT_NAME);Shell_NotifyIcon(NIM_MODIFY,&app.tray);std::unique_ptr<RecordingOutcome> r(reinterpret_cast<RecordingOutcome*>(b));KillTimer(w,2);if(app.recordingWindow)app.recordingWindow->update();app.refreshOrb();app.report(r->saved?tr(L"已保存录屏\n",L"Recording saved\n")+r->path:tr(L"录屏未完成",L"Recording did not finish"));if(!r->message.empty()&&!app.quitAfterRecord)app.error(r->message);if(app.quitAfterRecord)DestroyWindow(w);return 0;}
+ case WM_TIMER:if(a==2){if(app.recordingWindow)app.recordingWindow->update();app.tray.uFlags=NIF_TIP;wcsncpy_s(app.tray.szTip,app.recorder.stopping()?tr(L"Snapliq - 正在保存",L"Snapliq - Finishing"):!app.recorder.started()?tr(L"Snapliq - 准备中",L"Snapliq - Preparing"):app.recorder.paused()?tr(L"Snapliq - 已暂停",L"Snapliq - Paused"):tr(L"Snapliq - 录制中",L"Snapliq - Recording"),_TRUNCATE);Shell_NotifyIcon(NIM_MODIFY,&app.tray);}else app.refreshOrb();return 0;
  case WM_DISPLAYCHANGE:app.recorder.stop();app.closeCapture();app.placeOrb();if(app.settings)app.fitSettings();return 0;
  case WM_TIMECHANGE:app.refreshOrb();return 0;
  case WM_SETTINGCHANGE:app.refreshTrayIcon();if(a==SPI_SETWORKAREA){app.placeOrb();if(app.settings)app.fitSettings();}return 0;
@@ -434,6 +459,7 @@ LRESULT CALLBACK OverlayProc(HWND w,UINT m,WPARAM a,LPARAM b){
 LRESULT CALLBACK OCRProc(HWND w,UINT m,WPARAM a,LPARAM b){
  if(m==WM_DPICHANGED){applyWindowDpi(w,HIWORD(a),reinterpret_cast<RECT*>(b));return 0;}
  if(m==WM_NCDESTROY)releaseDpiFont(w);
+ if(m==WM_COMMAND&&HIWORD(a)==EN_CHANGE&&reinterpret_cast<HWND>(b)==app.ocrEdit&&!app.updatingOCRText)app.ocrPlaceholder=App::OCRPlaceholder::none;
  if(m==WM_COMMAND&&LOWORD(a)==1&&app.ocrEdit){SendMessage(app.ocrEdit,EM_SETSEL,0,-1);SendMessage(app.ocrEdit,WM_COPY,0,0);return 0;}
  if(m==WM_SIZE&&app.ocrEdit){MoveWindow(app.ocrEdit,dip(w,15),dip(w,15),std::max(1,int(LOWORD(b))-dip(w,30)),std::max(1,int(HIWORD(b))-dip(w,75)),TRUE);MoveWindow(GetDlgItem(w,1),dip(w,15),std::max(dip(w,15),int(HIWORD(b))-dip(w,45)),dip(w,160),dip(w,30),TRUE);return 0;}
  if(m==WM_CLOSE){++app.ocrGeneration;app.pendingOCR.reset();DestroyWindow(w);app.ocrWindow=app.ocrEdit=nullptr;return 0;}
@@ -453,46 +479,53 @@ LRESULT CALLBACK SettingsProc(HWND w,UINT m,WPARAM a,LPARAM b){
   app.scrollSettings(next);return 0;
  }
  if(m==WM_MOUSEWHEEL){app.scrollSettings(app.settingsScrollOffset-GET_WHEEL_DELTA_WPARAM(a)*dip(w,48)/WHEEL_DELTA);return 0;}
- if(m==WM_COMMAND){app.command(LOWORD(a));return 0;}
+ if(m==WM_COMMAND){if(LOWORD(a)==LANGUAGE){if(HIWORD(a)==CBN_SELCHANGE)app.changeLanguage();}else app.command(LOWORD(a));return 0;}
  if(m==WM_CLOSE){ShowWindow(w,SW_HIDE);return 0;}return DefWindowProc(w,m,a,b);
 }
 void App::showSettings(){
  if(settings){fitSettings();ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);return;}
- settings=CreateWindowEx(WS_EX_APPWINDOW,L"SnapliqSettings",L"Snapliq 设置",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_VSCROLL,CW_USEDEFAULT,CW_USEDEFAULT,590,630,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
+ settings=CreateWindowEx(WS_EX_APPWINDOW,L"SnapliqSettings",tr(L"Snapliq 设置",L"Snapliq Settings"),WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_VSCROLL,CW_USEDEFAULT,CW_USEDEFAULT,690,690,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
  auto child=[&](const wchar_t* cls,const wchar_t* title,DWORD style,int x,int y,int width,int height,int id){return CreateWindowEx(0,cls,title,WS_CHILD|WS_VISIBLE|style,x,y,width,height,settings,reinterpret_cast<HMENU>(INT_PTR(id)),GetModuleHandle(nullptr),nullptr);};
- child(L"STATIC",PRODUCT_NAME,0,24,22,480,28,0);child(L"STATIC",L"Capture. Record. Share. · 独立桌面截图与录屏",0,24,54,500,25,0);
- child(L"STATIC",L"全局截图快捷键",0,24,104,145,25,0);
- hotkeyControl=child(HOTKEY_CLASS,L"",WS_BORDER|WS_TABSTOP,180,100,180,28,0);
+ auto label=[&](const wchar_t* cls,const wchar_t* zh,const wchar_t* en,DWORD style,int x,int y,int width,int height,int id){auto w=child(cls,tr(zh,en),style,x,y,width,height,id);settingsLabels.add(w,zh,en);return w;};
+ child(L"STATIC",PRODUCT_NAME,0,24,22,600,28,0);
+ label(L"STATIC",L"Capture. Record. Share. · 独立桌面截图与录屏",L"Capture. Record. Share. · Desktop screenshots and recording",0,24,54,630,25,0);
+ child(L"STATIC",L"语言 / Language",0,24,98,200,25,0);
+ auto language=child(L"COMBOBOX",L"",CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,235,93,230,150,LANGUAGE);
+ SendMessage(language,CB_ADDSTRING,0,reinterpret_cast<LPARAM>(L"简体中文"));SendMessage(language,CB_ADDSTRING,0,reinterpret_cast<LPARAM>(L"English"));
+ SendMessage(language,CB_SETCURSEL,localization::language()==localization::Language::english?1:0,0);
+ label(L"STATIC",L"全局截图快捷键",L"Screenshot shortcut",0,24,152,200,25,0);
+ hotkeyControl=child(HOTKEY_CLASS,L"",WS_BORDER|WS_TABSTOP,235,148,180,28,0);
  BYTE flags=((mods&MOD_CONTROL)?HOTKEYF_CONTROL:0)|((mods&MOD_ALT)?HOTKEYF_ALT:0)|((mods&MOD_SHIFT)?HOTKEYF_SHIFT:0);SendMessage(hotkeyControl,HKM_SETHOTKEY,MAKEWORD(vk,flags),0);
- child(L"BUTTON",L"应用",BS_PUSHBUTTON|WS_TABSTOP,385,100,95,28,APPLYKEY);
- child(L"STATIC",L"快速录屏快捷键",0,24,149,145,25,0);
- recordHotkeyControl=child(HOTKEY_CLASS,L"",WS_BORDER|WS_TABSTOP,180,145,180,28,0);
+ label(L"BUTTON",L"应用",L"Apply",BS_PUSHBUTTON|WS_TABSTOP,440,148,95,28,APPLYKEY);
+ label(L"STATIC",L"快速录屏快捷键",L"Quick recording shortcut",0,24,197,200,25,0);
+ recordHotkeyControl=child(HOTKEY_CLASS,L"",WS_BORDER|WS_TABSTOP,235,193,180,28,0);
  BYTE recordFlags=((recordMods&MOD_CONTROL)?HOTKEYF_CONTROL:0)|((recordMods&MOD_ALT)?HOTKEYF_ALT:0)|((recordMods&MOD_SHIFT)?HOTKEYF_SHIFT:0);SendMessage(recordHotkeyControl,HKM_SETHOTKEY,MAKEWORD(recordVK,recordFlags),0);
- child(L"BUTTON",L"应用",BS_PUSHBUTTON|WS_TABSTOP,385,145,95,28,APPLY_RECORD_KEY);
- child(L"STATIC",L"录制鼠标所在屏幕；再次按下停止并自动保存。",0,24,182,500,25,0);
- child(L"BUTTON",L"默认保存位置…",BS_PUSHBUTTON|WS_TABSTOP,24,228,210,32,FOLDER);
- child(L"BUTTON",L"显示悬浮球",BS_PUSHBUTTON|WS_TABSTOP,255,228,210,32,RESTORE);
- child(L"STATIC",L"未设置录屏目录时使用：视频 / Snapliq",0,24,267,500,25,0);
- child(L"BUTTON",L"吸附屏幕边缘",BS_AUTOCHECKBOX|WS_TABSTOP,24,302,230,28,ORB_SNAP);CheckDlgButton(settings,ORB_SNAP,orbSnapToEdge?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"锁定当前位置",BS_AUTOCHECKBOX|WS_TABSTOP,285,302,250,28,ORB_LOCK);CheckDlgButton(settings,ORB_LOCK,orbPositionLocked?BST_CHECKED:BST_UNCHECKED);
- child(L"STATIC",L"悬浮球大小",0,24,345,120,26,0);
- auto slider=child(TRACKBAR_CLASS,L"悬浮球大小",TBS_HORZ|TBS_NOTICKS|WS_TABSTOP,150,336,300,34,ORB_SIZE);
+ label(L"BUTTON",L"应用",L"Apply",BS_PUSHBUTTON|WS_TABSTOP,440,193,95,28,APPLY_RECORD_KEY);
+ label(L"STATIC",L"录制鼠标所在屏幕；再次按下停止并自动保存。",L"Records the screen under your pointer. Press again to stop and save.",0,24,230,630,25,0);
+ label(L"BUTTON",L"默认保存位置…",L"Default save folder…",BS_PUSHBUTTON|WS_TABSTOP,24,276,240,32,FOLDER);
+ label(L"BUTTON",L"显示悬浮球",L"Show floating orb",BS_PUSHBUTTON|WS_TABSTOP,285,276,250,32,RESTORE);
+ label(L"STATIC",L"未设置录屏目录时使用：视频 / Snapliq",L"Recordings use Videos / Snapliq until you choose a folder.",0,24,315,630,25,0);
+ label(L"BUTTON",L"吸附屏幕边缘",L"Snap to screen edges",BS_AUTOCHECKBOX|WS_TABSTOP,24,350,250,28,ORB_SNAP);CheckDlgButton(settings,ORB_SNAP,orbSnapToEdge?BST_CHECKED:BST_UNCHECKED);
+ label(L"BUTTON",L"锁定当前位置",L"Lock current position",BS_AUTOCHECKBOX|WS_TABSTOP,315,350,300,28,ORB_LOCK);CheckDlgButton(settings,ORB_LOCK,orbPositionLocked?BST_CHECKED:BST_UNCHECKED);
+ label(L"STATIC",L"悬浮球大小",L"Floating orb size",0,24,393,160,26,0);
+ auto slider=label(TRACKBAR_CLASS,L"悬浮球大小",L"Floating orb size",TBS_HORZ|TBS_NOTICKS|WS_TABSTOP,190,384,300,34,ORB_SIZE);
  SendMessage(slider,TBM_SETRANGE,TRUE,MAKELPARAM(32,96));SendMessage(slider,TBM_SETLINESIZE,0,1);SendMessage(slider,TBM_SETPAGESIZE,0,8);SendMessage(slider,TBM_SETPOS,TRUE,orbDiameter);
- auto sizeLabel=std::to_wstring(orbDiameter)+L" DIP";child(L"STATIC",sizeLabel.c_str(),0,470,345,80,26,ORB_SIZE_LABEL);
- child(L"BUTTON",L"登录时启动 Snapliq",BS_AUTOCHECKBOX|WS_TABSTOP,24,382,400,28,STARTUP);
+ auto sizeLabel=std::to_wstring(orbDiameter)+L" DIP";child(L"STATIC",sizeLabel.c_str(),0,510,393,100,26,ORB_SIZE_LABEL);
+ label(L"BUTTON",L"登录时启动 Snapliq",L"Start Snapliq when I sign in",BS_AUTOCHECKBOX|WS_TABSTOP,24,430,600,28,STARTUP);
  DWORD bytes=0;bool enabled=RegGetValue(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",L"SnapliqDevelopment",RRF_RT_REG_SZ,nullptr,nullptr,&bytes)==ERROR_SUCCESS;CheckDlgButton(settings,STARTUP,enabled?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"开始截图",BS_DEFPUSHBUTTON|WS_TABSTOP,24,424,180,34,REGION);
- child(L"BUTTON",L"屏幕录制…",BS_PUSHBUTTON|WS_TABSTOP,230,424,190,34,RECORD);
- child(L"BUTTON",L"智能框选窗口",BS_AUTOCHECKBOX|WS_TABSTOP,24,468,220,28,SMART);CheckDlgButton(settings,SMART,readInt(L"smart",0)?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"识别窗口内控件",BS_AUTOCHECKBOX|WS_TABSTOP,255,468,250,28,CONTROLS);CheckDlgButton(settings,CONTROLS,readInt(L"controls",0)?BST_CHECKED:BST_UNCHECKED);
- child(L"BUTTON",L"Connect Snapliq for Chrome",BS_PUSHBUTTON|WS_TABSTOP,24,508,300,28,CONNECT_CHROME);
- child(L"STATIC",L"关闭设置后，系统托盘和两组快捷键继续运行。",0,24,550,520,24,0);
+ label(L"BUTTON",L"开始截图",L"Take screenshot",BS_DEFPUSHBUTTON|WS_TABSTOP,24,472,240,34,REGION);
+ label(L"BUTTON",L"屏幕录制…",L"Screen recording…",BS_PUSHBUTTON|WS_TABSTOP,285,472,250,34,RECORD);
+ label(L"BUTTON",L"智能框选窗口",L"Detect window boundaries",BS_AUTOCHECKBOX|WS_TABSTOP,24,516,270,28,SMART);CheckDlgButton(settings,SMART,readInt(L"smart",0)?BST_CHECKED:BST_UNCHECKED);
+ label(L"BUTTON",L"识别窗口内控件",L"Detect controls inside windows",BS_AUTOCHECKBOX|WS_TABSTOP,315,516,320,28,CONTROLS);CheckDlgButton(settings,CONTROLS,readInt(L"controls",0)?BST_CHECKED:BST_UNCHECKED);
+ label(L"BUTTON",L"连接 Snapliq for Chrome",L"Connect Snapliq for Chrome",BS_PUSHBUTTON|WS_TABSTOP,24,556,350,28,CONNECT_CHROME);
+ label(L"STATIC",L"关闭设置后，系统托盘和两组快捷键继续运行。",L"Closing settings keeps the system tray and both shortcuts active.",0,24,598,630,24,0);
  SendMessage(settings,WM_SETICON,ICON_BIG,reinterpret_cast<LPARAM>(LoadIcon(GetModuleHandle(nullptr),MAKEINTRESOURCE(1))));
  applyWindowDpi(settings);fitSettings();ShowWindow(settings,SW_SHOW);SetForegroundWindow(settings);
 }
 int WINAPI wWinMain(HINSTANCE instance,HINSTANCE,PWSTR,int){
+ localization::setLanguage(localization::fromPreference(readString(L"interfaceLanguage")));
  if(!supportedWindowsHost()){
-  MessageBoxW(nullptr,L"Snapliq 需要 Windows 10 2004（版本号 19041）或更新版本，也支持 Windows 11。\n请更新 Windows 后再启动。",L"Snapliq · 系统版本不支持",MB_OK|MB_ICONWARNING);
+  MessageBoxW(nullptr,tr(L"Snapliq 需要 Windows 10 2004（版本号 19041）或更新版本，也支持 Windows 11。\n请更新 Windows 后再启动。",L"Snapliq requires Windows 10 version 2004 (build 19041) or later, including Windows 11.\nUpdate Windows before launching Snapliq."),tr(L"Snapliq · 系统版本不支持",L"Snapliq · Unsupported Windows version"),MB_OK|MB_ICONWARNING);
   return 1;
  }
  int argc=0;auto argv=CommandLineToArgvW(GetCommandLine(),&argc);

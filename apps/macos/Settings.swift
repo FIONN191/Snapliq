@@ -18,6 +18,8 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
     // The app suspends both registrations while either shortcut is being edited.
     var onSuspendHotkey:(()->Void)?
     var onRecordingPreferencesChanged:(()->Void)?
+    private var translations=[()->Void]()
+    private let language=NSPopUpButton(frame:.zero,pullsDown:false)
     private let shortcut=ShortcutRecorder(title:"",target:nil,action:nil)
     private let recordingShortcut=ShortcutRecorder(title:"",target:nil,action:nil)
     private let hotkeyToggle=NSButton(checkboxWithTitle:"启用全局截图快捷键",target:nil,action:nil)
@@ -35,8 +37,8 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
     private let status=NSTextField(wrappingLabelWithString:"")
     init(){
         let contentHeight=min(710,max(400,(NSScreen.main?.visibleFrame.height ?? 800)-80))
-        let w=NSWindow(contentRect:.init(x:0,y:0,width:550,height:contentHeight),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
-        w.title="\(Product.name) 设置";w.isReleasedWhenClosed=false;w.minSize=NSSize(width:520,height:450)
+        let w=NSWindow(contentRect:.init(x:0,y:0,width:600,height:contentHeight),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
+        w.title="\(Product.name) 设置";w.isReleasedWhenClosed=false;w.minSize=NSSize(width:570,height:450)
         super.init(window:w);w.delegate=self
         let scroll=NSScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false;scroll.hasVerticalScroller=true;scroll.autohidesScrollers=true;scroll.drawsBackground=false
         w.contentView!.addSubview(scroll)
@@ -48,62 +50,105 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
         let title=NSTextField(labelWithString:Product.name);title.font = .systemFont(ofSize:28,weight:.semibold)
         let subtitle=NSTextField(labelWithString:Product.tagline);subtitle.textColor = .secondaryLabelColor
         root.addArrangedSubview(title);root.addArrangedSubview(subtitle)
+        language.addItems(withTitles:["简体中文","English"])
+        language.target=self;language.action=#selector(changeLanguage)
+        language.setAccessibilityIdentifier("snapliq.settings.language")
+        language.setAccessibilityLabel("语言 / Language")
+        let languageRow=NSStackView(views:[NSTextField(labelWithString:"语言 / Language"),language]);languageRow.spacing=18
+        root.addArrangedSubview(languageRow)
+        for (button,chinese,english) in [
+            (hotkeyToggle,"启用全局截图快捷键","Enable global screenshot shortcut"),
+            (recordingHotkeyToggle,"启用全局录屏快捷键","Enable global recording shortcut"),
+            (systemAudioToggle,"录制系统声音","Record system audio"),
+            (microphoneToggle,"录制麦克风","Record microphone"),
+            (orbToggle,"显示桌面悬浮球","Show floating capture button"),
+            (orbSnapToggle,"吸附屏幕边缘","Snap to screen edges"),
+            (orbLockToggle,"锁定当前位置","Lock current position"),
+            (loginToggle,"登录时启动 Snapliq","Launch Snapliq at login")
+        ] {bindTitle(button,chinese,english)}
         hotkeyToggle.target=self;hotkeyToggle.action=#selector(toggleShortcut);root.addArrangedSubview(hotkeyToggle)
         shortcut.target=self;shortcut.action=#selector(recordShortcut);shortcut.bezelStyle = .rounded;shortcut.setAccessibilityIdentifier("snapliq.settings.screenshotShortcut")
-        let row=NSStackView(views:[NSTextField(labelWithString:"截图快捷键"),shortcut]);row.spacing=18;root.addArrangedSubview(row)
-        let warning=NSTextField(wrappingLabelWithString:"Command + X 是常用剪切键。启用为全局截图后会占用这一组合，影响其他应用的剪切。可在上方直接录入其他组合。")
+        let row=NSStackView(views:[translatedLabel("截图快捷键","Screenshot shortcut"),shortcut]);row.spacing=18;root.addArrangedSubview(row)
+        let warning=translatedLabel("Command + X 是常用剪切键。启用为全局截图后会占用这一组合，影响其他应用的剪切。可在上方直接录入其他组合。","Command + X is normally Cut. Assigning it to global screenshots takes over that shortcut and affects Cut in other apps. Choose another combination above if needed.",wrapping:true)
         warning.font = .systemFont(ofSize:12);warning.textColor = .secondaryLabelColor;warning.preferredMaxLayoutWidth=480;root.addArrangedSubview(warning)
         recordingHotkeyToggle.target=self;recordingHotkeyToggle.action=#selector(toggleRecordingShortcut);root.addArrangedSubview(recordingHotkeyToggle)
         recordingShortcut.target=self;recordingShortcut.action=#selector(recordRecordingShortcut);recordingShortcut.bezelStyle = .rounded;recordingShortcut.setAccessibilityIdentifier("snapliq.settings.recordingShortcut")
-        let recordingRow=NSStackView(views:[NSTextField(labelWithString:"录屏快捷键"),recordingShortcut]);recordingRow.spacing=18;root.addArrangedSubview(recordingRow)
-        let recordingHint=NSTextField(wrappingLabelWithString:"按下即录制鼠标所在屏幕，再按一次停止并自动保存。首次使用可能需要系统权限；无需每次选择文件位置。全局快捷键会占用相同的应用内组合。")
+        let recordingRow=NSStackView(views:[translatedLabel("录屏快捷键","Recording shortcut"),recordingShortcut]);recordingRow.spacing=18;root.addArrangedSubview(recordingRow)
+        let recordingHint=translatedLabel("按下即录制鼠标所在屏幕，再按一次停止并自动保存。首次使用可能需要系统权限；无需每次选择文件位置。全局快捷键会占用相同的应用内组合。","Press to record the display under the pointer; press again to stop and save automatically. First use may require system permission. The global shortcut takes precedence over the same combination in other apps.",wrapping:true)
         recordingHint.font = .systemFont(ofSize:12);recordingHint.textColor = .secondaryLabelColor;recordingHint.preferredMaxLayoutWidth=480;root.addArrangedSubview(recordingHint)
         systemAudioToggle.target=self;systemAudioToggle.action=#selector(toggleRecordingAudio);systemAudioToggle.setAccessibilityIdentifier("snapliq.settings.recordSystemAudio")
         microphoneToggle.target=self;microphoneToggle.action=#selector(toggleRecordingAudio);microphoneToggle.setAccessibilityIdentifier("snapliq.settings.recordMicrophone")
         if #available(macOS 15.0,*){}else{microphoneToggle.isEnabled=false;microphoneToggle.title="录制麦克风（需要 macOS 15 或更新版本）"}
         let audio=NSStackView(views:[systemAudioToggle,microphoneToggle]);audio.orientation = .vertical;audio.alignment = .leading;audio.spacing=8;root.addArrangedSubview(audio)
-        let smart=NSButton(checkboxWithTitle:"智能框选窗口边界",target:self,action:#selector(toggleSmart(_:)))
+        let smart=translatedCheckbox("智能框选窗口边界","Smart window selection",action:#selector(toggleSmart(_:)))
         smart.state=Preferences.shared.defaults.bool(forKey:"smartSelection") ? .on:.off;root.addArrangedSubview(smart)
-        let controls=NSButton(checkboxWithTitle:"识别应用内控件（需要辅助功能授权）",target:self,action:#selector(toggleControls(_:)))
+        let controls=translatedCheckbox("识别应用内控件（需要辅助功能授权）","Recognize controls (Accessibility permission)",action:#selector(toggleControls(_:)))
         controls.state=Preferences.shared.defaults.bool(forKey:"smartControls") ? .on:.off;root.addArrangedSubview(controls)
         orbToggle.target=self;orbToggle.action=#selector(toggleOrb);root.addArrangedSubview(orbToggle)
         orbSnapToggle.target=self;orbSnapToggle.action=#selector(toggleOrbSnap);orbSnapToggle.setAccessibilityIdentifier("snapliq.settings.orbSnap")
-        orbSnapToggle.setAccessibilityHelp("开启后，拖动结束时悬浮球会吸附到屏幕最近的边缘。")
+        bindHelp(orbSnapToggle,"开启后，拖动结束时悬浮球会吸附到屏幕最近的边缘。","Snap the floating button to the nearest screen edge after dragging.")
         root.addArrangedSubview(orbSnapToggle)
         orbSize.target=self;orbSize.action=#selector(changeOrbSize);orbSize.isContinuous=true
-        orbSize.setAccessibilityIdentifier("snapliq.settings.orbSize");orbSize.setAccessibilityLabel("悬浮球大小")
-        orbSize.setAccessibilityHelp("调整悬浮球大小，范围为 32 至 96 pt，立即生效。")
+        orbSize.setAccessibilityIdentifier("snapliq.settings.orbSize");orbSize.setAccessibilityLabel(L("悬浮球大小","Floating button size"))
+        bindHelp(orbSize,"调整悬浮球大小，范围为 32 至 96 pt，立即生效。","Change the floating button size from 32 to 96 pt. Applies immediately.")
         orbSize.widthAnchor.constraint(equalToConstant:210).isActive=true
         orbSizeValue.font = .monospacedDigitSystemFont(ofSize:12,weight:.regular);orbSizeValue.textColor = .secondaryLabelColor
         orbSizeValue.setAccessibilityIdentifier("snapliq.settings.orbSizeValue");orbSizeValue.widthAnchor.constraint(equalToConstant:54).isActive=true
-        let orbSizeRow=NSStackView(views:[NSTextField(labelWithString:"悬浮球大小"),orbSize,orbSizeValue]);orbSizeRow.spacing=12;root.addArrangedSubview(orbSizeRow)
+        let orbSizeRow=NSStackView(views:[translatedLabel("悬浮球大小","Floating button size"),orbSize,orbSizeValue]);orbSizeRow.spacing=12;root.addArrangedSubview(orbSizeRow)
         orbLockToggle.target=self;orbLockToggle.action=#selector(toggleOrbLock);orbLockToggle.setAccessibilityIdentifier("snapliq.settings.orbLock")
-        orbLockToggle.setAccessibilityHelp("锁定后不能拖动悬浮球，但仍可单击截图或打开右键菜单。")
+        bindHelp(orbLockToggle,"锁定后不能拖动悬浮球，但仍可单击截图或打开右键菜单。","Prevent dragging while keeping capture clicks and the context menu available.")
         root.addArrangedSubview(orbLockToggle)
-        let orbHint=NSTextField(wrappingLabelWithString:"将悬浮球拖到合适位置后，可锁定当前位置。锁定只限制拖动，单击截图和右键菜单仍可使用；显示器断开后，悬浮球会回到可见屏幕。")
+        let orbHint=translatedLabel("将悬浮球拖到合适位置后，可锁定当前位置。锁定只限制拖动，单击截图和右键菜单仍可使用；显示器断开后，悬浮球会回到可见屏幕。","Drag the floating button into place, then lock its position. Clicking and the context menu still work while locked. If a display disconnects, it returns to a visible screen.",wrapping:true)
         orbHint.font = .systemFont(ofSize:12);orbHint.textColor = .secondaryLabelColor;orbHint.preferredMaxLayoutWidth=480
         orbHint.setAccessibilityIdentifier("snapliq.settings.orbHelp");root.addArrangedSubview(orbHint)
         loginToggle.target=self;loginToggle.action=#selector(toggleLogin);root.addArrangedSubview(loginToggle)
-        let choose=NSButton(title:"默认保存位置…",target:self,action:#selector(folderAction));choose.bezelStyle = .rounded
+        let choose=translatedButton("默认保存位置…","Default save folder…",action:#selector(folderAction));choose.bezelStyle = .rounded
         folder.lineBreakMode = .byTruncatingMiddle;folder.font = .systemFont(ofSize:12);folder.textColor = .secondaryLabelColor
         folder.setContentCompressionResistancePriority(.defaultLow,for:.horizontal)
         let files=NSStackView(views:[choose,folder]);files.spacing=12;root.addArrangedSubview(files);files.widthAnchor.constraint(equalTo:root.widthAnchor).isActive=true
         permission.font = .systemFont(ofSize:12);root.addArrangedSubview(permission)
-        let capture=NSButton(title:"开始截图",target:self,action:#selector(captureAction));capture.bezelStyle = .rounded
-        let record=NSButton(title:"快速录屏",target:self,action:#selector(quickRecordAction));record.bezelStyle = .rounded
-        let perm=NSButton(title:"屏幕录制权限…",target:self,action:#selector(permissionAction));perm.bezelStyle = .rounded
+        let capture=translatedButton("开始截图","Take screenshot",action:#selector(captureAction));capture.bezelStyle = .rounded
+        let record=translatedButton("快速录屏","Quick recording",action:#selector(quickRecordAction));record.bezelStyle = .rounded
+        let perm=translatedButton("屏幕录制权限…","Permissions…",action:#selector(permissionAction));perm.bezelStyle = .rounded
         let actions=NSStackView(views:[capture,record,perm]);actions.spacing=12;root.addArrangedSubview(actions)
-        let chrome=NSButton(title:"连接 Snapliq for Chrome…",target:self,action:#selector(connectChrome));chrome.bezelStyle = .rounded;root.addArrangedSubview(chrome)
+        let chrome=translatedButton("连接 Snapliq for Chrome…","Connect Snapliq for Chrome…",action:#selector(connectChrome));chrome.bezelStyle = .rounded;root.addArrangedSubview(chrome)
         status.font = .systemFont(ofSize:12);status.textColor = .secondaryLabelColor;status.preferredMaxLayoutWidth=480;root.addArrangedSubview(status)
         shortcut.onRecord={ [weak self] e in self?.receive(e,kind:.screenshot) }
-        recordingShortcut.onRecord={ [weak self] e in self?.receive(e,kind:.recording) };refresh()
+        recordingShortcut.onRecord={ [weak self] e in self?.receive(e,kind:.recording) }
+        NotificationCenter.default.addObserver(self,selector:#selector(languageChanged),name:.snapliqLanguageChanged,object:Localization.shared)
+        refresh()
     }
     required init?(coder:NSCoder){fatalError()}
+    private func bindTitle(_ button:NSButton,_ chinese:String,_ english:String){
+        translations.append{[weak button] in button?.title=L(chinese,english)}
+    }
+    private func bindHelp(_ view:NSView,_ chinese:String,_ english:String){
+        translations.append{[weak view] in view?.setAccessibilityHelp(L(chinese,english))}
+    }
+    private func translatedLabel(_ chinese:String,_ english:String,wrapping:Bool=false)->NSTextField{
+        let label=wrapping ? NSTextField(wrappingLabelWithString:L(chinese,english)):NSTextField(labelWithString:L(chinese,english))
+        translations.append{[weak label] in label?.stringValue=L(chinese,english)}
+        return label
+    }
+    private func translatedButton(_ chinese:String,_ english:String,action:Selector)->NSButton{
+        let button=NSButton(title:L(chinese,english),target:self,action:action);bindTitle(button,chinese,english);return button
+    }
+    private func translatedCheckbox(_ chinese:String,_ english:String,action:Selector)->NSButton{
+        let button=NSButton(checkboxWithTitle:L(chinese,english),target:self,action:action);bindTitle(button,chinese,english);return button
+    }
+    @objc private func changeLanguage(){Localization.shared.language=language.indexOfSelectedItem==1 ? .english:.chinese}
+    @objc private func languageChanged(){refresh()}
+    deinit{NotificationCenter.default.removeObserver(self)}
     func present(){refresh();window?.center();showWindow(nil);NSApp.activate(ignoringOtherApps:true)}
     func refresh(){
+        translations.forEach{$0()}
+        window?.title=L("\(Product.name) 设置","\(Product.name) Settings")
+        language.selectItem(at:Localization.shared.language == .english ? 1:0)
+        orbSize.setAccessibilityLabel(L("悬浮球大小","Floating button size"))
+        if #available(macOS 15.0,*){}else{microphoneToggle.title=L("录制麦克风（需要 macOS 15 或更新版本）","Microphone recording requires macOS 15+")}
         let p=Preferences.shared
-        shortcut.title=shortcut.recording ? "请按组合键，Esc 取消":p.shortcutLabel+"  ·  修改"
-        recordingShortcut.title=recordingShortcut.recording ? "请按组合键，Esc 取消":p.recordingShortcutLabel+"  ·  修改"
+        shortcut.title=shortcut.recording ? L("请按组合键，Esc 取消","Press a shortcut; Esc cancels"):p.shortcutLabel+L("  ·  修改","  ·  Change")
+        recordingShortcut.title=recordingShortcut.recording ? L("请按组合键，Esc 取消","Press a shortcut; Esc cancels"):p.recordingShortcutLabel+L("  ·  修改","  ·  Change")
         hotkeyToggle.state=p.shortcutEnabled ? .on:.off
         recordingHotkeyToggle.state=p.recordingShortcutEnabled ? .on:.off
         systemAudioToggle.state=p.recordSystemAudio ? .on:.off;microphoneToggle.state=p.recordMicrophone ? .on:.off
@@ -111,22 +156,22 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
         orbSnapToggle.state=p.orbSnapToEdge ? .on:.off;orbLockToggle.state=p.orbPositionLocked ? .on:.off
         orbSize.doubleValue=p.orbSize;orbSizeValue.stringValue="\(Int(p.orbSize.rounded())) pt"
         loginToggle.state=SMAppService.mainApp.status == .enabled ? .on:.off
-        folder.stringValue=p.folderURL?.path ?? (p.defaults.object(forKey:"folderBookmark") == nil ? "录屏默认：~/Movies/Snapliq":"保存位置失效，请重新选择")
-        permission.stringValue=CGPreflightScreenCaptureAccess() ? "屏幕捕获权限：已授权":"屏幕捕获权限：首次截图或录屏时请求"
-        status.stringValue="\(Product.version) 开发版 · 关闭此窗口后仍在菜单栏运行。\n方向键移动选区，Option + 方向键调整大小，Shift 加速。"
+        folder.stringValue=p.folderURL?.path ?? (p.defaults.object(forKey:"folderBookmark") == nil ? L("录屏默认：~/Movies/Snapliq","Recording default: ~/Movies/Snapliq"):L("保存位置失效，请重新选择","Save folder unavailable; choose another"))
+        permission.stringValue=CGPreflightScreenCaptureAccess() ? L("屏幕捕获权限：已授权","Screen capture permission: allowed"):L("屏幕捕获权限：首次截图或录屏时请求","Screen capture permission: requested on first capture")
+        status.stringValue=L("\(Product.version) 开发版 · 关闭此窗口后仍在菜单栏运行。\n方向键移动选区，Option + 方向键调整大小，Shift 加速。","\(Product.version) development build · Closing this window keeps Snapliq in the menu bar.\nArrow keys move the selection; Option + arrows resize it; Shift speeds up changes.")
     }
     private func acceptConflict(key:UInt32,mods:UInt32,kind:HotkeyService.Kind = .screenshot)->Bool{
         guard key==UInt32(kVK_ANSI_X),mods==UInt32(cmdKey) else{return true}
-        let operation=kind == .recording ? "录屏":"截图"
-        let a=NSAlert();a.messageText="使用 Command + X 进行全局\(operation)？"
-        a.informativeText="这会占用常用剪切快捷键，其他应用可能无法用 Command + X 剪切。Snapliq 不会同时无冲突地执行剪切和\(operation)。"
-        a.addButton(withTitle:"启用并接受冲突");a.addButton(withTitle:"取消");return a.runModal() == .alertFirstButtonReturn
+        let operation=kind == .recording ? L("录屏","recording"):L("截图","screenshots")
+        let a=NSAlert();a.messageText=L("使用 Command + X 进行全局\(operation)？","Use Command + X for global \(operation)?")
+        a.informativeText=L("这会占用常用剪切快捷键，其他应用可能无法用 Command + X 剪切。Snapliq 不会同时无冲突地执行剪切和\(operation)。","This takes over the usual Cut shortcut. Other apps may no longer cut with Command + X. Cut and \(operation) cannot use this combination without a conflict.")
+        a.addButton(withTitle:L("启用并接受冲突","Enable and accept conflict"));a.addButton(withTitle:L("取消","Cancel"));return a.runModal() == .alertFirstButtonReturn
     }
     private func conflictsWithOther(key:UInt32,mods:UInt32,kind:HotkeyService.Kind)->Bool{
         let p=Preferences.shared
         return kind == .screenshot ? key==p.recordingShortcutKey && mods==p.recordingShortcutMods:key==p.shortcutKey && mods==p.shortcutMods
     }
-    private func showDuplicate(){showError("截图与录屏需要不同的快捷键。请录入其他组合；即使其中一项未启用，也不能使用相同组合。")}
+    private func showDuplicate(){showError(L("截图与录屏需要不同的快捷键。请录入其他组合；即使其中一项未启用，也不能使用相同组合。","Screenshots and recordings need different shortcuts, even when one is disabled. Choose another combination."))}
     @discardableResult private func restoreHotkeys()->(OSStatus,OSStatus){(onHotkeyChanged?() ?? 0,onRecordingHotkeyChanged?() ?? 0)}
     private func endShortcutRecording(){
         guard shortcut.recording || recordingShortcut.recording else{return}
@@ -139,7 +184,7 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
         if enabled,!acceptConflict(key:p.shortcutKey,mods:p.shortcutMods){refresh();return}
         p.shortcutEnabled=enabled
         let result=onHotkeyChanged?() ?? 0
-        if result != 0{p.shortcutEnabled=false;showError("截图快捷键注册失败（\(result)），可能已被其他应用占用。请录入其他组合。")}
+        if result != 0{p.shortcutEnabled=false;showError(L("截图快捷键注册失败（\(result)），可能已被其他应用占用。请录入其他组合。","Could not register screenshot shortcut (\(result)). Another app may be using it. Choose another combination."))}
         refresh()
     }
     @objc func toggleRecordingShortcut(){
@@ -149,7 +194,7 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
         if enabled,!acceptConflict(key:p.recordingShortcutKey,mods:p.recordingShortcutMods,kind:.recording){refresh();return}
         p.recordingShortcutEnabled=enabled
         let result=onRecordingHotkeyChanged?() ?? 0
-        if result != 0{p.recordingShortcutEnabled=false;showError("录屏快捷键注册失败（\(result)），可能已被其他应用占用。请录入其他组合。")}
+        if result != 0{p.recordingShortcutEnabled=false;showError(L("录屏快捷键注册失败（\(result)），可能已被其他应用占用。请录入其他组合。","Could not register recording shortcut (\(result)). Another app may be using it. Choose another combination."))}
         refresh()
     }
     @objc func recordShortcut(){beginShortcutRecording(.screenshot)}
@@ -157,7 +202,7 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
     private func beginShortcutRecording(_ kind:HotkeyService.Kind){
         shortcut.recording=false;recordingShortcut.recording=false;onSuspendHotkey?()
         let recorder=kind == .screenshot ? shortcut:recordingShortcut
-        recorder.recording=true;recorder.title="请按组合键，Esc 取消";window?.makeFirstResponder(recorder);refresh()
+        recorder.recording=true;recorder.title=L("请按组合键，Esc 取消","Press a shortcut; Esc cancels");window?.makeFirstResponder(recorder);refresh()
     }
     private func receive(_ event:NSEvent,kind:HotkeyService.Kind){
         if event.keyCode==53{endShortcutRecording();return}
@@ -180,7 +225,7 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
         if result != 0{
             if isRecording{p.recordingShortcutKey=oldKey;p.recordingShortcutMods=oldMods;p.recordingShortcutLabel=oldLabel}
             else{p.shortcutKey=oldKey;p.shortcutMods=oldMods;p.shortcutLabel=oldLabel}
-            _ = restoreHotkeys();showError("该组合注册失败（\(result)），已恢复原快捷键。")
+            _ = restoreHotkeys();showError(L("该组合注册失败（\(result)），已恢复原快捷键。","Could not register this combination (\(result)). The previous shortcut has been restored."))
         }
         refresh()
     }
@@ -204,16 +249,16 @@ final class SettingsController:NSWindowController,NSWindowDelegate {
     }
     @objc func toggleOrbLock(){Preferences.shared.orbPositionLocked=orbLockToggle.state == .on;onOrbChanged?()}
     @objc func toggleLogin(){
-        do{if loginToggle.state == .on{try SMAppService.mainApp.register()}else{try SMAppService.mainApp.unregister()}}catch{showError("启动项设置失败：\(error.localizedDescription)")};refresh()
+        do{if loginToggle.state == .on{try SMAppService.mainApp.register()}else{try SMAppService.mainApp.unregister()}}catch{showError(L("启动项设置失败：\(error.localizedDescription)","Could not change launch-at-login setting: \(error.localizedDescription)"))};refresh()
     }
     @objc func folderAction(){_ = chooseFolder()}
     func chooseFolder()->URL?{
-        let p=NSOpenPanel();p.title="选择 Snapliq 默认保存文件夹";p.canChooseFiles=false;p.canChooseDirectories=true;p.canCreateDirectories=true;p.directoryURL=Preferences.shared.folderURL
+        let p=NSOpenPanel();p.title=L("选择 Snapliq 默认保存文件夹","Choose the default Snapliq save folder");p.canChooseFiles=false;p.canChooseDirectories=true;p.canCreateDirectories=true;p.directoryURL=Preferences.shared.folderURL
         guard p.runModal() == .OK,let u=p.url else{return nil}
         do{try Preferences.shared.setFolder(u);refresh();return u}catch{showError(error.localizedDescription);return nil}
     }
     @objc func connectChrome(){
-        do{_ = try DesktopBridge.registerChromeHost();status.stringValue="浏览器接口已登记到当前应用。请加载 Snapliq for Chrome 扩展；退出 Chrome 后桌面工具仍独立运行。"}
+        do{_ = try DesktopBridge.registerChromeHost();status.stringValue=L("浏览器接口已登记到当前应用。请加载 Snapliq for Chrome 扩展；退出 Chrome 后桌面工具仍独立运行。","The browser connection now points to this app. Load Snapliq for Chrome to use it. The desktop app keeps working when Chrome is closed.")}
         catch{showError(error.localizedDescription)}
     }
     @objc func permissionAction(){if !CGPreflightScreenCaptureAccess(){_ = CGRequestScreenCaptureAccess()};NSWorkspace.shared.open(URL(string:"x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)}

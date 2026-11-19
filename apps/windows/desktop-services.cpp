@@ -1,4 +1,5 @@
 #include "desktop-services.h"
+#include "localization.h"
 #include <algorithm>
 #include <dwmapi.h>
 #include <objbase.h>
@@ -21,7 +22,7 @@ std::vector<WindowTarget> desktopWindows(){
   RECT r;if(FAILED(DwmGetWindowAttribute(w,DWMWA_EXTENDED_FRAME_BOUNDS,&r,sizeof(r)))&&!GetWindowRect(w,&r))return TRUE;
   if(r.right-r.left<20||r.bottom-r.top<20)return TRUE;
   wchar_t title[512]{};GetWindowText(w,title,512);
-  reinterpret_cast<std::vector<WindowTarget>*>(data)->push_back({w,r,*title?title:L"Window"});return TRUE;
+  reinterpret_cast<std::vector<WindowTarget>*>(data)->push_back({w,r,title});return TRUE;
  },reinterpret_cast<LPARAM>(&result));return result;
 }
 RECT controlCandidate(HWND window,POINT point){
@@ -51,7 +52,7 @@ std::wstring recognizeText(const Image& original){
   auto tag=std::wstring(language.LanguageTag());if(tag.rfind(L"zh",0)==0){engine=OcrEngine::TryCreateFromLanguage(language);break;}
  }
  if(!engine)engine=OcrEngine::TryCreateFromUserProfileLanguages();
- if(!engine)throw std::runtime_error("Install an English or Chinese OCR language pack in Windows Settings.");
+ if(!engine)throw winrt::hresult_error(E_FAIL,tr(L"请在 Windows 设置中安装中文或英文 OCR 语言包。",L"Install an English or Chinese OCR language pack in Windows Settings."));
  const int limit=int(OcrEngine::MaxImageDimension());
  double scale=std::min(1.0,double(limit)/std::max(original.width,original.height));
  const int width=std::max(1,int(original.width*scale)),height=std::max(1,int(original.height*scale));

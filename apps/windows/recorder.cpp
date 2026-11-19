@@ -1,4 +1,5 @@
 #include "recorder.h"
+#include "localization.h"
 #include "recorder-video.h"
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
@@ -45,13 +46,13 @@ static_assert(mediaTicksToAudioFrames(10000000LL*60*60*24*365)==48000LL*60*60*24
 int64_t hostTime(){LARGE_INTEGER q,f;QueryPerformanceCounter(&q);QueryPerformanceFrequency(&f);return int64_t(double(q.QuadPart)*10000000.0/double(f.QuadPart));}
 struct Apartment {Apartment(){init_apartment(apartment_type::multi_threaded);}~Apartment(){uninit_apartment();}};
 struct Foundation {
- Foundation(){const auto hr=MFStartup(MF_VERSION);if(FAILED(hr))throw hresult_error(hr,L"无法启动 Windows 媒体组件。Windows N/KN 请在系统可选功能中安装 Media Feature Pack 并重启。其他版本请检查系统媒体组件是否被禁用。");}
+ Foundation(){const auto hr=MFStartup(MF_VERSION);if(FAILED(hr))throw hresult_error(hr,tr(L"无法启动 Windows 媒体组件。Windows N/KN 请在系统可选功能中安装 Media Feature Pack 并重启。其他版本请检查系统媒体组件是否被禁用。",L"Could not start Windows media components. On Windows N/KN, install the Media Feature Pack in Optional features and restart. On other editions, check whether media components are disabled."));}
  ~Foundation(){MFShutdown();}
 };
 void appendMessage(RecordingOutcome& outcome,const std::wstring& message){if(!outcome.message.empty())outcome.message+=L"\n";outcome.message+=message;}
 template<class F> void finishStep(RecordingOutcome& outcome,const wchar_t* label,F step){
- try{step();}catch(const hresult_error& e){appendMessage(outcome,std::wstring(label)+L"："+e.message().c_str());}
- catch(const std::exception& e){std::string text=e.what();appendMessage(outcome,std::wstring(label)+L"："+std::wstring(text.begin(),text.end()));}
+ try{step();}catch(const hresult_error& e){appendMessage(outcome,std::wstring(label)+tr(L"：",L": ")+e.message().c_str());}
+ catch(const std::exception& e){std::string text=e.what();appendMessage(outcome,std::wstring(label)+tr(L"：",L": ")+std::wstring(text.begin(),text.end()));}
 }
 struct MappedTexture {
  ID3D11DeviceContext* context;ID3D11Texture2D* texture;D3D11_MAPPED_SUBRESOURCE data{};
@@ -68,7 +69,7 @@ struct AudioSource {
   check_hresult(client->GetMixFormat(&format));
   floating=format->wFormatTag==WAVE_FORMAT_IEEE_FLOAT;
   if(format->wFormatTag==WAVE_FORMAT_EXTENSIBLE){auto ex=reinterpret_cast<WAVEFORMATEXTENSIBLE*>(format);floating=ex->SubFormat==KSDATAFORMAT_SUBTYPE_IEEE_FLOAT;}
-  if((floating&&format->wBitsPerSample!=32)||(!floating&&format->wBitsPerSample!=16&&format->wBitsPerSample!=24&&format->wBitsPerSample!=32))throw std::runtime_error("Unsupported audio device format.");
+  if((floating&&format->wBitsPerSample!=32)||(!floating&&format->wBitsPerSample!=16&&format->wBitsPerSample!=24&&format->wBitsPerSample!=32))throw winrt::hresult_error(E_FAIL,tr(L"不支持此音频设备格式。",L"Unsupported audio device format."));
   check_hresult(client->Initialize(AUDCLNT_SHAREMODE_SHARED,loopback?AUDCLNT_STREAMFLAGS_LOOPBACK:0,1000000,0,format,nullptr));
   check_hresult(client->GetService(__uuidof(IAudioCaptureClient),capture.put_void()));check_hresult(client->Start());
  }
@@ -121,13 +122,13 @@ struct Mixer {
 };
 }
 void DesktopRecorder::start(RecordingOptions options,std::function<void(RecordingOutcome)> done){
- if(active_.exchange(true))throw std::runtime_error("Recording is already active.");join();stop_=false;paused_=false;started_=false;elapsed_=0;
+ if(active_.exchange(true))throw winrt::hresult_error(E_FAIL,tr(L"录屏正在进行中。",L"Recording is already active."));join();stop_=false;paused_=false;started_=false;elapsed_=0;
  try{worker_=std::thread([this,options,done]{
   RecordingOutcome result;std::wstring temp;
   try {
    Apartment apartment;Foundation foundation;
    GUID guid;check_hresult(CoCreateGuid(&guid));wchar_t id[40];StringFromGUID2(guid,id,40);temp=options.path+L"."+id+L".partial.mp4";
-   if(!GraphicsCaptureSession::IsSupported())throw hresult_error(E_NOTIMPL,L"Windows 屏幕捕获不可用。需要 Windows 10 2004（19041）或更新版本，以及可用的图形设备和用户桌面会话。");
+   if(!GraphicsCaptureSession::IsSupported())throw hresult_error(E_NOTIMPL,tr(L"Windows 屏幕捕获不可用。需要 Windows 10 2004（19041）或更新版本，以及可用的图形设备和用户桌面会话。",L"Windows screen capture is unavailable. It requires Windows 10 version 2004 (19041) or later, an available graphics device and an active desktop session."));
    com_ptr<ID3D11Device> d3d;com_ptr<ID3D11DeviceContext> context;
    check_hresult(D3D11CreateDevice(nullptr,D3D_DRIVER_TYPE_HARDWARE,nullptr,D3D11_CREATE_DEVICE_BGRA_SUPPORT,nullptr,0,D3D11_SDK_VERSION,d3d.put(),nullptr,context.put()));
    com_ptr<IInspectable> native;check_hresult(CreateDirect3D11DeviceFromDXGIDevice(d3d.as<IDXGIDevice>().get(),native.put()));
@@ -136,19 +137,19 @@ void DesktopRecorder::start(RecordingOptions options,std::function<void(Recordin
    if(options.window)check_hresult(factory->CreateForWindow(options.window,guid_of<GraphicsCaptureItem>(),put_abi(item)));
    else check_hresult(factory->CreateForMonitor(options.monitor,guid_of<GraphicsCaptureItem>(),put_abi(item)));
    const auto size=item.Size();const int width=size.Width/2*2,height=size.Height/2*2;
-   if(width<=0||height<=0||uint64_t(width)*height>40000000)throw std::runtime_error("Unsupported recording dimensions.");
+   if(width<=0||height<=0||uint64_t(width)*height>40000000)throw winrt::hresult_error(E_FAIL,tr(L"不支持此录屏尺寸。",L"Unsupported recording dimensions."));
    auto writer=snapliq::recording::makeMP4Writer(temp);
    DWORD videoStream=0;
    try{videoStream=snapliq::recording::addVideoStream(writer.get(),width,height);}
-   catch(const hresult_error& e){throw hresult_error(e.code(),L"无法为 "+std::to_wstring(width)+L" × "+std::to_wstring(height)+L" 屏幕创建 H.264 编码器。请更新显卡驱动；若分辨率过高，可降低显示分辨率后重试。Windows N/KN 需要安装 Media Feature Pack。\n"+std::wstring(e.message().c_str()));}
+   catch(const hresult_error& e){throw hresult_error(e.code(),std::wstring(tr(L"无法创建 H.264 编码器，屏幕尺寸：",L"Could not create an H.264 encoder for screen size: "))+std::to_wstring(width)+L" × "+std::to_wstring(height)+tr(L"。请更新显卡驱动；若分辨率过高，可降低显示分辨率后重试。Windows N/KN 需要安装 Media Feature Pack。\n",L". Update graphics drivers or try a lower display resolution. Windows N/KN requires the Media Feature Pack.\n")+std::wstring(e.message().c_str()));}
    std::unique_ptr<AudioSource> system,mic;DWORD audioStream=0;Mixer mixer;
    if(options.systemAudio){
     system=std::make_unique<AudioSource>();
-    try{system->start(true);}catch(const hresult_error& e){throw hresult_error(e.code(),L"无法录制系统声音，请检查默认播放设备，或在录屏设置中关闭系统声音。\n"+std::wstring(e.message().c_str()));}
+    try{system->start(true);}catch(const hresult_error& e){throw hresult_error(e.code(),tr(L"无法录制系统声音，请检查默认播放设备，或在录屏设置中关闭系统声音。\n",L"Could not record system audio. Check the default playback device or turn off system audio in recording settings.\n")+std::wstring(e.message().c_str()));}
    }
    if(options.microphone){
     mic=std::make_unique<AudioSource>();
-    try{mic->start(false);}catch(const hresult_error& e){throw hresult_error(e.code(),L"无法录制麦克风，请检查默认输入设备和 Windows 麦克风隐私权限，或在录屏设置中关闭麦克风。\n"+std::wstring(e.message().c_str()));}
+    try{mic->start(false);}catch(const hresult_error& e){throw hresult_error(e.code(),tr(L"无法录制麦克风，请检查默认输入设备和 Windows 麦克风隐私权限，或在录屏设置中关闭麦克风。\n",L"Could not record the microphone. Check the default input device and Windows microphone privacy permissions, or turn off the microphone in recording settings.\n")+std::wstring(e.message().c_str()));}
    }
    if(system||mic){
     com_ptr<IMFMediaType> out;MFCreateMediaType(out.put());out->SetGUID(MF_MT_MAJOR_TYPE,MFMediaType_Audio);out->SetGUID(MF_MT_SUBTYPE,MFAudioFormat_AAC);
@@ -159,7 +160,7 @@ void DesktopRecorder::start(RecordingOptions options,std::function<void(Recordin
     in->SetUINT32(MF_MT_AUDIO_BLOCK_ALIGNMENT,4);in->SetUINT32(MF_MT_AUDIO_AVG_BYTES_PER_SECOND,192000);
     check_hresult(writer->SetInputMediaType(audioStream,in.get(),nullptr));
    }
-   try{check_hresult(writer->BeginWriting());}catch(const hresult_error& e){throw hresult_error(e.code(),L"无法启动 MP4 编码器。请检查保存位置权限、剩余空间和 Windows 媒体组件；Windows N/KN 需要安装 Media Feature Pack。\n"+std::wstring(e.message().c_str()));}
+   try{check_hresult(writer->BeginWriting());}catch(const hresult_error& e){throw hresult_error(e.code(),tr(L"无法启动 MP4 编码器。请检查保存位置权限、剩余空间和 Windows 媒体组件；Windows N/KN 需要安装 Media Feature Pack。\n",L"Could not start the MP4 encoder. Check folder permissions, free space and Windows media components. Windows N/KN requires the Media Feature Pack.\n")+std::wstring(e.message().c_str()));}
    auto pool=Direct3D11CaptureFramePool::CreateFreeThreaded(device,DirectXPixelFormat::B8G8R8A8UIntNormalized,2,size);
    auto session=pool.CreateCaptureSession(item);session.IsCursorCaptureEnabled(true);
    std::optional<int64_t> origin;int64_t offset=0,pauseStarted=0,lastWritten=-1;bool wasPaused=false;com_ptr<IMFMediaBuffer> lastBuffer;
@@ -172,12 +173,12 @@ void DesktopRecorder::start(RecordingOptions options,std::function<void(Recordin
      if(paused&&!wasPaused){pauseStarted=clock;wasPaused=true;}
      if(!paused&&wasPaused){if(origin)offset+=std::max<int64_t>(0,clock-pauseStarted);wasPaused=false;}
      if(origin)elapsed_=std::max<int64_t>(0,(paused?pauseStarted:clock)-*origin-offset);
-     if(closed->load()){result.message=L"Capture source closed; saved available recording.";break;}
-     if(!origin&&GetTickCount64()-started>10000)throw std::runtime_error("Timed out waiting for the first capture frame.");
-     if(options.window&&!IsWindow(options.window)){result.message=L"Source window closed; saved available recording.";break;}
+     if(closed->load()){result.message=tr(L"捕获来源已关闭；已保存可用的录屏内容。",L"Capture source closed; saved available recording.");break;}
+     if(!origin&&GetTickCount64()-started>10000)throw winrt::hresult_error(E_FAIL,tr(L"等待录屏首帧超时。",L"Timed out waiting for the first capture frame."));
+     if(options.window&&!IsWindow(options.window)){result.message=tr(L"来源窗口已关闭；已保存可用的录屏内容。",L"Source window closed; saved available recording.");break;}
      auto frame=pool.TryGetNextFrame();
      if(frame){
-      auto actual=frame.ContentSize();if(actual.Width!=size.Width||actual.Height!=size.Height){result.message=L"Source size changed; recording stopped.";break;}
+      auto actual=frame.ContentSize();if(actual.Width!=size.Width||actual.Height!=size.Height){result.message=tr(L"来源尺寸发生变化，已停止录屏。",L"Source size changed; recording stopped.");break;}
       const int64_t raw=frame.SystemRelativeTime().count();
       if(!paused){
        if(!origin)origin=raw;
@@ -203,21 +204,21 @@ void DesktopRecorder::start(RecordingOptions options,std::function<void(Recordin
    }catch(const hresult_error& e){result.message=e.message().c_str();}catch(const std::exception& e){std::string text=e.what();result.message.assign(text.begin(),text.end());}
    stop_=true;
    // A device disappearing during stop must not bypass MP4 finalization.
-   finishStep(result,L"释放捕获事件失败",[&]{item.Closed(closedToken);});
-   finishStep(result,L"停止屏幕捕获失败",[&]{session.Close();});
-   finishStep(result,L"释放捕获缓冲失败",[&]{pool.Close();});
+   finishStep(result,tr(L"释放捕获事件失败",L"Could not release capture events"),[&]{item.Closed(closedToken);});
+   finishStep(result,tr(L"停止屏幕捕获失败",L"Could not stop screen capture"),[&]{session.Close();});
+   finishStep(result,tr(L"释放捕获缓冲失败",L"Could not release capture buffers"),[&]{pool.Close();});
    system.reset();mic.reset();
-   if(result.frames==0)throw std::runtime_error("No video frames captured.");
-   finishStep(result,L"写入视频结束帧失败",[&]{if(snapliq::recording::writeVideoTail(writer.get(),videoStream,lastBuffer.get(),elapsed_.load(),lastWritten))result.frames++;});lastBuffer=nullptr;
+   if(result.frames==0)throw winrt::hresult_error(E_FAIL,tr(L"未捕获到视频帧。",L"No video frames captured."));
+   finishStep(result,tr(L"写入视频结束帧失败",L"Could not write the final video frame"),[&]{if(snapliq::recording::writeVideoTail(writer.get(),videoStream,lastBuffer.get(),elapsed_.load(),lastWritten))result.frames++;});lastBuffer=nullptr;
    // Preserve captured video even if an audio device/encoder fails at stop.
-   if(options.systemAudio||options.microphone)finishStep(result,L"写入剩余声音失败",[&]{mixer.writeUntil(writer.get(),audioStream,mediaTicksToAudioFrames(lastWritten+snapliq::recording::videoFrameDuration));});
+   if(options.systemAudio||options.microphone)finishStep(result,tr(L"写入剩余声音失败",L"Could not write remaining audio"),[&]{mixer.writeUntil(writer.get(),audioStream,mediaTicksToAudioFrames(lastWritten+snapliq::recording::videoFrameDuration));});
    check_hresult(writer->Finalize());writer=nullptr;result.droppedAudio=mixer.dropped;
    if(!MoveFileEx(temp.c_str(),options.path.c_str(),MOVEFILE_WRITE_THROUGH))throw hresult_error(HRESULT_FROM_WIN32(GetLastError()));
    result.saved=true;result.path=options.path;
   }catch(const hresult_error& e){appendMessage(result,e.message().c_str());}catch(const std::exception& e){std::string text=e.what();appendMessage(result,std::wstring(text.begin(),text.end()));}
   if(!result.saved&&!temp.empty()){
    if(result.frames==0){DeleteFile(temp.c_str());}
-   else result.message+=L"\nPartial file (may be incomplete): "+temp;
+   else result.message+=tr(L"\n部分录屏文件（可能不完整）：",L"\nPartial file (may be incomplete): ")+temp;
   }
   active_=false;done(std::move(result));
  });}catch(...){active_=false;throw;}

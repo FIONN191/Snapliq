@@ -8,7 +8,7 @@ enum RecordingDestination {
         let folder:URL
         if preferences.defaults.data(forKey:"folderBookmark") != nil {
             guard let selected=preferences.folderURL else {
-                throw CaptureFailure.message("默认保存位置已失效。请在 Snapliq 设置中重新选择文件夹。")
+                throw CaptureFailure.message(L("默认保存位置已失效。请在 Snapliq 设置中重新选择文件夹。","The default save folder is unavailable. Choose another folder in Snapliq settings."))
             }
             folder=selected
         } else {
@@ -21,7 +21,7 @@ enum RecordingDestination {
         var isDirectory:ObjCBool=false
         guard fm.fileExists(atPath:folder.path,isDirectory:&isDirectory),isDirectory.boolValue,
               fm.isWritableFile(atPath:folder.path) else {
-            throw CaptureFailure.message("无法写入默认保存文件夹：\(folder.path)\n请在 Snapliq 设置中选择可用位置。")
+            throw CaptureFailure.message(L("无法写入默认保存文件夹：\(folder.path)\n请在 Snapliq 设置中选择可用位置。","Cannot write to the default save folder: \(folder.path)\nChoose an available folder in Snapliq settings."))
         }
         let formatter=DateFormatter();formatter.locale=Locale(identifier:"en_US_POSIX")
         formatter.dateFormat="yyyy-MM-dd_HH-mm-ss-SSS"
